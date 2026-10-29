@@ -1,0 +1,107 @@
+{
+ "command": "discover",
+ "n_bits": 2,
+ "n_states": 4,
+ "n_actions": 2,
+ "order": 2,
+ "trivial": false,
+ "n_orbits": 3,
+ "compression": 1.3333333333333333,
+ "orbits": [
+  [
+   0
+  ],
+  [
+   1,
+   2
+  ],
+  [
+   3
+  ]
+ ],
+ "elements": [
+  [
+   0,
+   2,
+   1,
+   3
+  ],
+  [
+   0,
+   1,
+   2,
+   3
+  ]
+ ],
+ "generators": [
+  [
+   0,
+   2,
+   1,
+   3
+  ]
+ ],
+ "diagnostics": {
+  "n_gens": 41,
+  "n_pass": 41,
+  "order": 2,
+  "worst_equiv": 0.0,
+  "sentinel_ok": true,
+  "sentinel_n": 2,
+  "n_classes": 3,
+  "n_involution": 0
+ },
+ "completeness": {
+  "label": "wuxing_gua discover",
+  "n_states": 4,
+  "n_actions": 2,
+  "order": 2,
+  "n_orbits": 3,
+  "n_wl_classes": 3,
+  "wl_gap": 1.0,
+  "action_probe": {
+   "n_candidates": 0,
+   "n_certificates": 0,
+   "actions_certified": []
+  },
+  "restart_probe": {
+   "batches_run": 3,
+   "n_candidates": 32,
+   "n_pass_equiv": 32,
+   "n_certificates": 0,
+   "per_batch": [
+    {
+     "batch": 0,
+     "n_candidates": 11,
+     "n_certificates": 0
+    },
+    {
+     "batch": 1,
+     "n_candidates": 10,
+     "n_certificates": 0
+    },
+    {
+     "batch": 2,
+     "n_candidates": 11,
+     "n_certificates": 0
+    }
+   ]
+  },
+  "affine_probe": {
+   "anchor_kind": "absorbing",
+   "n_candidates": 1,
+   "n_pass_equiv": 1,
+   "n_certificates": 0
+  },
+  "n_certificates": 0,
+  "order_after_union": null,
+  "completeness_score": 1.0,
+  "alert": false,
+  "verdict": "probe_exhausted_no_certificate",
+  "reasons": [
+   "重启搜索探针 3 批（候选 32 个，其中 32 个通过等变检验）+ 动作置换探针（候选 0 个）+ 仿射探针（候选 1 个）均未发现群外真对称。注意：探针穷尽 ≠ 完整性的证明"
+  ],
+  "assess_sec": 0.001
+ },
+ "note": "elements 字段可直接用作 group.json 的 elements（配 n_states=4）；用前建议先过 check 两层判据"
+}

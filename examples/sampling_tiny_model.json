@@ -1,0 +1,98 @@
+{
+ "n_bits": 2,
+ "n_actions": 2,
+ "n_states": 4,
+ "goals": [
+  3
+ ],
+ "meta": {
+  "source_system": "sampling-host teaching model: two independent switches (hand-constructed for this repository, not transcribed from a real system)",
+  "purpose": "host model for the check-sample example (examples/README.md, rung S). Its rewards depend only on the state you land on (+1 landing on the goal, -0.02 otherwise, 0 on the absorbing self-loop) -- the premise the sample-based reward layer needs. The other teaching models in this directory (tier1_starter_model.json, ticketfsm_milestones_model.json) have rewards that belong to the move or the action, and on those the sample-based verdict refuses at any sample size (see expected/sampling_ticketfsm_boundary_expected.json).",
+  "construction": "state = 2-bit string (switch_a = low bit, switch_b = high bit); action a = flip bit a (deterministic p=1.0, s -> s XOR 2**a); goal 11 (state 3) absorbing (self-loop, reward 0); reward +1.0 for a transition landing on state 3, -0.02 for any other transition",
+  "visible_symmetry": "swapping the two switches mirrors the machine: states 01 and 10 exchange, 00 and 11 stay put -- order 2, three orbits {0}, {1,2}, {3}",
+  "hand_table": {
+   "state_00": {
+    "act_0": "-> 01, r=-0.02",
+    "act_1": "-> 10, r=-0.02"
+   },
+   "state_01": {
+    "act_0": "-> 00, r=-0.02",
+    "act_1": "-> 11, r=+1.0"
+   },
+   "state_10": {
+    "act_0": "-> 11, r=+1.0",
+    "act_1": "-> 00, r=-0.02"
+   },
+   "state_11": {
+    "act_0": "-> 11 (absorbing, r=0)",
+    "act_1": "-> 11 (absorbing, r=0)"
+   }
+  }
+ },
+ "trans": [
+  [
+   [
+    [
+     1.0,
+     1,
+     -0.02
+    ]
+   ],
+   [
+    [
+     1.0,
+     2,
+     -0.02
+    ]
+   ]
+  ],
+  [
+   [
+    [
+     1.0,
+     0,
+     -0.02
+    ]
+   ],
+   [
+    [
+     1.0,
+     3,
+     1.0
+    ]
+   ]
+  ],
+  [
+   [
+    [
+     1.0,
+     3,
+     1.0
+    ]
+   ],
+   [
+    [
+     1.0,
+     0,
+     -0.02
+    ]
+   ]
+  ],
+  [
+   [
+    [
+     1.0,
+     3,
+     0.0
+    ]
+   ],
+   [
+    [
+     1.0,
+     3,
+     0.0
+    ]
+   ]
+  ]
+ ]
+}

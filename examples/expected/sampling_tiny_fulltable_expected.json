@@ -1,0 +1,30 @@
+{
+ "sample": "sampling_tiny_model.json + sampling_tiny_group.json (= discover stdout on the same model, saved verbatim)",
+ "model_provenance": "hand-constructed sampling host (construction in the model meta); the full-table verdict the sample-based verdicts below are compared against",
+ "recorded_date": "2026-10-28",
+ "reproduce": [
+  "python -X utf8 -m wuxing_gua check --trans examples/sampling_tiny_model.json --group examples/sampling_tiny_group.json"
+ ],
+ "expected_exit_code": 0,
+ "timing_note": "exit codes and every number below are deterministic; wall-clock timings are magnitude-only and deliberately not recorded here (single-run timings drift)",
+ "check": {
+  "exit_code": 0,
+  "verdict": "pass",
+  "group_order": 2,
+  "n_orbits": 3,
+  "compression": 1.3333333333333333,
+  "layer_transition": {
+   "passed": true,
+   "mode": "all_elements",
+   "n_checked": 2,
+   "n_failed": 0,
+   "worst_tv": 0.0,
+   "tol": 1e-09
+  },
+  "layer_reward_profile": {
+   "passed": true,
+   "n_pair": 1,
+   "n_bad": 0
+  }
+ }
+}

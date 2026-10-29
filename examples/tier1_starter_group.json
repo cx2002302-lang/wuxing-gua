@@ -1,0 +1,175 @@
+{
+ "command": "discover",
+ "n_bits": 3,
+ "n_states": 8,
+ "n_actions": 3,
+ "order": 6,
+ "trivial": false,
+ "n_orbits": 4,
+ "compression": 2.0,
+ "orbits": [
+  [
+   0
+  ],
+  [
+   1,
+   2,
+   4
+  ],
+  [
+   3,
+   5,
+   6
+  ],
+  [
+   7
+  ]
+ ],
+ "elements": [
+  [
+   0,
+   4,
+   1,
+   5,
+   2,
+   6,
+   3,
+   7
+  ],
+  [
+   0,
+   2,
+   4,
+   6,
+   1,
+   3,
+   5,
+   7
+  ],
+  [
+   0,
+   1,
+   4,
+   5,
+   2,
+   3,
+   6,
+   7
+  ],
+  [
+   0,
+   4,
+   2,
+   6,
+   1,
+   5,
+   3,
+   7
+  ],
+  [
+   0,
+   2,
+   1,
+   3,
+   4,
+   6,
+   5,
+   7
+  ],
+  [
+   0,
+   1,
+   2,
+   3,
+   4,
+   5,
+   6,
+   7
+  ]
+ ],
+ "generators": [
+  [
+   0,
+   4,
+   1,
+   5,
+   2,
+   6,
+   3,
+   7
+  ],
+  [
+   0,
+   1,
+   4,
+   5,
+   2,
+   3,
+   6,
+   7
+  ]
+ ],
+ "diagnostics": {
+  "n_gens": 85,
+  "n_pass": 85,
+  "order": 6,
+  "worst_equiv": 0.0,
+  "sentinel_ok": true,
+  "sentinel_n": 6,
+  "n_classes": 4,
+  "n_involution": 0
+ },
+ "completeness": {
+  "label": "wuxing_gua discover",
+  "n_states": 8,
+  "n_actions": 3,
+  "order": 6,
+  "n_orbits": 4,
+  "n_wl_classes": 4,
+  "wl_gap": 1.0,
+  "action_probe": {
+   "n_candidates": 0,
+   "n_certificates": 0,
+   "actions_certified": []
+  },
+  "restart_probe": {
+   "batches_run": 3,
+   "n_candidates": 69,
+   "n_pass_equiv": 69,
+   "n_certificates": 0,
+   "per_batch": [
+    {
+     "batch": 0,
+     "n_candidates": 25,
+     "n_certificates": 0
+    },
+    {
+     "batch": 1,
+     "n_candidates": 20,
+     "n_certificates": 0
+    },
+    {
+     "batch": 2,
+     "n_candidates": 24,
+     "n_certificates": 0
+    }
+   ]
+  },
+  "affine_probe": {
+   "anchor_kind": "absorbing",
+   "n_candidates": 3,
+   "n_pass_equiv": 3,
+   "n_certificates": 0
+  },
+  "n_certificates": 0,
+  "order_after_union": null,
+  "completeness_score": 1.0,
+  "alert": false,
+  "verdict": "probe_exhausted_no_certificate",
+  "reasons": [
+   "重启搜索探针 3 批（候选 69 个，其中 69 个通过等变检验）+ 动作置换探针（候选 0 个）+ 仿射探针（候选 3 个）均未发现群外真对称。注意：探针穷尽 ≠ 完整性的证明"
+  ],
+  "assess_sec": 0.004
+ },
+ "note": "elements 字段可直接用作 group.json 的 elements（配 n_states=8）；用前建议先过 check 两层判据"
+}

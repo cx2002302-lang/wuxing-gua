@@ -1,0 +1,30 @@
+# wuxing-gua 发行配置
+#
+# ── 形态说明：为什么 packages 里除了 wuxing_gua 还有 src ─────────────────
+# wuxing_gua/__init__.py 在 import 时要求「包目录的上一级」存在 src/ 研究代码
+# （判据核心直接 import 复用 src/ 下的研究实现，未复制、未改写；
+# 出处逐文件注明在 wuxing_gua/README.md「文件结构与出处」表）。
+# 因此发行包必须同时携带 wuxing_gua 与 src 两个顶层目录；只装 wuxing_gua 单包
+# 会在 import 时 ImportError（找不到 <安装目录>/src），这是设计使然，不是打包缺陷。
+#
+# ── 验证口径（Windows / Python 3.12.10 / setuptools 78.1.0 / pip 25.0.1 实测）──
+#   python -m pip install . --target <项目外临时目录> --no-build-isolation
+#   cd <临时目录> && python -X utf8 -m wuxing_gua selftest
+#   → selftest 13/13 分支 PASS，退出码 0（全树自带 13 分支自检，安装后即可复验）
+
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "wuxing-gua"
+version = "0.1.0"
+description = "黑盒转移数据上、状态压缩之前判对称群能不能用；不能用就拒答（纯标准库 CLI）"
+readme = "wuxing_gua/README.md"
+requires-python = ">=3.10"
+license = {text = "MIT"}
+
+[tool.setuptools]
+# wuxing_gua = CLI 封装层；src = 判据研究代码（wuxing_gua 运行期 import 它，
+# 理由见本文件头顶注释）。两个都装，<安装目录> 本身即一棵可自检的完整树。
+packages = ["wuxing_gua", "src"]

@@ -1,0 +1,29 @@
+{
+ "sample": "ticketfsm_milestones_model.json + ticketfsm_group_found.json (= discover stdout on the same model, saved verbatim)",
+ "recorded_date": "2026-10-28",
+ "reproduce": [
+  "python -X utf8 -m wuxing_gua check --trans examples/ticketfsm_milestones_model.json --group examples/ticketfsm_group_found.json"
+ ],
+ "expected_exit_code": 0,
+ "timing_note": "exit codes and every number below are deterministic; wall-clock timings are magnitude-only and deliberately not recorded here (single-run timings drift)",
+ "check": {
+  "exit_code": 0,
+  "verdict": "pass",
+  "group_order": 2,
+  "n_orbits": 24,
+  "compression": 1.3333333333333333,
+  "layer_transition": {
+   "passed": true,
+   "mode": "all_elements",
+   "n_checked": 2,
+   "n_failed": 0,
+   "worst_tv": 0.0,
+   "tol": 1e-09
+  },
+  "layer_reward_profile": {
+   "passed": true,
+   "n_pair": 8,
+   "n_bad": 0
+  }
+ }
+}

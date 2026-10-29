@@ -1,0 +1,30 @@
+{
+ "sample": "ticketfsm_milestones_model.json + ticketfsm_wrong_swap_group.json",
+ "group_provenance": "hand-built order-2 candidate swapping milestone bits dispatched<->accepted (construction in the group file meta); the tempting neighbour swap next to the found accepted<->en-route symmetry",
+ "recorded_date": "2026-10-28",
+ "reproduce": [
+  "python -X utf8 -m wuxing_gua check --trans examples/ticketfsm_milestones_model.json --group examples/ticketfsm_wrong_swap_group.json"
+ ],
+ "expected_exit_code": 1,
+ "timing_note": "exit codes and every number below are deterministic; wall-clock timings are magnitude-only and deliberately not recorded here (single-run timings drift)",
+ "check": {
+  "exit_code": 1,
+  "verdict": "reject",
+  "group_order": 2,
+  "n_orbits": 24,
+  "layer_transition": {
+   "passed": false,
+   "mode": "all_elements",
+   "n_checked": 2,
+   "n_failed": 1,
+   "worst_tv": 1.0,
+   "tol": 1e-09
+  },
+  "layer_reward_profile": {
+   "passed": false,
+   "n_pair": 8,
+   "n_bad": 7
+  },
+  "first_bad_reason": "转移分布在 π 映射下的 TV 超过容忍（判据 max TV=0 零容忍）"
+ }
+}

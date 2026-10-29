@@ -1,0 +1,18 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+build/
+dist/
+
+# 运行产物（demo 夹具、discover/check 输出）
+demo_fixtures/
+*_fixtures/
+group_discovered.json
+
+# OS
+.DS_Store
+Thumbs.db
+
+# 发布者本地核对单（记录脱敏处置原名映射，仅供推送前人工参考，勿随仓库发布）
+PUSH-CHECKLIST.md
