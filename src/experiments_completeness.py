@@ -134,7 +134,7 @@ def _absorbing_states(trans, n_actions):
 def _bit_perm_maps(n_bits):
     """仿射探针的 σ 候选（状态位串口径）：恒等 + 全部对换 (i,j)。
 
-    ⚠️ 2026-10-27 修复（GameWXXX 案例修复）：形参是
+    ⚠️ 2026-10-27 修复（游戏案例修复）：形参是
     **状态位串位宽 n_bits**（n_states = 2^n_bits），不是动作数。原实现按
     n_actions 造域（长度 2^n_actions），而调用方按状态数 NS 索引 ⇒ 一旦
     n_states != 2**n_actions 就 IndexError。历史全部校准环境（Q_n：n_actions=n、

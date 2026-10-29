@@ -1,0 +1,15 @@
+{
+ "anchors": [
+  "E12"
+ ],
+ "excerpt_of": "pilot/gw_padaware_run.json",
+ "excerpted_on": "2026-10-29",
+ "fields": {
+  "meta.wall_main_stage_sec": 277.2,
+  "stage_main.main_checks.pad_all_fixed": true,
+  "stage_main.main_checks.subset_aut75": true,
+  "stage_main.main_plain.order": 5,
+  "stage_main.main_plain.returncode": 0
+ },
+ "note": "Verbatim excerpt of the cited fields from the research repository's record. The research repository is NOT part of this release; the mother path is published only as provenance. Values are copied without rounding or edits."
+}

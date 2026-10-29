@@ -28,7 +28,7 @@ wall-clock numbers drift); exact durations live in the records.
   `encoding='utf-8'`.
 - **Freeze the criteria.** Never modify judging code to make a result pass.
   Fixes to search or diagnostics go together with a selftest regression run
-  (`python -X utf8 -m wuxing_gua selftest`, 13 branches) and, where behavior
+  (`python -X utf8 -m wuxing_gua selftest`, 15 branches) and, where behavior
   changes, an entry in `CHANGELOG.md`.
 - **Refusal is a feature.** Exit codes 1 (reject), 2 (insufficient samples) and
   3 (error) are load-bearing. Do not add paths that turn uncertainty into a
@@ -42,7 +42,7 @@ wall-clock numbers drift); exact durations live in the records.
 
 ## Pull request checklist
 
-- [ ] `python -X utf8 -m wuxing_gua selftest` passes (13 branches).
+- [ ] `python -X utf8 -m wuxing_gua selftest` passes (15 branches).
 - [ ] Every new number in docs is anchored in `docs/evidence.md`.
 - [ ] New behavior has a selftest branch or a documented reason not to.
 - [ ] `CHANGELOG.md` updated under an "Unreleased" heading if user-visible.

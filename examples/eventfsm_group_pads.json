@@ -1,0 +1,33 @@
+{
+ "n_states": 8,
+ "elements": [
+  [
+   0,
+   1,
+   2,
+   3,
+   4,
+   5,
+   6,
+   7
+  ],
+  [
+   0,
+   1,
+   2,
+   5,
+   4,
+   3,
+   6,
+   7
+  ]
+ ],
+ "semantics": {
+  "action": "fixed"
+ },
+ "meta": {
+  "construction": "order-2 group swapping the two unreachable padding states 3 and 5: a genuine symmetry under both readings because padding rows reference no event",
+  "why_fixed_passes": "with event names pinned the swap still maps every event-labeled arrow to itself: padding states have no arrows that name an event",
+  "regenerate": "python -X utf8 examples/make_eventfsm_samples.py"
+ }
+}

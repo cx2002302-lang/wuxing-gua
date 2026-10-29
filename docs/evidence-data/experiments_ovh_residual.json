@@ -1,0 +1,13 @@
+{
+ "anchors": [
+  "E36"
+ ],
+ "excerpt_of": "experiments_ovh_residual.json",
+ "excerpted_on": "2026-10-29",
+ "fields": {
+  "analysis.R1_slp_depth.statistics[0].p_value": 0.172409,
+  "analysis.R1_slp_depth.statistics[0].partial_rho": 0.4599,
+  "analysis.R1_slp_depth.statistics[0].rho": -0.2604
+ },
+ "note": "Verbatim excerpt of the cited fields from the research repository's record. The research repository is NOT part of this release; the mother path is published only as provenance. Values are copied without rounding or edits."
+}

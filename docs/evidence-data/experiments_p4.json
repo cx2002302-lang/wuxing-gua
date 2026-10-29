@@ -1,0 +1,13 @@
+{
+ "anchors": [
+  "E23"
+ ],
+ "excerpt_of": "experiments_p4.json",
+ "excerpted_on": "2026-10-29",
+ "fields": {
+  "false_pass.false": 0,
+  "false_pass.n": 100,
+  "false_pass.rate": 0.0
+ },
+ "note": "Verbatim excerpt of the cited fields from the research repository's record. The research repository is NOT part of this release; the mother path is published only as provenance. Values are copied without rounding or edits."
+}

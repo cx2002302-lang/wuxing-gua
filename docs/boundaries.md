@@ -82,6 +82,12 @@ common practical questions in `docs/faq.md`.
    out of scope. The case studies make this concrete: abstract automorphism
    groups of 75 and 375 elements shrink to 5 and 25 on the encoding
    (anchors E9, E14).
+   Since 2026-10-29 one more shape exists: models with `n_actions > n_bits`
+   (event-driven machines) run `check` under the generalized judge, while
+   `discover` refuses them at the entry gate — its candidate search is built
+   on the bit-string action convention. Declare the action reading in the
+   group file (`semantics`: `relabel` / `fixed`); see
+   [judge-semantics.md](judge-semantics.md) and rung 1c in `examples/`.
 2. **The trivial group always passes `check`.** `check` answers "is this group
    legal", not "is it useful"; an order-1 group is vacuously legal. Use
    `discover` to find groups, `check` to verify them.

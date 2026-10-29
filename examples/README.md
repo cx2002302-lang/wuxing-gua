@@ -1,23 +1,31 @@
 # Examples
 
-Six worked examples arranged as a ladder. The bottom two rungs are minimal
-teaching models you can draw on paper; the top three are finite-state-machine
-transition models hand-transcribed from the source code of existing software
-systems (with every transcription rule checked against the cited source lines
-at extraction time); rung S in between adds sampled trajectory logs — the
-input shape the sample-based verifier `check-sample` is built for — on a
-4-state host you can also draw on paper. All six are analyzed with the
-`wuxing_gua` CLI.
+Eight worked examples arranged as a ladder. Four of them are hand-constructed
+teaching models (rungs 0, R, 1a and 1c): rungs 0 and R are small enough to draw
+on paper, rung 1a is shaped like an ordinary two-channel reconciliation job
+and exists to show what one missing business constraint does to the answer,
+and rung 1c is a close-fragment with event-labeled edges that shows why the
+tool asks you to declare what your actions *are*. The
+top three are finite-state-machine transition models hand-transcribed from the
+source code of existing software systems (with every transcription rule checked
+against the cited source lines at extraction time); rung S in between adds
+sampled trajectory logs — the input shape the sample-based verifier
+`check-sample` is built for — on a 4-state host you can also draw on paper. All
+eight are analyzed with the `wuxing_gua` CLI.
 
 These are static models. Nothing in this repository is a claim about live
 production behavior of those systems; what the examples demonstrate is how
 the tool behaves on state machines of this shape and scale.
 
 All expected outputs below were produced by running the exact commands shown
-against the exact files in this directory. Group-theory terms used below
-(symmetry group, orbit, order, generator) are defined in one line each in
-`docs/glossary.md`; every field of the JSON output is explained in plain
-language in `docs/interpreting-output.md`.
+against the exact files in this directory. Four terms recur throughout, so here
+here they are, once: a **symmetry group** is a set of renamings that
+leaves the system's behavior unchanged; an **orbit** is a batch of states those
+renamings can carry into one another — one class, one representative; the
+**order** is how many renamings the set contains; a **generator** is a few
+renamings whose combinations already produce all the rest. Longer definitions
+with examples: [glossary](../docs/glossary.md). Every field of the JSON output
+is explained in plain language in [interpreting-output](../docs/interpreting-output.md).
 
 ## The ladder
 
@@ -25,15 +33,21 @@ language in `docs/interpreting-output.md`.
 |---|---|---|---|---|
 | 0 — starter | `tier1_starter_model.json` + `tier1_starter_group.json` | 8 | see a symmetry on paper; `discover` finds it, `check` blesses it | 0, 0 |
 | R — refusal | `tier1_xor_goalswap_group.json` on the same model | 8 | a candidate that looks legal; read the certified refusal | 1 |
-| 1 | `ticketfsm_milestones_model.json` | 32 | `discover` **finding** a group by itself on the smallest real system | 0 |
+| 1a | `dualchannel_guarded_model.json` (+ `dualchannel_model.json` contrast, two candidate groups) | 16 | one business constraint cuts the symmetry from 24 relabelings to 2 | 0, 0, 1 |
+| 1c | `eventfsm_model.json` + three candidate groups | 4 reachable (+ 4 padding) | event-driven actions: the same swap passes or is refused depending on the *declared* action reading | 0, 1, 0 (`discover` refuses: 3) |
+| 1b | `ticketfsm_milestones_model.json` | 32 | `discover` **finding** a group by itself on the smallest real system | 0 |
 | S — sampling | `sampling_tiny_model.json` + `sampling_tiny_group.json` + `samples_tiny_*.jsonl` (+ ticketfsm boundary demo) | 4 host (+ 32) | when all you have are logs: abstain below the power requirement, pass at the calibrated budget — and the boundary where the sample layer must refuse at any size | 2, 0, 1 |
 | 2 | `gw_chainrot_model.json` + `gw_chainrot_group_h.json` | 512 | `check` carrying the load once a hand-derived candidate exists | 0 |
 | 3 | `gw_teambattle_model.json` + `gw_teambattle_group_h.json` | 16,384 | `check` at the scale ceiling where discovery hands over | 0 |
 
 Start at rung 0 if you have never seen a symmetry group before; start at
-rung 1 if you only want the tool on a real system. Rung S is for when all you
+rung 1b if you only want the tool on a real system. Rung S is for when all you
 have are logged `(state, action, next-state, reward)` tuples instead of the
-full table. Rungs R, 2 and 3 show
+full table. Rung 1a is the one to read if you have never used a tool like this on your own
+system: it shows what a single missing business constraint does to the answer.
+Rung 1c is the one to read if your actions are external events (protocol
+messages, user operations) rather than state bits: it shows why the tool asks
+you to declare that, and what either answer costs. Rungs R, 2 and 3 show
 **verification** carrying the load once a candidate group exists — R also
 shows what a refusal looks like and how to read it.
 
@@ -56,8 +70,8 @@ point is that you can hold it in your head:
 
 - 8 states = the 8 corners of a cube, numbered as 3-bit strings;
 - 3 actions, action `a` = "flip bit `a`" (deterministic, p = 1.0);
-- the corner `111` (state 7) is the goal: absorbing — every action self-loops,
-  reward 0;
+- the corner `111` (state 7) is the goal: absorbing — every action self-loops
+  (stays put), reward 0;
 - reward: +1 for a move up the cube (popcount +1), −1 for a move down.
 
 ```
@@ -96,16 +110,22 @@ python -X utf8 -m wuxing_gua check --trans examples/tier1_starter_model.json --g
 ```
 
 The committed `tier1_starter_group.json` is discover's own stdout saved
-verbatim — a discover output JSON is itself a valid group file. Re-running
-discover reproduces it exactly, except wall-clock timing fields (which drift
-by design and are not part of the answer).
+verbatim — a discover output JSON is itself a valid group file — with one
+hand-added block: `"semantics": {"action": "relabel"}` (added 2026-10-29,
+see rung 1c for why this declaration exists; discover stamps its own output
+`assumed: true`, and the committed file replaces that stamp with the example
+authors' explicit declaration — this model is switch-class, so relabel is the
+right reading). Re-running discover reproduces everything else exactly, except
+wall-clock timing fields (which drift by design and are not part of the
+answer).
 
 **Step 3 — read the output against the record.** Open
 `examples/expected/tier1_starter_expected.json` — recorded from a real run of
 the two commands above — and tick it line by line:
 
 - `discover`: exit code **0** — `"order": 6`, `"n_orbits": 4`,
-  `"compression": 2.0`, `"trivial": false`. The two `"generators"` are read as
+  `"compression": 2.0`, `"trivial": false` (false = not just the do-nothing
+group). The two `"generators"` are read as
   "position s holds the image of state s": `[0,4,1,5,2,6,3,7]` maps corner
   `001` to `100` (it swaps the bit-0 and bit-2 axes) and `[0,1,4,5,2,3,6,7]`
   swaps the bit-1/bit-2 axes — the two visible axis swaps; composing them
@@ -116,7 +136,8 @@ the two commands above — and tick it line by line:
   `layer_transition`: 6/6 elements checked, `worst_tv` 0.0 (zero tolerance:
   every element permutes every successor exactly);
   `layer_reward_profile`: `n_bad` 0 of `n_pair` 6 (states in the same shell
-  have identical reward profiles — the +1/−1 rule is shell-symmetric).
+  have identical reward profiles (the same payoff per action) — the +1/−1
+rule is shell-symmetric).
 
 The tool found, on its own, exactly the group you saw on paper — and refused
 to claim anything bigger.
@@ -163,28 +184,175 @@ means, and what to do next, is in `docs/interpreting-output.md` (the
 transitions-only group that breaks rewards, and the sample-based abstain —
 are one command away in the demo sandbox (`docs/quickstart.md`).
 
+## Rung 1a — two-channel reconciliation (16 states): one constraint, 24 relabelings become 2
+
+`dualchannel_guarded_model.json` is a hand-constructed teaching model —
+generated, deterministically and byte-identically, by `make_dualchannel_samples.py`
+in this directory (`python -X utf8 examples/make_dualchannel_samples.py --check`
+re-verifies the byte identity). Like the starter cube it is *not* transcribed
+from a real system; unlike the starter cube it is shaped like something you
+have probably written.
+
+The shape: one order goes through two payment channels A and B at once. Each
+channel has two steps — collect, then reconcile. Four bits, sixteen states:
+
+| bit | meaning |
+|---|---|
+| 0 | A collected |
+| 1 | A reconciled |
+| 2 | B collected |
+| 3 | B reconciled |
+
+Four actions set bit `a`. A successful set pays +1; a repeat, or a reconciling
+step whose own channel has not collected yet, self-loops at −1; the goal
+`1111` self-loops at 0.
+
+**The whole rung is one contrast: same four bits, one business constraint
+present or absent.**
+
+```bash
+python -X utf8 -m wuxing_gua discover --trans examples/dualchannel_model.json
+python -X utf8 -m wuxing_gua discover --trans examples/dualchannel_guarded_model.json
+```
+
+**What you'll see:** the unguarded model returns `"order": 24`, `"n_orbits": 5`,
+`"compression": 3.2`; the guarded model returns `"order": 2`, `"n_orbits": 10`,
+`"compression": 1.6`. Both exit code **0**.
+
+**What it means:** 24 = 4!, i.e. *any* of the four stages may trade names with
+any other. That is correct **for the model as written** — the unguarded file
+carries no information about which step must precede which. Encode the real
+rule ("inside a channel, reconcile comes after collect") and the same search
+finds only 2: the two channels trading places, because they are structurally
+identical. Same code, one constraint, 24 relabelings collapse to 2.
+
+This is the failure mode the tool exists to prevent, in miniature. Take the 24
+reading, feed it to a compression pass, and the compressed system computes
+wrong answers without ever raising an error — not because the tool lied, but
+because the model it was handed did not describe the system.
+
+**Then judge the two candidates.** The admitted one swaps the channels; the
+refused one swaps collect against reconcile *inside* channel A:
+
+```bash
+python -X utf8 -m wuxing_gua check --trans examples/dualchannel_guarded_model.json --group examples/dualchannel_guarded_group.json
+python -X utf8 -m wuxing_gua check --trans examples/dualchannel_guarded_model.json --group examples/dualchannel_wrong_group.json
+```
+
+**What you'll see:** the channel swap gives `"verdict": "pass"`, exit code
+**0**, 2/2 elements at `"worst_tv": 0.0`, 0 bad of 6 reward pairs. The
+within-channel swap gives `"verdict": "reject"`, exit code **1**, 1 of 2
+elements failing the transition layer at `"worst_tv": 1.0`.
+
+**What it means — and this is the part worth stopping on:** the refused
+candidate **passes the reward layer** (0 bad of 4 pairs). Only the transition
+layer catches it. Swapping collect and reconcile inside one channel leaves
+every state's reward profile accidentally self-consistent, while the
+prerequisite makes "reconcile before collect" reachable and "collected but
+never reconcilable" illegal — a difference visible only by walking the arrows.
+
+That is why the criterion has two layers rather than one: the reward layer
+checks whether same-orbit states show consistent payoffs, the transition layer
+checks whether the arrows still line up. Rung R's candidate fails both, which
+can leave the impression that they always fail together; this rung supplies
+the counter-example where exactly one layer does the work, and one layer is
+enough to refuse.
+
+Recorded from the real runs in `expected/dualchannel_expected.json`.
+
+## Rung 1c — an event-driven close fragment (4 reachable states): declare what your actions are
+
+`eventfsm_model.json` is a hand-constructed teaching model — generated,
+deterministically and byte-identically, by `make_eventfsm_samples.py` in this
+directory (`python -X utf8 examples/make_eventfsm_samples.py --check`
+re-verifies the byte identity). It is shaped like a TCP-style close handshake,
+compressed to four reachable states on three bits (plus four unreachable
+padding states — the power-of-two input contract, same transcription rule as
+the 512- and 16,384-state real cases):
+
+| state | meaning | | event | meaning |
+|---|---|---|---|---|
+| 0 | open | | 0 | rcv FIN |
+| 1 | wait-fin (our FIN is out) | | 1 | rcv ACK of FIN |
+| 2 | closing (both FINs out) | | 2 | snd FIN |
+| 4 | time-wait (goal, absorbing) | | 3 | rcv RST |
+
+The two wait states 1 and 2 are **structurally identical**: each has exactly
+one outgoing edge into the goal and otherwise only penalized self-loops. But
+the events on those edges differ — state 1 completes when *the peer's FIN
+arrives*, state 2 when *the peer acknowledges our FIN*. Whether swapping them
+is a symmetry depends entirely on whether event names may travel with the
+states — and that is not the tool's call to make:
+
+```bash
+python -X utf8 -m wuxing_gua check --trans examples/eventfsm_model.json --group examples/eventfsm_group_pads.json
+python -X utf8 -m wuxing_gua check --trans examples/eventfsm_model.json --group examples/eventfsm_group_swap_fixed.json
+python -X utf8 -m wuxing_gua check --trans examples/eventfsm_model.json --group examples/eventfsm_group_swap_relabel.json
+```
+
+**What you'll see:**
+
+- the padding-state swap (`..._group_pads.json`, declares
+  `"semantics": {"action": "fixed"}`) → `"verdict": "pass"`, exit code **0**,
+  2/2 elements at `worst_tv` 0.0, `layer_transition.judge: "strict"` — the
+  positive control: padding rows reference no event, so this is a genuine
+  symmetry with event names pinned;
+- the wait-state swap declaring `fixed` (`..._group_swap_fixed.json`) →
+  `"verdict": "reject"`, exit code **1**, 1 of 2 elements failing at
+  `worst_tv` 1.0 — and the **reward layer passes it** (0 bad of 1 pair): only
+  the transition layer, under the pinned-event reading, catches the swap;
+- the **same elements** declaring `relabel` (`..._group_swap_relabel.json`) →
+  `"verdict": "pass"`, exit code **0**, `judge: "generalized"` — the default
+  reading renames `rcv FIN` into `rcv ACK of FIN` along with the states and
+  waves the swap through.
+
+**What it means:** one candidate group, two opposite verdicts, and the only
+difference is the declared reading. Merging "the peer sent FIN" with "the peer
+acknowledged" is a protocol error — for an event-driven system the `fixed`
+verdict is the correct one, and the `relabel` pass is exactly the
+business-invalid admission the two readings differ on. For a switch-class
+system the roles reverse (rungs 0/1a/1b pass their true symmetries only under
+`relabel`). Every group file in this directory now carries its declaration;
+the check output records how it was resolved (`semantics`,
+`semantics_assumed`) and warns loudly when nothing was declared.
+
+Two boundaries worth noticing: `discover` refuses this model at the entry gate
+(exit code **3**) because its candidate search is built on the bit-string
+action convention (`n_actions <= n_bits`) — event-class models are judged by
+deriving candidates by hand and running `check`, exactly as this rung does.
+And the reward layer alone can never see an event renaming (it compares
+reward profiles as sorted per-action multisets) — which is why the fixed
+reading matters.
+
+Which reading does *your* system need? Three questions and the full
+declaration syntax: [judge-semantics](../docs/judge-semantics.md). Both
+readings of this rung are recorded in
+`expected/eventfsm_expected.json`.
+
 ## The three real case studies
 
-Positioned to be non-overlapping with the teaching rungs: 1 shows the tool
+Positioned to be non-overlapping with the teaching rungs: 1b shows the tool
 **finding** a group by itself on the smallest real system; 2 and 3 show
 **verification** carrying the load once a candidate group exists — 2 in the
-padding-repair band, 3 at the scale ceiling where discovery hands over to
+padding-repair band (models padded up to a power of two), 3 at the scale
+ceiling where discovery hands over to
 hand-derived candidates.
 
 ## The three models
 
 | # | Model | States (real + padding) | Actions | Command used |
 |---|---|---|---|---|
-| 1 | `ticketfsm_milestones_model.json` | 32 | 5 | `discover` |
+| 1b | `ticketfsm_milestones_model.json` | 32 | 5 | `discover` |
 | 2 | `gw_chainrot_model.json` + `gw_chainrot_group_h.json` | 512 (465 + 47) | 7 | `check` |
 | 3 | `gw_teambattle_model.json` + `gw_teambattle_group_h.json` | 16,384 (14,415 + 1,969) | 11 | `check` |
 
 The padding states in models 2 and 3 exist because the tool's input contract is
-bit-string shaped (`n_states = 2**n_bits`); states that the original system
+bit-string shaped (states written as strings of 0s and 1s, so the count must
+be a power of two: `n_states = 2**n_bits`); states that the original system
 cannot reach are transcribed as self-loop rows with zero reward. See
 `docs/boundaries.md` for what this implies.
 
-## 1. Work-order milestone state machine (32 states)
+## 1b. Work-order milestone state machine (32 states)
 
 A ticket-fulfillment workflow encoded as five milestone bits (dispatched /
 accepted / en-route / completed / closed), with per-action preconditions
@@ -214,8 +382,8 @@ Expected output (JSON on stdout):
 Exit code: **0** (a non-trivial group was found).
 
 The order-2 result matches an independent brute-force enumeration over the
-permutations of the 32-state model, which also fixes the true automorphism group
-at exactly 2 — the guard structure of the workflow admits this one non-trivial
+permutations of the 32-state model, which also fixes the true automorphism
+group (an automorphism is a symmetry of the system with itself) at exactly 2 — the guard structure of the workflow admits this one non-trivial
 symmetry and nothing else (`docs/evidence.md`, anchors E4, E5).
 
 Note the reading vs. benefit distinction: 32 states reduce to 24 orbits
@@ -225,7 +393,9 @@ group itself — the tool certifies that no larger exploitable symmetry exists.
 ### The control pair: the found group vs. a tempting wrong one
 
 Save discover's stdout — it is already a valid group file, committed here as
-`ticketfsm_group_found.json` — and judge it against the full table. Then judge a
+`ticketfsm_group_found.json` (plus the hand-added
+`"semantics": {"action": "relabel"}` declaration, see rung 1c) — and judge it
+against the full table. Then judge a
 candidate that looks every bit as legal
 (`ticketfsm_wrong_swap_group.json`: the swap of the *dispatched/accepted* bits,
 the neighbouring pair next to the found accepted/en-route symmetry):
@@ -263,7 +433,8 @@ The rungs above judge a full transition table. Often all you have is a log of
 its rewards belong to the state you land on (+1 landing on the goal, −0.02
 otherwise) — the one premise the sample-based reward layer needs. The
 committed `sampling_tiny_group.json` is discover's stdout on the host model
-saved verbatim; the visible symmetry is the swap of the two switches
+saved verbatim (plus the hand-added `"semantics": {"action": "relabel"}`
+declaration — see rung 1c); the visible symmetry is the swap of the two switches
 (states 1<->2), order 2, three orbits.
 
 ```
@@ -336,7 +507,7 @@ rather than the landing state, the sample layer refuses at any sample size —
 which is the next command.
 
 **Boundary demo — a valid group the sample layer must refuse:** the ticketfsm
-workflow from rung 1, sampled. Generate 50,000 logged trajectories from the
+workflow from rung 1b, sampled. Generate 50,000 logged trajectories from the
 committed model (that is exactly what the committed
 `samples_ticketfsm_50000.jsonl` is) and judge the *same, full-table-valid* group:
 
@@ -352,7 +523,7 @@ orbit canons bad at this sample size).
 a legal advance, −1 for an illegal attempt), not to the landing state, so the
 sample layer's cheap reward check — *rewards constant on a successor orbit* —
 fires even though the group is valid on the full table (the control pair in
-rung 1 passes it). The refusal is honest conservatism, not a verdict about
+rung 1b passes it). The refusal is honest conservatism, not a verdict about
 the group: when your rewards are action-shaped, judge with the full table and
 treat the sample interface as built for landing-state-reward logs. Recorded
 with the full explanation in
@@ -446,6 +617,18 @@ encoding (`docs/evidence.md`, anchors E14, E15, E16).
 | `tier1_starter_model.json` | 1.9 KB |
 | `tier1_starter_group.json` | 2.4 KB |
 | `tier1_xor_goalswap_group.json` | 0.5 KB |
+| `make_dualchannel_samples.py` | 8.7 KB |
+| `dualchannel_model.json` | 4.2 KB |
+| `dualchannel_guarded_model.json` | 4.3 KB |
+| `dualchannel_guarded_group.json` | 0.5 KB |
+| `dualchannel_wrong_group.json` | 0.6 KB |
+| `expected/dualchannel_expected.json` | 2.7 KB |
+| `eventfsm_model.json` | 3.3 KB |
+| `eventfsm_group_pads.json` | 0.6 KB |
+| `eventfsm_group_swap_fixed.json` | 0.8 KB |
+| `eventfsm_group_swap_relabel.json` | 0.8 KB |
+| `expected/eventfsm_expected.json` | 4.8 KB |
+| `make_eventfsm_samples.py` | 13.0 KB |
 | `make_tier1_samples.py` | 6.3 KB |
 | `sampling_tiny_model.json` | 2.1 KB |
 | `sampling_tiny_group.json` | 1.9 KB |
@@ -490,10 +673,14 @@ machine-readable result file in `docs/evidence.md`. The teaching rungs and
 the sampling rung carry their machine-readable record directly in
 `examples/expected/` (`tier1_starter_expected.json`,
 `tier1_xor_goalswap_expected.json`, `ticketfsm_check_found_expected.json`,
-`ticketfsm_wrong_swap_expected.json`, `sampling_tiny_fulltable_expected.json`,
+`ticketfsm_wrong_swap_expected.json`, `dualchannel_expected.json`,
+`eventfsm_expected.json`,
+`sampling_tiny_fulltable_expected.json`,
 `sampling_tiny_100_expected.json`, `sampling_tiny_10000_expected.json`,
 `sampling_ticketfsm_boundary_expected.json`; recorded from the real runs of
-2026-10-28). All commands in this file are
+2026-10-28, with the semantics-declaration fields re-recorded from fresh runs
+of the same commands on 2026-10-29 — every pre-existing reading bit-identical).
+All commands in this file are
 deterministic and their inputs are the committed files themselves, so every
 output is trivially re-runnable by anyone; the committed teaching model and
 group files are byte-identical to the generator's output

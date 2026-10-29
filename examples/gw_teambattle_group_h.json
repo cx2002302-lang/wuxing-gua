@@ -1,4 +1,7 @@
 {
+ "semantics": {
+  "action": "relabel"
+ },
  "n_states": 16384,
  "n_actions": 11,
  "goals": [],

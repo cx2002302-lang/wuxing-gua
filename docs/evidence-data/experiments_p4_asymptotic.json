@@ -1,0 +1,12 @@
+{
+ "anchors": [
+  "E38"
+ ],
+ "excerpt_of": "experiments_p4_asymptotic.json",
+ "excerpted_on": "2026-10-29",
+ "fields": {
+  "fit.growth_A_last_over_first": 0.6752534185321664,
+  "fit.speedup_vs_n_slope": -0.07990053297047031
+ },
+ "note": "Verbatim excerpt of the cited fields from the research repository's record. The research repository is NOT part of this release; the mother path is published only as provenance. Values are copied without rounding or edits."
+}

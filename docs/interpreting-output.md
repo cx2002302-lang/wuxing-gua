@@ -93,11 +93,13 @@ python -X utf8 -m wuxing_gua check --trans examples/gw_chainrot_model.json --gro
 
 | Field | What it means | Typical values |
 |---|---|---|
-| `verdict` | `pass` — every group element preserves transitions *and* reward profiles exactly; `reject` — at least one certified violation. Zero tolerance: there is no "close enough". | `pass` on both shipped `check` examples |
+| `verdict` | `pass` — every group element preserves transitions *and* reward profiles exactly (under the active action-name caliber — see the action-semantics section below); `reject` — at least one certified violation. Zero tolerance: there is no "close enough". | `pass` on both shipped `check` examples |
 | `exit_code` | 0 on pass, 1 on reject. | — |
-| `reason` | Chinese-language one-liner saying which layer decided. | — |
+| `reason` | Chinese-language one-liner saying which layer decided. |
+| `semantics` | How the action-reading question was resolved: `action` (`relabel` / `fixed` / `explicit`), `judge` (which transition-layer judge ran), `declared` (was it declared in the group file?), `assumed`, `source` (`group_file` / `flag_strict` / `default`), plus `action_map` for the explicit reading. Full discussion: [judge-semantics](judge-semantics.md). | `declared: true, assumed: false` on the shipped examples (their group files declare the reading); `declared: false, assumed: true, source: "default"` on an undeclared group file |
+| `semantics_assumed` | `true` when nothing was declared and the relabel default was applied — the verdict is then *conditional on that reading* and a warning is printed on stderr. An admission tool with a permissive silent default is the wrong direction; the default is never silent. | `false` on the shipped examples | — |
 | `group.order` / `group.n_orbits` / `group.compression` | The verified group's size and its orbit reading (same meaning as in `discover`). | 5 / 128 / 4.0 (512-state example); 25 / 1,024 / 16.0 (16,384-state example) |
-| `layer_transition` | Layer 1: does every element permute successors exactly? `n_checked` elements were each verified (`worst_tv` = worst total-variation distance found; must be ≤ `tol` = 1e-9, i.e. numerical zero). Groups above 5,000 elements switch to certified sentinel spot-checks (`mode` shows which). | 5/5 elements, `worst_tv` 0.0; 25/25 elements, `worst_tv` 0.0 |
+| `layer_transition` | Layer 1: does every element permute successors exactly? `n_checked` elements were each verified (`worst_tv` = worst total-variation distance found; must be ≤ `tol` = 1e-9, i.e. numerical zero). Groups above 5,000 elements switch to certified sentinel spot-checks (`mode` shows which). The `judge` field inside this block (`bitstring` / `generalized` / `strict`) records which action-name caliber ran — see the action-semantics section below. | 5/5 elements, `worst_tv` 0.0; 25/25 elements, `worst_tv` 0.0 |
 | `layer_reward_profile` | Layer 2: do states in the same orbit have identical reward profiles? `n_bad` violations out of `n_pair` same-orbit pairs; must be 0. | 0 bad of 960 pairs; 0 bad of 176,640 pairs |
 | `group.input_elements` / `unique_elements` / `duplicates_dropped` / `input_was_closed_group` / `elements_added_by_closure` / `generators_found` | How the input group file was normalized: duplicates removed, closure computed. Useful when you hand-wrote a generator list and want to confirm it closed into the group you intended. | 1 generator in, closure added 4 elements (512-state example) |
 
@@ -110,6 +112,46 @@ its transition layer passes (worst TV 0.0) while 1,586 of 2,016 same-orbit
 reward pairs disagree, and the verdict is `reject`. In both cases the correct
 next step is a different (usually smaller) candidate group — the criterion is
 never loosened.
+
+## Action-name semantics: which caliber are you in?
+
+"Equivariant under a permutation" has **two readings**, and on real systems
+they disagree. The difference is what an action name *is*:
+
+- **Switch / milestone systems — the relabel caliber.** An action is bound to
+  a state bit: "open rollout A" literally is "flip bit 0". Rename the state
+  and the action must rename with it — after renaming, "flip the first bit"
+  is still the same instruction. The default criteria (which allow the action
+  renaming implied by the state permutation) are the **correct** reading for
+  this class.
+- **Event-driven state machines — the fixed caliber.** An action is an
+  external event: "receive FIN" means receiving a FIN, whatever the states
+  are called. Merging two states must not merge "receive FIN" with
+  "receive ACK". The `--strict` flag (exact action correspondence) is the
+  **correct** reading for this class — and on it, the default calibers would
+  admit business-invalid permutations (the event-driven example in README §7
+  is exactly this case).
+
+The tool cannot infer which kind your actions are from the data — decide it
+yourself before trusting a verdict. `layer_transition.judge` records which
+criterion actually ran:
+
+| `judge` value | Meaning | Right for |
+|---|---|---|
+| `bitstring` | default bit-string criterion (action `a` = "flip bit `a`"); accepts the action renaming implied by the state permutation | switch / milestone systems |
+| `generalized` | used when `n_actions > n_bits` (the bit-flip reading is impossible); the successor-matching action is looked up in the data — action renaming still allowed | switch-type systems with more actions than bits |
+| `strict` | `--strict` was set or the group file declared `"fixed"`: action names must correspond exactly, no renaming | event-driven machines |
+| `explicit` | the group file declared `"explicit"` with an `action_map`: the declared per-action renaming is applied verbatim | special cases needing a specific renaming |
+
+Each reading is exact for its class and wrong for the other. Since
+2026-10-29 the choice is a **declaration in the group file**
+(`"semantics": {"action": "relabel"}` or `"fixed"`), resolved and
+reported by `check` in the `semantics` block, with `semantics_assumed:
+true` + a stderr warning when nothing is declared. `--strict` remains as
+the fixed override. Which reading your system needs is still the model
+author's call — the comparison table, the self-assessment questions and
+the declaration syntax live in [judge-semantics](judge-semantics.md), and
+the runnable two-readings contrast is rung 1c in `examples/`.
 
 ## `check-sample` output
 
@@ -140,13 +182,17 @@ and `check-sample` will abstain at **any** sample size — use the full-table
 | 3 | Input or internal error. | Fix the input file (format below); a traceback on stderr means a bug — please report it. |
 
 Input format in one paragraph: a model file is a JSON object with `n_bits`,
-`n_actions` (1..n_bits), a `trans` list of `2**n_bits` rows, each row a list of
-`n_actions` action-columns, each column a list of `[probability, next-state,
-reward]` triples summing to 1, and optionally `goals` (absorbing states).
-States are bit-string numbered (`n_states = 2**n_bits`) and action `a` means
-"flip bit `a`" — the tool refuses or returns the trivial group on models that
-do not fit this convention, it never silently passes them. A group file holds
-`elements` (as printed by `discover`). Sample files are JSONL, one
+`n_actions` (any positive integer; when `n_actions > n_bits` the transition
+layer switches to the generalized criterion), a `trans` list of `2**n_bits`
+rows, each row a list of `n_actions` action-columns, each column a list of
+`[probability, next-state, reward]` triples summing to 1, and optionally
+`goals` (absorbing states). States are bit-string numbered
+(`n_states = 2**n_bits`); under the default bit-string criterion action `a`
+means "flip bit `a`", and when `n_actions > n_bits` that reading is
+impossible so the transition layer automatically uses the generalized
+criterion (`judge: generalized`). Models that fit neither convention are
+refused or return only the trivial group — never a silent pass. A group file
+holds `elements` (as printed by `discover`). Sample files are JSONL, one
 `[s, a, next-state, reward]` array (or the same as an object) per line.
 
 Still stuck? `docs/faq.md` answers the questions that come up most, and

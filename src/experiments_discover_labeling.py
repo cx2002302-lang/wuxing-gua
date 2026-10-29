@@ -405,7 +405,7 @@ def canonize_model_generic(trans, n_act):
     字典序排序拼接（拼接映射过 isom_map_ok 硬校验）。
     返回 (order, inv, info)。
 
-    ⚠️ 2026-10-27 放宽一处过强断言（GameWXXX 案例修复）：
+    ⚠️ 2026-10-27 放宽一处过强断言（游戏案例修复）：
     原实现 assert「分量证书两两互异」（len(set(certs)) == len(certs)），遇到同构分量
     直接崩（47 个 pad 哑态 = 47 个同构单点分量 ⇒ AssertionError）。该断言是**过强**
     的：分量各自 canonize 后得到的是该分量同构类的唯一规范形 ⇒ 两个同构分量的规范

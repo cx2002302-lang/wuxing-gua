@@ -4,7 +4,7 @@
  "n_states": 512,
  "goals": [],
  "meta": {
-  "source_system": "GameWXXX 相生链×轮转场联合子系统（只读转录，案例 2）",
+  "source_system": "游戏战斗子系统（相生链×轮转场；只读转录，案例 2）",
   "encoding": "465 真实态 = 链(空1+last5×Level6=31) × 场(当令5×TurnCount mod3=15)；φ = χ(bits0..4 轨道指派见 prereg) | ψ(bits5..8, v=e+5t)；pad 47 哑态自环 r=0（预注册伪影预案②）",
   "action_names": [
    "出金",

@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 """
 selftest.py —— 端到端自检（canonize / multi-label / extra-candidates / preset robust /
-report-confidence 分支全覆盖）
+report-confidence / 口径声明 分支全覆盖）
 
-十二个分支，全部通过 CLI 子进程真实执行（python -X utf8 -m wuxing_gua ...），
+十五个分支，全部通过 CLI 子进程真实执行（python -X utf8 -m wuxing_gua ...），
 不是函数级调用——退出码就是交付的退出码：
 
   1 discover 真群发现        → 退出码 0；order==720 且 n_orbits==7
@@ -96,6 +96,31 @@ report-confidence 分支全覆盖）
                                免将包自检耦合实验脚本内部编号生成器——形态等效
                                替换，判读/阈值不动，已在判别分校准记录
                                如实注明）。
+  14 check 口径声明 relabel（声明不改读数）：①未声明群（demo 夹具 group_true）
+                               check → payload["semantics_assumed"] 为真
+                               （宽容默认必须显眼）、semantics.declared 为假、
+                               judge 字段在位（relabel → bitstring）、stderr 含
+                               「口径警示」；②同一群文件补写
+                               semantics={"action":"relabel"} 声明副本 →
+                               assumed 转假、declared 转真，且全部判读字段
+                               （verdict / worst_tv / n_checked / n_failed /
+                               n_orbits / group.order / 奖励层 n_pair、n_bad）
+                               与未声明运行逐位相等——**声明不改变开关类读数**
+                               （口径声明层的正确性不变量，在自检内硬断言）。
+  15 check 口径声明 fixed（事件类样例，构造内联确定性重建）：4 可达态事件
+                               状态机（填充至 8 态、4 事件，= examples rung 1c
+                               同构）三群三读——①填充态对换群声明 fixed →
+                               放行（judge=strict，真对称正例）；②等待态对换群
+                               （两状态结构全同、完成事件不同）声明 fixed →
+                               拒答（TV=1.0、1/2 元素不过、奖励层 0 bad——只有
+                               转移层拦得住）；③同一元素群改声明 relabel →
+                               放行（judge=generalized）——同群两口径读数相反
+                               = 口径二义性的可执行实证；④discover 对该模型
+                               退出码 3（n_actions > n_bits 适用域守卫，
+                               stderr 含守卫文案，无 traceback）。
+                               期望值源 = 本分支同构造确定性重跑的实测定值
+                               （与 examples/expected/eventfsm_expected.json
+                               同源同数字）。
 
 夹具与 README 示例完全同一套（demo_env.write_fixtures，确定性重建；
 model_translated_q6.json 由 build_translated_standard 确定性构造）。
@@ -111,8 +136,8 @@ import time
 
 from . import PROJECT_ROOT, demo_env
 
-N_BRANCHES = 13             # 分支数与下方 step 调用数一致（audit 现读本常量核对 README）
-TOTAL_SEC_LIMIT = 180.0     # 13 分支时代（含 --report-confidence 分支）；上限随分支数演进，以实跑汇总为准
+N_BRANCHES = 15             # 分支数与下方 step 调用数一致（audit 现读本常量核对 README）
+TOTAL_SEC_LIMIT = 220.0     # 15 分支时代（含 --report-confidence 与口径声明两分支）；上限随分支数演进，以实跑汇总为准
 PER_BRANCH_TIMEOUT = 100.0
 
 
@@ -610,6 +635,200 @@ def _write_discovered_group_file(tmp, disc_payload):
     return p
 
 
+# ---------------------------------------------------------------- 口径声明分支
+def _step_semantics_relabel(w, i, total, fx, rows, tmp):
+    """分支 14（声明不改读数）：同一开关类真群，未声明 vs 显式声明 relabel——
+    未声明时 assumed 警示必须显眼（payload 字段 + stderr），声明后读数逐位不变。
+    正确性不变量（口径声明层）：声明不改变开关类结果。"""
+    name = "check 口径声明 relabel（assumed 警示在位；声明不改读数）"
+    t1 = time.time()
+    errs = []
+
+    def _run_group(gpath):
+        p = _run_cli(["check", "--trans", fx["model_standard"], "--group", gpath])
+        if p.returncode != 0:
+            errs.append("声明 relabel 的真群应放行（退出码 0），实得 %d；stderr：%s"
+                        % (p.returncode, p.stderr.strip()[-200:]))
+        try:
+            return json.loads(p.stdout), p.stderr
+        except ValueError:
+            errs.append("stdout 不是合法 JSON：%r" % p.stdout[:120])
+            return None, p.stderr
+
+    p0, err0 = _run_group(fx["group_true"])
+    if p0 is not None:
+        if p0.get("semantics_assumed") is not True:
+            errs.append("未声明群 semantics_assumed=%r != True（宽容默认必须显眼）"
+                        % p0.get("semantics_assumed"))
+        sem0 = p0.get("semantics") or {}
+        if sem0.get("declared") is not False or sem0.get("action") != "relabel":
+            errs.append("未声明群 semantics=%r（应 declared=False / action=relabel）"
+                        % sem0)
+        if not sem0.get("judge"):
+            errs.append("未声明群缺 judge 字段（semantics.judge 应在位）")
+        if (sem0.get("judge") != "bitstring"
+                or (p0.get("layer_transition") or {}).get("judge") != "bitstring"):
+            errs.append("relabel 口径应分派位串判据（bitstring），实得 %r/%r"
+                        % (sem0.get("judge"),
+                           (p0.get("layer_transition") or {}).get("judge")))
+        if "口径警示" not in err0:
+            errs.append("未声明群 stderr 缺「口径警示」（宽容默认必须显眼）")
+    declared_path = os.path.join(tmp, "group_true_declared_relabel.json")
+    with open(fx["group_true"], encoding="utf-8") as f:
+        g = json.load(f)
+    g["semantics"] = {"action": "relabel"}
+    with open(declared_path, "w", encoding="utf-8") as f:
+        json.dump(g, f)
+    p1, _err1 = _run_group(declared_path)
+    if p0 is not None and p1 is not None:
+        sem1 = p1.get("semantics") or {}
+        if p1.get("semantics_assumed") is not False or sem1.get("declared") is not True:
+            errs.append("声明后应 declared=True / assumed=False，实得 %r/%r"
+                        % (sem1.get("declared"), p1.get("semantics_assumed")))
+        if sem1.get("source") != "group_file":
+            errs.append("声明来源应为 group_file，实得 %r" % sem1.get("source"))
+        for path in (("verdict",), ("layer_transition", "worst_tv"),
+                     ("layer_transition", "n_checked"),
+                     ("layer_transition", "n_failed"), ("group", "order"),
+                     ("group", "n_orbits"), ("layer_reward_profile", "n_pair"),
+                     ("layer_reward_profile", "n_bad")):
+            a, b = p0, p1
+            for k in path:
+                a, b = (a or {}).get(k), (b or {}).get(k)
+            if a != b:
+                errs.append("声明改变读数 %s：%r != %r（开关类结论不翻案被破坏）"
+                            % ("/".join(path), a, b))
+    ok = not errs
+    sec = time.time() - t1
+    rows.append((name, ok, 0, sec))
+    w.write("  [%d/%d] %-46s %s（未声明 assumed 警示 + 声明后读数逐位一致，%.1fs）\n"
+            % (i, total, name, "PASS" if ok else "FAIL", sec))
+    for e in errs:
+        w.write("         ! %s\n" % e)
+
+
+def _build_eventfsm_fixture(out_dir):
+    """分支 15 夹具：事件类最小例（与 examples/make_eventfsm_samples.py 同构内联
+    确定性重建；期望值与 examples/expected/eventfsm_expected.json 同源同数字）。
+    4 可达态（open/wait-fin/closing/time-wait）+ 4 填充态，4 事件
+    （rcv FIN / rcv ACK of FIN / snd FIN / rcv RST）。等待态 1/2 结构全同、
+    完成事件不同 —— relabel 口径下可换、fixed 口径下 TV=1.0。"""
+    n, goal = 8, 4
+    pads = (3, 5, 6, 7)
+    trans = []
+    for s in range(n):
+        row = []
+        for a in range(4):
+            if s == goal or s in pads:
+                row.append([[1.0, s, 0.0]])
+            elif s == 0:      # open
+                tgt, rew = {0: 2, 1: 0, 2: 1, 3: 4}[a], {0: 0.0, 1: -1.0,
+                                                        2: 0.0, 3: -1.0}[a]
+                row.append([[1.0, tgt, rew]])
+            elif s == 1:      # wait-fin：完成事件 = rcv FIN (a0)
+                tgt, rew = {0: 4, 1: 1, 2: 1, 3: 4}[a], {0: 1.0, 1: -1.0,
+                                                        2: -1.0, 3: -1.0}[a]
+                row.append([[1.0, tgt, rew]])
+            else:             # closing：完成事件 = rcv ACK of FIN (a1)
+                tgt, rew = {0: 2, 1: 4, 2: 2, 3: 4}[a], {0: -1.0, 1: 1.0,
+                                                        2: -1.0, 3: -1.0}[a]
+                row.append([[1.0, tgt, rew]])
+        trans.append(row)
+    mp = os.path.join(out_dir, "model_eventfsm.json")
+    with open(mp, "w", encoding="utf-8") as f:
+        json.dump({"n_bits": 3, "n_actions": 4, "n_states": n, "goals": [goal],
+                   "trans": trans}, f)
+    ident = list(range(n))
+    swap_pads = list(range(n))
+    swap_pads[3], swap_pads[5] = 5, 3
+    swap_waits = list(range(n))
+    swap_waits[1], swap_waits[2] = 2, 1
+    paths = {}
+    for tag, elements, action in (
+            ("pads", [ident, swap_pads], "fixed"),
+            ("swap_fixed", [ident, swap_waits], "fixed"),
+            ("swap_relabel", [ident, swap_waits], "relabel")):
+        gp = os.path.join(out_dir, "group_eventfsm_%s.json" % tag)
+        with open(gp, "w", encoding="utf-8") as f:
+            json.dump({"n_states": n, "elements": elements,
+                       "semantics": {"action": action}}, f)
+        paths[tag] = gp
+    return mp, paths
+
+
+def _step_semantics_fixed(w, i, total, rows):
+    """分支 15（fixed 口径 / 事件类）：真对称正例放行、结构同事件异的对换群
+    被拒、同一元素群改声明 relabel 后放行（两口径读数相反 = 二义性实证）、
+    discover 适用域守卫退出码 3。"""
+    name = "check 口径声明 fixed（事件类：fixed 拒/真对称过/relabel 放）"
+    t1 = time.time()
+    errs = []
+    tmp = tempfile.mkdtemp(prefix="wuxing_gua_eventfsm_")
+    readings = []
+    try:
+        mp, gp = _build_eventfsm_fixture(tmp)
+        for tag, expect_exit, want in (
+                ("pads", 0, {"verdict": "pass", "judge": "strict"}),
+                ("swap_fixed", 1, {"verdict": "reject", "judge": "strict"}),
+                ("swap_relabel", 0, {"verdict": "pass", "judge": "generalized"})):
+            p = _run_cli(["check", "--trans", mp, "--group", gp[tag]])
+            try:
+                payload = json.loads(p.stdout)
+            except ValueError:
+                errs.append("%s stdout 不是合法 JSON：%r" % (tag, p.stdout[:120]))
+                continue
+            if p.returncode != expect_exit:
+                errs.append("%s 退出码 %d != %d" % (tag, p.returncode, expect_exit))
+            sem = payload.get("semantics") or {}
+            lt = payload.get("layer_transition") or {}
+            if payload.get("verdict") != want["verdict"]:
+                errs.append("%s verdict=%r != %r（reason=%r）"
+                            % (tag, payload.get("verdict"), want["verdict"],
+                               payload.get("reason")))
+            if lt.get("judge") != want["judge"]:
+                errs.append("%s judge=%r != %r" % (tag, lt.get("judge"), want["judge"]))
+            if sem.get("declared") is not True or sem.get("assumed") is not False:
+                errs.append("%s 应 declared=True / assumed=False，实得 %r" % (sem,))
+            if sem.get("source") != "group_file":
+                errs.append("%s source=%r != group_file" % (tag, sem.get("source")))
+            if tag == "pads":
+                if lt.get("worst_tv") != 0.0:
+                    errs.append("填充态对换 worst_tv=%r != 0.0（真对称应零容忍通过）"
+                                % lt.get("worst_tv"))
+            if tag == "swap_fixed":
+                if lt.get("worst_tv") != 1.0 or lt.get("n_failed") != 1 \
+                        or lt.get("n_checked") != 2:
+                    errs.append("等待态对换 fixed 应 TV=1.0、1/2 元素不过，实得 "
+                                "TV=%r %r/%r" % (lt.get("worst_tv"),
+                                                 lt.get("n_failed"),
+                                                 lt.get("n_checked")))
+                if (payload.get("layer_reward_profile") or {}).get("n_bad") != 0:
+                    errs.append("等待态对换奖励层应 0 bad（只有转移层拦得住），实得 %r"
+                                % (payload.get("layer_reward_profile") or {}))
+            if tag == "swap_relabel" and lt.get("worst_tv") != 0.0:
+                errs.append("等待态对换 relabel 应放行（TV=0），实得 %r"
+                            % lt.get("worst_tv"))
+            readings.append((tag, payload.get("verdict"), lt.get("judge")))
+        # discover 适用域守卫：事件类模型（4 事件 > 3 位）入口即拒，退出码 3
+        p = _run_cli(["discover", "--trans", mp])
+        if p.returncode != 3:
+            errs.append("discover 适用域守卫应退出码 3，实得 %d" % p.returncode)
+        if "n_actions(4)" not in p.stderr or "适用域" not in p.stderr:
+            errs.append("discover 守卫 stderr 缺守卫文案：%r" % p.stderr.strip()[-160:])
+        if "Traceback" in p.stderr:
+            errs.append("discover 守卫不应带 traceback（应入口处如实拒绝）")
+    finally:
+        shutil.rmtree(tmp, ignore_errors=True)
+    ok = not errs
+    sec = time.time() - t1
+    rows.append((name, ok, 0, sec))
+    w.write("  [%d/%d] %-46s %s（%s，%.1fs）\n"
+            % (i, total, name, "PASS" if ok else "FAIL",
+               "；".join("%s→%s/%s" % r for r in readings) or "无输出", sec))
+    for e in errs:
+        w.write("         ! %s\n" % e)
+
+
 # ---------------------------------------------------------------- 主流程
 def run(out=None):
     w = out or sys.stdout
@@ -707,6 +926,12 @@ def run(out=None):
         # 分支 13（校准判别分）：--report-confidence 双期望——
         # 标准 Q₆ 无漏找证据 / 平移 Q₆ 证明层触发；两例退出码均 0（只读诊断）
         _step_confidence(w, 13, total, fx, rows)
+        # 分支 14（口径声明 relabel）：未声明 assumed 警示在位；补声明后读数
+        # 逐位不变（开关类结论不翻案 = 口径声明层正确性不变量）
+        _step_semantics_relabel(w, 14, total, fx, rows, tmp)
+        # 分支 15（口径声明 fixed / 事件类）：fixed 拒事件异对换、真对称放行、
+        # 同群 relabel 放行（两口径读数相反）；discover 适用域守卫退出码 3
+        _step_semantics_fixed(w, 15, total, rows)
 
         total_sec = time.time() - t0
         n_ok = sum(1 for r in rows if r[1])

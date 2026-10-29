@@ -1,0 +1,20 @@
+{
+ "anchors": [
+  "E13",
+  "E14"
+ ],
+ "excerpt_of": "pilot/gw_teambattle_abstract.json",
+ "excerpted_on": "2026-10-29",
+ "fields": {
+  "H.order": 25,
+  "H.sigma_rot_visible": false,
+  "abstract.aut_group_checked": 375,
+  "abstract.aut_violations": 0,
+  "abstract.group_abs": "C5xC5xC15 (sigma_A, sigma_B, pi=advance; sigma_rot=pi^3)",
+  "abstract.n_actions": 11,
+  "abstract.n_states": 14415,
+  "model_selfcheck.goal_count": 2325,
+  "model_selfcheck.pad_count": 1969
+ },
+ "note": "Verbatim excerpt of the cited fields from the research repository's record. The research repository is NOT part of this release; the mother path is published only as provenance. Values are copied without rounding or edits."
+}

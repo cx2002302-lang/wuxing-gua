@@ -1,0 +1,28 @@
+{
+ "anchors": [
+  "E37"
+ ],
+ "excerpt_of": "experiments_c_canon.json",
+ "excerpted_on": "2026-10-29",
+ "fields": {
+  "mechanism[3].c_canon": [
+   1.7361,
+   3.4722
+  ],
+  "mechanism[3].c_natural": [
+   1.7361,
+   3.4722
+  ],
+  "mechanism[3].name": "K44",
+  "mechanism[4].c_canon": [
+   2.2222,
+   4.4444
+  ],
+  "mechanism[4].c_natural": [
+   2.2222,
+   4.4444
+  ],
+  "mechanism[4].name": "K55"
+ },
+ "note": "Verbatim excerpt of the cited fields from the research repository's record. The research repository is NOT part of this release; the mother path is published only as provenance. Values are copied without rounding or edits."
+}

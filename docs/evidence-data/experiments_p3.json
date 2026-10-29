@@ -1,0 +1,21 @@
+{
+ "anchors": [
+  "E42",
+  "README-flagship"
+ ],
+ "excerpt_of": "experiments_p3.json",
+ "excerpted_on": "2026-10-29",
+ "fields": {
+  "recovery[0].auto_orbits": 7,
+  "recovery[0].auto_order": 720,
+  "recovery[0].manual_orbits": 13,
+  "recovery[0].manual_order": 12,
+  "recovery[0].n": 6,
+  "recovery[1].auto_orbits": 9,
+  "recovery[1].auto_order": 40320,
+  "recovery[1].manual_orbits": 30,
+  "recovery[1].manual_order": 16,
+  "recovery[1].n": 8
+ },
+ "note": "Verbatim excerpt of the cited fields from the research repository's record. The research repository is NOT part of this release; the mother path is published only as provenance. Values are copied without rounding or edits."
+}

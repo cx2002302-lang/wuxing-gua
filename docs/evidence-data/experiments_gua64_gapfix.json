@@ -1,0 +1,23 @@
+{
+ "anchors": [
+  "E32",
+  "E33",
+  "E34",
+  "E35"
+ ],
+ "excerpt_of": "experiments_gua64_gapfix.json",
+ "excerpted_on": "2026-10-29",
+ "fields": {
+  "diag_exclusions.det_path.ladder[0].node_cap": 4000,
+  "diag_exclusions.det_path.ladder[2].first_coset.nodes": 3368887,
+  "diag_exclusions.involution_path.all_fixed_point_free": true,
+  "diag_exclusions.involution_path.n_candidates": 29,
+  "diag_exclusions.rr_path_relabeled.s01.n_completions": 0,
+  "diag_exclusions.rr_path_relabeled.s03.n_completions": 0,
+  "diag_exclusions.rr_path_std.alive_restarts": 296,
+  "fix.gua64.full_scan_elements": 589824,
+  "fix.gua64.full_scan_failures": 0,
+  "fix.gua64.order": 589824
+ },
+ "note": "Verbatim excerpt of the cited fields from the research repository's record. The research repository is NOT part of this release; the mother path is published only as provenance. Values are copied without rounding or edits."
+}

@@ -1,0 +1,50 @@
+{
+ "n_states": 16,
+ "elements": [
+  [
+   0,
+   1,
+   2,
+   3,
+   4,
+   5,
+   6,
+   7,
+   8,
+   9,
+   10,
+   11,
+   12,
+   13,
+   14,
+   15
+  ],
+  [
+   0,
+   2,
+   1,
+   3,
+   4,
+   6,
+   5,
+   7,
+   8,
+   10,
+   9,
+   11,
+   12,
+   14,
+   13,
+   15
+  ]
+ ],
+ "semantics": {
+  "action": "relabel"
+ },
+ "meta": {
+  "construction": "order-2 group swapping collect<->reconcile inside channel A; the tempting 'adjacent steps' candidate, expected to be REFUSED by check (transition layer)",
+  "why_it_looks_legal": "reconcile and collect are adjacent steps of the same channel and each element is a valid permutation",
+  "semantics_note": "declared relabel: the refusal below is certified under the switch-class reading, the right one for this model (docs/judge-semantics.md)",
+  "regenerate": "python -X utf8 examples/make_dualchannel_samples.py"
+ }
+}

@@ -10,6 +10,14 @@
  "check": {
   "exit_code": 1,
   "verdict": "reject",
+  "semantics": {
+   "action": "relabel",
+   "judge": "bitstring",
+   "declared": true,
+   "assumed": false,
+   "source": "group_file"
+  },
+  "semantics_assumed": false,
   "group_order": 2,
   "n_orbits": 4,
   "layer_transition": {
@@ -51,5 +59,6 @@
    "pair_0_1": "state 0 (000): three actions all go UP, reward +1 each; its orbit partner state 1 (001): flip bit 0 goes DOWN (-1), the other two go UP (+1) -- profiles differ, 1 bad pair",
    "pair_6_7": "state 7 (111) is the absorbing goal: three self-loops, reward 0; state 6 (110): flip bit 0 goes UP to the goal (+1) -- profiles differ, 1 bad pair"
   }
- }
+ },
+ "semantics_note": "semantics / semantics_assumed fields added 2026-10-29 (re-recorded from a fresh run of the same commands; every pre-existing reading below is bit-identical to the 2026-10-28 record -- declaring the reading did not change it)"
 }

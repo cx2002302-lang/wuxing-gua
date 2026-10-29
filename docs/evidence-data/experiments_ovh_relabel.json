@@ -1,0 +1,11 @@
+{
+ "anchors": [
+  "E26"
+ ],
+ "excerpt_of": "experiments_ovh_relabel.json",
+ "excerpted_on": "2026-10-29",
+ "fields": {
+  "per_graph_verdict.Heawood.rel_range": 3.3642
+ },
+ "note": "Verbatim excerpt of the cited fields from the research repository's record. The research repository is NOT part of this release; the mother path is published only as provenance. Values are copied without rounding or edits."
+}

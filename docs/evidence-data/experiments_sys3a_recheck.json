@@ -1,0 +1,1050 @@
+{
+ "anchors": [
+  "E50"
+ ],
+ "excerpt_of": "experiments_sys3a_recheck.json",
+ "excerpted_on": "2026-10-29",
+ "fields": {
+  "blindspot_fix": {
+   "after_fix_completeness": {
+    "affine_probe_present": true,
+    "calibration_summary": {
+     "false_negatives_on_positives": 0,
+     "false_positives_on_negatives": 0,
+     "n_calibration_environments": 7,
+     "n_expected_match": 7,
+     "n_negative": 3,
+     "n_positive": 4,
+     "note": "误报=反例告警；漏报=正例不告警（按 2026-10-24 裁决后预期表逐环境计数）。gua64 无 ground truth，不计入。SYS-3 A 原为预注册预期表的反例 3（预期不告警），裁决定性「记录错」（该环境 Aut=720、机器群 6 阶不完整）后改判正例，由仿射探针出证书触发；修复前校准快照完整保留在 experiments_sys3a_recheck.json → blindspot_fix.before_fix_completeness_snapshot（对照用，判定不得退步核查亦在该文件）"
+    },
+    "environments": {
+     "gua64_discover": {
+      "action_probe": {
+       "actions_certified": [
+        1
+       ],
+       "n_candidates": 2,
+       "n_certificates": 1
+      },
+      "affine_probe": {
+       "anchor_kind": null,
+       "n_candidates": 0,
+       "n_certificates": 0,
+       "n_pass_equiv": 0
+      },
+      "alert": true,
+      "assess_sec": 49.291,
+      "case": "live_showcase",
+      "chain": "experiments_gua64.discover_gua（与 Q6 同默认参数）",
+      "chain_sec": 22.373,
+      "completeness_score": 0.0,
+      "expected": null,
+      "label": "gua64 discover（欠采样已知，无完整 ground truth）",
+      "match": null,
+      "n_actions": 3,
+      "n_certificates": 3,
+      "n_orbits": 12,
+      "n_states": 64,
+      "n_wl_classes": 9,
+      "order": 294912,
+      "order_after_union": 589824,
+      "reasons": [
+       "动作置换探针：动作 1 的最优后继映射整体作为状态置换通过等变检验（max TV≤1e-09），却不在已得群中 ⇒ 已证群不完整",
+       "重启搜索探针：第 2 批（种子基 101）找到 2 个通过等变检验却不在群内的置换 ⇒ 已证群不完整",
+       "把证书并入生成元集取闭包：群阶 294912 → 589824",
+       "WL 色类 9 类 vs 群轨道 12 个（落差 1.333）：群在若干色类内不传递；该结构疑点只记录、不参与告警判定"
+      ],
+      "restart_probe": {
+       "batches_run": 3,
+       "n_candidates": 48,
+       "n_certificates": 2,
+       "n_pass_equiv": 48,
+       "per_batch": [
+        {
+         "batch": 0,
+         "n_candidates": 20,
+         "n_certificates": 0
+        },
+        {
+         "batch": 1,
+         "n_candidates": 11,
+         "n_certificates": 0
+        },
+        {
+         "batch": 2,
+         "n_candidates": 17,
+         "n_certificates": 2
+        }
+       ]
+      },
+      "verdict": "proved_incomplete",
+      "wl_gap": 1.333333
+     },
+     "q6_discover": {
+      "action_probe": {
+       "actions_certified": [],
+       "n_candidates": 0,
+       "n_certificates": 0
+      },
+      "actual": "no_alert",
+      "affine_probe": {
+       "anchor_kind": "absorbing",
+       "n_candidates": 15,
+       "n_certificates": 0,
+       "n_pass_equiv": 15
+      },
+      "alert": false,
+      "assess_sec": 0.332,
+      "case": "negative",
+      "chain": "experiments_p3.discover（默认参数，seed=7）",
+      "chain_sec": 0.811,
+      "completeness_score": 1.0,
+      "expected": "no_alert",
+      "label": "Q6 自动发现（真群 S_6，阶 720）",
+      "match": true,
+      "n_actions": 6,
+      "n_certificates": 0,
+      "n_orbits": 7,
+      "n_states": 64,
+      "n_wl_classes": 7,
+      "order": 720,
+      "order_after_union": null,
+      "reasons": [
+       "重启搜索探针 3 批（候选 112 个，其中 112 个通过等变检验）+ 动作置换探针（候选 0 个）+ 仿射探针（候选 15 个）均未发现群外真对称。注意：探针穷尽 ≠ 完整性的证明"
+      ],
+      "restart_probe": {
+       "batches_run": 3,
+       "n_candidates": 112,
+       "n_certificates": 0,
+       "n_pass_equiv": 112,
+       "per_batch": [
+        {
+         "batch": 0,
+         "n_candidates": 68,
+         "n_certificates": 0
+        },
+        {
+         "batch": 1,
+         "n_candidates": 20,
+         "n_certificates": 0
+        },
+        {
+         "batch": 2,
+         "n_candidates": 24,
+         "n_certificates": 0
+        }
+       ]
+      },
+      "verdict": "probe_exhausted_no_certificate",
+      "wl_gap": 1.0
+     },
+     "q8_discover": {
+      "action_probe": {
+       "actions_certified": [],
+       "n_candidates": 0,
+       "n_certificates": 0
+      },
+      "actual": "no_alert",
+      "affine_probe": {
+       "anchor_kind": "absorbing",
+       "n_candidates": 28,
+       "n_certificates": 0,
+       "n_pass_equiv": 28
+      },
+      "alert": false,
+      "assess_sec": 3.937,
+      "case": "negative",
+      "chain": "experiments_p3.discover（默认参数，seed=7）",
+      "chain_sec": 27.208,
+      "completeness_score": 1.0,
+      "expected": "no_alert",
+      "label": "Q8 自动发现（真群 S_8，阶 40320）",
+      "match": true,
+      "n_actions": 8,
+      "n_certificates": 0,
+      "n_orbits": 9,
+      "n_states": 256,
+      "n_wl_classes": 9,
+      "order": 40320,
+      "order_after_union": null,
+      "reasons": [
+       "重启搜索探针 3 批（候选 78 个，其中 78 个通过等变检验）+ 动作置换探针（候选 0 个）+ 仿射探针（候选 28 个）均未发现群外真对称。注意：探针穷尽 ≠ 完整性的证明"
+      ],
+      "restart_probe": {
+       "batches_run": 3,
+       "n_candidates": 78,
+       "n_certificates": 0,
+       "n_pass_equiv": 78,
+       "per_batch": [
+        {
+         "batch": 0,
+         "n_candidates": 34,
+         "n_certificates": 0
+        },
+        {
+         "batch": 1,
+         "n_candidates": 20,
+         "n_certificates": 0
+        },
+        {
+         "batch": 2,
+         "n_candidates": 24,
+         "n_certificates": 0
+        }
+       ]
+      },
+      "verdict": "probe_exhausted_no_certificate",
+      "wl_gap": 1.0
+     },
+     "sys2_n4_seed_dn": {
+      "action_probe": {
+       "actions_certified": [],
+       "n_candidates": 0,
+       "n_certificates": 0
+      },
+      "actual": "alert",
+      "affine_probe": {
+       "anchor_kind": null,
+       "n_candidates": 0,
+       "n_certificates": 0,
+       "n_pass_equiv": 0
+      },
+      "alert": true,
+      "assess_sec": 0.004,
+      "case": "positive",
+      "chain": "seed→closure→逐元素联合等变检验（experiments_sys2.verify_group）",
+      "chain_sec": 0.005,
+      "completeness_score": 0.0,
+      "expected": "alert",
+      "label": "SYS-2 n=4 喂 D_4 seed（seed 群 8 阶 vs 真群 S_4 24 阶）",
+      "match": true,
+      "n_actions": 4,
+      "n_certificates": 33,
+      "n_orbits": 6,
+      "n_states": 16,
+      "n_wl_classes": 5,
+      "order": 8,
+      "order_after_union": 24,
+      "reasons": [
+       "重启搜索探针：第 0 批（种子基 101）找到 33 个通过等变检验却不在群内的置换 ⇒ 已证群不完整",
+       "把证书并入生成元集取闭包：群阶 8 → 24",
+       "WL 色类 5 类 vs 群轨道 6 个（落差 1.200）：群在若干色类内不传递；该结构疑点只记录、不参与告警判定"
+      ],
+      "restart_probe": {
+       "batches_run": 1,
+       "n_candidates": 43,
+       "n_certificates": 33,
+       "n_pass_equiv": 43,
+       "per_batch": [
+        {
+         "batch": 0,
+         "n_candidates": 43,
+         "n_certificates": 33
+        }
+       ]
+      },
+      "verdict": "proved_incomplete",
+      "wl_gap": 1.2
+     },
+     "sys2_n5_seed_dn": {
+      "action_probe": {
+       "actions_certified": [],
+       "n_candidates": 0,
+       "n_certificates": 0
+      },
+      "actual": "alert",
+      "affine_probe": {
+       "anchor_kind": null,
+       "n_candidates": 0,
+       "n_certificates": 0,
+       "n_pass_equiv": 0
+      },
+      "alert": true,
+      "assess_sec": 0.026,
+      "case": "positive",
+      "chain": "seed→closure→逐元素联合等变检验（experiments_sys2.verify_group）",
+      "chain_sec": 0.027,
+      "completeness_score": 0.0,
+      "expected": "alert",
+      "label": "SYS-2 n=5 喂 D_5 seed（seed 群 10 阶 vs 真群 S_5 120 阶）",
+      "match": true,
+      "n_actions": 5,
+      "n_certificates": 63,
+      "n_orbits": 8,
+      "n_states": 32,
+      "n_wl_classes": 6,
+      "order": 10,
+      "order_after_union": 120,
+      "reasons": [
+       "重启搜索探针：第 0 批（种子基 101）找到 63 个通过等变检验却不在群内的置换 ⇒ 已证群不完整",
+       "把证书并入生成元集取闭包：群阶 10 → 120",
+       "WL 色类 6 类 vs 群轨道 8 个（落差 1.333）：群在若干色类内不传递；该结构疑点只记录、不参与告警判定"
+      ],
+      "restart_probe": {
+       "batches_run": 1,
+       "n_candidates": 68,
+       "n_certificates": 63,
+       "n_pass_equiv": 68,
+       "per_batch": [
+        {
+         "batch": 0,
+         "n_candidates": 68,
+         "n_certificates": 63
+        }
+       ]
+      },
+      "verdict": "proved_incomplete",
+      "wl_gap": 1.333333
+     },
+     "sys2_n6_seed_dn": {
+      "action_probe": {
+       "actions_certified": [],
+       "n_candidates": 0,
+       "n_certificates": 0
+      },
+      "actual": "alert",
+      "affine_probe": {
+       "anchor_kind": null,
+       "n_candidates": 0,
+       "n_certificates": 0,
+       "n_pass_equiv": 0
+      },
+      "alert": true,
+      "assess_sec": 0.136,
+      "case": "positive",
+      "chain": "seed→closure→逐元素联合等变检验（experiments_sys2.verify_group）",
+      "chain_sec": 0.139,
+      "completeness_score": 0.0,
+      "expected": "alert",
+      "label": "SYS-2 n=6 喂 D_6 seed（seed 群 12 阶 vs 真群 S_6 720 阶）",
+      "match": true,
+      "n_actions": 6,
+      "n_certificates": 68,
+      "n_orbits": 13,
+      "n_states": 64,
+      "n_wl_classes": 7,
+      "order": 12,
+      "order_after_union": 720,
+      "reasons": [
+       "重启搜索探针：第 0 批（种子基 101）找到 68 个通过等变检验却不在群内的置换 ⇒ 已证群不完整",
+       "把证书并入生成元集取闭包：群阶 12 → 720",
+       "WL 色类 7 类 vs 群轨道 13 个（落差 1.857）：群在若干色类内不传递；该结构疑点只记录、不参与告警判定"
+      ],
+      "restart_probe": {
+       "batches_run": 1,
+       "n_candidates": 68,
+       "n_certificates": 68,
+       "n_pass_equiv": 68,
+       "per_batch": [
+        {
+         "batch": 0,
+         "n_candidates": 68,
+         "n_certificates": 68
+        }
+       ]
+      },
+      "verdict": "proved_incomplete",
+      "wl_gap": 1.857143
+     },
+     "sys2_n6_seed_sn": {
+      "action_probe": {
+       "actions_certified": [],
+       "n_candidates": 0,
+       "n_certificates": 0
+      },
+      "actual": "no_alert",
+      "affine_probe": {
+       "anchor_kind": "absorbing",
+       "n_candidates": 15,
+       "n_certificates": 0,
+       "n_pass_equiv": 15
+      },
+      "alert": false,
+      "assess_sec": 0.109,
+      "case": "negative",
+      "chain": "seed→closure→逐元素联合等变检验（experiments_sys2.verify_group）",
+      "completeness_score": 1.0,
+      "expected": "no_alert",
+      "label": "SYS-2 n=6 喂完整 S_6 seed（真群）",
+      "match": true,
+      "n_actions": 6,
+      "n_certificates": 0,
+      "n_orbits": 7,
+      "n_states": 64,
+      "n_wl_classes": 7,
+      "order": 720,
+      "order_after_union": null,
+      "reasons": [
+       "重启搜索探针 3 批（候选 112 个，其中 112 个通过等变检验）+ 动作置换探针（候选 0 个）+ 仿射探针（候选 15 个）均未发现群外真对称。注意：探针穷尽 ≠ 完整性的证明"
+      ],
+      "restart_probe": {
+       "batches_run": 3,
+       "n_candidates": 112,
+       "n_certificates": 0,
+       "n_pass_equiv": 112,
+       "per_batch": [
+        {
+         "batch": 0,
+         "n_candidates": 68,
+         "n_certificates": 0
+        },
+        {
+         "batch": 1,
+         "n_candidates": 20,
+         "n_certificates": 0
+        },
+        {
+         "batch": 2,
+         "n_candidates": 24,
+         "n_certificates": 0
+        }
+       ]
+      },
+      "verdict": "probe_exhausted_no_certificate",
+      "wl_gap": 1.0
+     },
+     "sys3a_n6_discover": {
+      "action_probe": {
+       "actions_certified": [],
+       "n_candidates": 0,
+       "n_certificates": 0
+      },
+      "actual": "alert",
+      "affine_probe": {
+       "anchor_kind": "absorbing",
+       "n_candidates": 15,
+       "n_certificates": 12,
+       "n_pass_equiv": 15
+      },
+      "alert": true,
+      "assess_sec": 14.972,
+      "case": "positive",
+      "chain": "experiments_p3.discover（默认参数，seed=7）",
+      "completeness_score": 0.0,
+      "expectation_source": "预注册预期表原预期 no_alert（「无对称环境、阶 1 是正确结论」）已被 2026-10-24 裁决定性「记录错」推翻：Aut(trans)=720 恰好（experiments_sys3a_recheck.json → reproduction.n6.aut_lower_bound/aut_upper_bound），机器群 6 阶确属不完整 ⇒ 改按裁决后真值预期告警",
+      "expected": "alert",
+      "label": "SYS-3 A n=6（目标=单状态；裁决后预期：告警——Aut=720 > 机器群 6）",
+      "match": true,
+      "n_actions": 6,
+      "n_certificates": 12,
+      "n_orbits": 32,
+      "n_states": 64,
+      "n_wl_classes": 7,
+      "order": 6,
+      "order_after_union": null,
+      "reasons": [
+       "仿射探针：15 个仿射候选 T_c∘σ（锚=吸收态 42）中 12 个通过等变检验却不在群内 ⇒ 已证群不完整（该类「整体位移」型候选是逐点回溯/对合搜索结构性产不出的，补类依据见本摘录同源的 SYS-3A 复核实验记录）",
+       "WL 色类 7 类 vs 群轨道 32 个（落差 4.571）：群在若干色类内不传递；该结构疑点只记录、不参与告警判定"
+      ],
+      "restart_probe": {
+       "batches_run": 3,
+       "n_candidates": 4,
+       "n_certificates": 0,
+       "n_pass_equiv": 4,
+       "per_batch": [
+        {
+         "batch": 0,
+         "n_candidates": 0,
+         "n_certificates": 0
+        },
+        {
+         "batch": 1,
+         "n_candidates": 0,
+         "n_certificates": 0
+        },
+        {
+         "batch": 2,
+         "n_candidates": 4,
+         "n_certificates": 0
+        }
+       ]
+      },
+      "task_book_original_expectation": "no_alert",
+      "verdict": "proved_incomplete",
+      "wl_gap": 4.571429
+     }
+    }
+   },
+   "before_fix_completeness_snapshot": {
+    "calibration_summary": {
+     "false_negatives_on_positives": 0,
+     "false_positives_on_negatives": 0,
+     "n_calibration_environments": 7,
+     "n_expected_match": 7,
+     "n_negative": 4,
+     "n_positive": 3,
+     "note": "误报=反例告警；漏报=正例不告警（按预注册预期表口径逐环境计数）。gua64 无 ground truth，不计入。另见 sys3a_premise_check：预注册预期表反例 3 的前提（阶 1 是正确结论）与当前代码实况不符，告警器在该环境按预期不触发，但数学上该群确实不完整（漏报机制已定位并记录）"
+    },
+    "environments": {
+     "gua64_discover": {
+      "action_probe": {
+       "actions_certified": [
+        1
+       ],
+       "n_candidates": 2,
+       "n_certificates": 1
+      },
+      "alert": true,
+      "assess_sec": 48.86,
+      "case": "live_showcase",
+      "chain": "experiments_gua64.discover_gua（与 Q6 同默认参数）",
+      "chain_sec": 21.644,
+      "completeness_score": 0.0,
+      "expected": null,
+      "label": "gua64 discover（欠采样已知，无完整 ground truth）",
+      "match": null,
+      "n_actions": 3,
+      "n_certificates": 3,
+      "n_orbits": 12,
+      "n_states": 64,
+      "n_wl_classes": 9,
+      "order": 294912,
+      "order_after_union": 589824,
+      "reasons": [
+       "动作置换探针：动作 1 的最优后继映射整体作为状态置换通过等变检验（max TV≤1e-09），却不在已得群中 ⇒ 已证群不完整",
+       "重启搜索探针：第 2 批（种子基 101）找到 2 个通过等变检验却不在群内的置换 ⇒ 已证群不完整",
+       "把证书并入生成元集取闭包：群阶 294912 → 589824",
+       "WL 色类 9 类 vs 群轨道 12 个（落差 1.333）：群在若干色类内不传递；该结构疑点只记录、不参与告警判定"
+      ],
+      "restart_probe": {
+       "batches_run": 3,
+       "n_candidates": 48,
+       "n_certificates": 2,
+       "n_pass_equiv": 48,
+       "per_batch": [
+        {
+         "batch": 0,
+         "n_candidates": 20,
+         "n_certificates": 0
+        },
+        {
+         "batch": 1,
+         "n_candidates": 11,
+         "n_certificates": 0
+        },
+        {
+         "batch": 2,
+         "n_candidates": 17,
+         "n_certificates": 2
+        }
+       ]
+      },
+      "verdict": "proved_incomplete",
+      "wl_gap": 1.333333
+     },
+     "q6_discover": {
+      "action_probe": {
+       "actions_certified": [],
+       "n_candidates": 0,
+       "n_certificates": 0
+      },
+      "actual": "no_alert",
+      "alert": false,
+      "assess_sec": 0.298,
+      "case": "negative",
+      "chain": "experiments_p3.discover（默认参数，seed=7）",
+      "chain_sec": 0.85,
+      "completeness_score": 1.0,
+      "expected": "no_alert",
+      "label": "Q6 自动发现（真群 S_6，阶 720）",
+      "match": true,
+      "n_actions": 6,
+      "n_certificates": 0,
+      "n_orbits": 7,
+      "n_states": 64,
+      "n_wl_classes": 7,
+      "order": 720,
+      "order_after_union": null,
+      "reasons": [
+       "重启搜索探针 3 批（候选 112 个，其中 112 个通过等变检验）+ 动作置换探针（候选 0 个）均未发现群外真对称。注意：探针穷尽 ≠ 完整性的证明"
+      ],
+      "restart_probe": {
+       "batches_run": 3,
+       "n_candidates": 112,
+       "n_certificates": 0,
+       "n_pass_equiv": 112,
+       "per_batch": [
+        {
+         "batch": 0,
+         "n_candidates": 68,
+         "n_certificates": 0
+        },
+        {
+         "batch": 1,
+         "n_candidates": 20,
+         "n_certificates": 0
+        },
+        {
+         "batch": 2,
+         "n_candidates": 24,
+         "n_certificates": 0
+        }
+       ]
+      },
+      "verdict": "probe_exhausted_no_certificate",
+      "wl_gap": 1.0
+     },
+     "q8_discover": {
+      "action_probe": {
+       "actions_certified": [],
+       "n_candidates": 0,
+       "n_certificates": 0
+      },
+      "actual": "no_alert",
+      "alert": false,
+      "assess_sec": 3.55,
+      "case": "negative",
+      "chain": "experiments_p3.discover（默认参数，seed=7）",
+      "chain_sec": 27.08,
+      "completeness_score": 1.0,
+      "expected": "no_alert",
+      "label": "Q8 自动发现（真群 S_8，阶 40320）",
+      "match": true,
+      "n_actions": 8,
+      "n_certificates": 0,
+      "n_orbits": 9,
+      "n_states": 256,
+      "n_wl_classes": 9,
+      "order": 40320,
+      "order_after_union": null,
+      "reasons": [
+       "重启搜索探针 3 批（候选 78 个，其中 78 个通过等变检验）+ 动作置换探针（候选 0 个）均未发现群外真对称。注意：探针穷尽 ≠ 完整性的证明"
+      ],
+      "restart_probe": {
+       "batches_run": 3,
+       "n_candidates": 78,
+       "n_certificates": 0,
+       "n_pass_equiv": 78,
+       "per_batch": [
+        {
+         "batch": 0,
+         "n_candidates": 34,
+         "n_certificates": 0
+        },
+        {
+         "batch": 1,
+         "n_candidates": 20,
+         "n_certificates": 0
+        },
+        {
+         "batch": 2,
+         "n_candidates": 24,
+         "n_certificates": 0
+        }
+       ]
+      },
+      "verdict": "probe_exhausted_no_certificate",
+      "wl_gap": 1.0
+     },
+     "sys2_n4_seed_dn": {
+      "action_probe": {
+       "actions_certified": [],
+       "n_candidates": 0,
+       "n_certificates": 0
+      },
+      "actual": "alert",
+      "alert": true,
+      "assess_sec": 0.004,
+      "case": "positive",
+      "chain": "seed→closure→逐元素联合等变检验（experiments_sys2.verify_group）",
+      "chain_sec": 0.006,
+      "completeness_score": 0.0,
+      "expected": "alert",
+      "label": "SYS-2 n=4 喂 D_4 seed（seed 群 8 阶 vs 真群 S_4 24 阶）",
+      "match": true,
+      "n_actions": 4,
+      "n_certificates": 33,
+      "n_orbits": 6,
+      "n_states": 16,
+      "n_wl_classes": 5,
+      "order": 8,
+      "order_after_union": 24,
+      "reasons": [
+       "重启搜索探针：第 0 批（种子基 101）找到 33 个通过等变检验却不在群内的置换 ⇒ 已证群不完整",
+       "把证书并入生成元集取闭包：群阶 8 → 24",
+       "WL 色类 5 类 vs 群轨道 6 个（落差 1.200）：群在若干色类内不传递；该结构疑点只记录、不参与告警判定"
+      ],
+      "restart_probe": {
+       "batches_run": 1,
+       "n_candidates": 43,
+       "n_certificates": 33,
+       "n_pass_equiv": 43,
+       "per_batch": [
+        {
+         "batch": 0,
+         "n_candidates": 43,
+         "n_certificates": 33
+        }
+       ]
+      },
+      "verdict": "proved_incomplete",
+      "wl_gap": 1.2
+     },
+     "sys2_n5_seed_dn": {
+      "action_probe": {
+       "actions_certified": [],
+       "n_candidates": 0,
+       "n_certificates": 0
+      },
+      "actual": "alert",
+      "alert": true,
+      "assess_sec": 0.025,
+      "case": "positive",
+      "chain": "seed→closure→逐元素联合等变检验（experiments_sys2.verify_group）",
+      "chain_sec": 0.026,
+      "completeness_score": 0.0,
+      "expected": "alert",
+      "label": "SYS-2 n=5 喂 D_5 seed（seed 群 10 阶 vs 真群 S_5 120 阶）",
+      "match": true,
+      "n_actions": 5,
+      "n_certificates": 63,
+      "n_orbits": 8,
+      "n_states": 32,
+      "n_wl_classes": 6,
+      "order": 10,
+      "order_after_union": 120,
+      "reasons": [
+       "重启搜索探针：第 0 批（种子基 101）找到 63 个通过等变检验却不在群内的置换 ⇒ 已证群不完整",
+       "把证书并入生成元集取闭包：群阶 10 → 120",
+       "WL 色类 6 类 vs 群轨道 8 个（落差 1.333）：群在若干色类内不传递；该结构疑点只记录、不参与告警判定"
+      ],
+      "restart_probe": {
+       "batches_run": 1,
+       "n_candidates": 68,
+       "n_certificates": 63,
+       "n_pass_equiv": 68,
+       "per_batch": [
+        {
+         "batch": 0,
+         "n_candidates": 68,
+         "n_certificates": 63
+        }
+       ]
+      },
+      "verdict": "proved_incomplete",
+      "wl_gap": 1.333333
+     },
+     "sys2_n6_seed_dn": {
+      "action_probe": {
+       "actions_certified": [],
+       "n_candidates": 0,
+       "n_certificates": 0
+      },
+      "actual": "alert",
+      "alert": true,
+      "assess_sec": 0.135,
+      "case": "positive",
+      "chain": "seed→closure→逐元素联合等变检验（experiments_sys2.verify_group）",
+      "chain_sec": 0.139,
+      "completeness_score": 0.0,
+      "expected": "alert",
+      "label": "SYS-2 n=6 喂 D_6 seed（seed 群 12 阶 vs 真群 S_6 720 阶）",
+      "match": true,
+      "n_actions": 6,
+      "n_certificates": 68,
+      "n_orbits": 13,
+      "n_states": 64,
+      "n_wl_classes": 7,
+      "order": 12,
+      "order_after_union": 720,
+      "reasons": [
+       "重启搜索探针：第 0 批（种子基 101）找到 68 个通过等变检验却不在群内的置换 ⇒ 已证群不完整",
+       "把证书并入生成元集取闭包：群阶 12 → 720",
+       "WL 色类 7 类 vs 群轨道 13 个（落差 1.857）：群在若干色类内不传递；该结构疑点只记录、不参与告警判定"
+      ],
+      "restart_probe": {
+       "batches_run": 1,
+       "n_candidates": 68,
+       "n_certificates": 68,
+       "n_pass_equiv": 68,
+       "per_batch": [
+        {
+         "batch": 0,
+         "n_candidates": 68,
+         "n_certificates": 68
+        }
+       ]
+      },
+      "verdict": "proved_incomplete",
+      "wl_gap": 1.857143
+     },
+     "sys2_n6_seed_sn": {
+      "action_probe": {
+       "actions_certified": [],
+       "n_candidates": 0,
+       "n_certificates": 0
+      },
+      "actual": "no_alert",
+      "alert": false,
+      "assess_sec": 0.105,
+      "case": "negative",
+      "chain": "seed→closure→逐元素联合等变检验（experiments_sys2.verify_group）",
+      "completeness_score": 1.0,
+      "expected": "no_alert",
+      "label": "SYS-2 n=6 喂完整 S_6 seed（真群）",
+      "match": true,
+      "n_actions": 6,
+      "n_certificates": 0,
+      "n_orbits": 7,
+      "n_states": 64,
+      "n_wl_classes": 7,
+      "order": 720,
+      "order_after_union": null,
+      "reasons": [
+       "重启搜索探针 3 批（候选 112 个，其中 112 个通过等变检验）+ 动作置换探针（候选 0 个）均未发现群外真对称。注意：探针穷尽 ≠ 完整性的证明"
+      ],
+      "restart_probe": {
+       "batches_run": 3,
+       "n_candidates": 112,
+       "n_certificates": 0,
+       "n_pass_equiv": 112,
+       "per_batch": [
+        {
+         "batch": 0,
+         "n_candidates": 68,
+         "n_certificates": 0
+        },
+        {
+         "batch": 1,
+         "n_candidates": 20,
+         "n_certificates": 0
+        },
+        {
+         "batch": 2,
+         "n_candidates": 24,
+         "n_certificates": 0
+        }
+       ]
+      },
+      "verdict": "probe_exhausted_no_certificate",
+      "wl_gap": 1.0
+     },
+     "sys3a_n6_discover": {
+      "action_probe": {
+       "actions_certified": [],
+       "n_candidates": 0,
+       "n_certificates": 0
+      },
+      "actual": "no_alert",
+      "alert": false,
+      "assess_sec": 14.927,
+      "case": "negative",
+      "chain": "experiments_p3.discover（默认参数，seed=7）",
+      "completeness_score": 0.821429,
+      "expected": "no_alert",
+      "label": "SYS-3 A n=6（目标=单状态；预注册预期：不告警）",
+      "match": true,
+      "n_actions": 6,
+      "n_certificates": 0,
+      "n_orbits": 32,
+      "n_states": 64,
+      "n_wl_classes": 7,
+      "order": 6,
+      "order_after_union": null,
+      "reasons": [
+       "重启搜索探针 3 批（候选 4 个，其中 4 个通过等变检验）+ 动作置换探针（候选 0 个）均未发现群外真对称。注意：探针穷尽 ≠ 完整性的证明",
+       "WL 色类 7 类 vs 群轨道 32 个（落差 4.571）：群在若干色类内不传递；该结构疑点只记录、不参与告警判定"
+      ],
+      "restart_probe": {
+       "batches_run": 3,
+       "n_candidates": 4,
+       "n_certificates": 0,
+       "n_pass_equiv": 4,
+       "per_batch": [
+        {
+         "batch": 0,
+         "n_candidates": 0,
+         "n_certificates": 0
+        },
+        {
+         "batch": 1,
+         "n_candidates": 0,
+         "n_certificates": 0
+        },
+        {
+         "batch": 2,
+         "n_candidates": 4,
+         "n_certificates": 0
+        }
+       ]
+      },
+      "verdict": "probe_exhausted_no_certificate",
+      "wl_gap": 4.571429
+     }
+    },
+    "snapshot_note": "修复前快照（experiments_completeness.json 在仿射探针合入前的内容，2026-10-24 捕获；此后重跑本脚本不覆盖此块）"
+   },
+   "regression_matrix": [
+    {
+     "after": {
+      "alert": true,
+      "n_certificates": 3,
+      "order": 294912,
+      "score": 0.0,
+      "verdict": "proved_incomplete"
+     },
+     "alert_changed": false,
+     "before": {
+      "alert": true,
+      "n_certificates": 3,
+      "order": 294912,
+      "score": 0.0,
+      "verdict": "proved_incomplete"
+     },
+     "env": "gua64_discover",
+     "intended_change": false,
+     "regression": false
+    },
+    {
+     "after": {
+      "alert": false,
+      "n_certificates": 0,
+      "order": 720,
+      "score": 1.0,
+      "verdict": "probe_exhausted_no_certificate"
+     },
+     "alert_changed": false,
+     "before": {
+      "alert": false,
+      "n_certificates": 0,
+      "order": 720,
+      "score": 1.0,
+      "verdict": "probe_exhausted_no_certificate"
+     },
+     "env": "q6_discover",
+     "intended_change": false,
+     "regression": false
+    },
+    {
+     "after": {
+      "alert": false,
+      "n_certificates": 0,
+      "order": 40320,
+      "score": 1.0,
+      "verdict": "probe_exhausted_no_certificate"
+     },
+     "alert_changed": false,
+     "before": {
+      "alert": false,
+      "n_certificates": 0,
+      "order": 40320,
+      "score": 1.0,
+      "verdict": "probe_exhausted_no_certificate"
+     },
+     "env": "q8_discover",
+     "intended_change": false,
+     "regression": false
+    },
+    {
+     "after": {
+      "alert": true,
+      "n_certificates": 33,
+      "order": 8,
+      "score": 0.0,
+      "verdict": "proved_incomplete"
+     },
+     "alert_changed": false,
+     "before": {
+      "alert": true,
+      "n_certificates": 33,
+      "order": 8,
+      "score": 0.0,
+      "verdict": "proved_incomplete"
+     },
+     "env": "sys2_n4_seed_dn",
+     "intended_change": false,
+     "regression": false
+    },
+    {
+     "after": {
+      "alert": true,
+      "n_certificates": 63,
+      "order": 10,
+      "score": 0.0,
+      "verdict": "proved_incomplete"
+     },
+     "alert_changed": false,
+     "before": {
+      "alert": true,
+      "n_certificates": 63,
+      "order": 10,
+      "score": 0.0,
+      "verdict": "proved_incomplete"
+     },
+     "env": "sys2_n5_seed_dn",
+     "intended_change": false,
+     "regression": false
+    },
+    {
+     "after": {
+      "alert": true,
+      "n_certificates": 68,
+      "order": 12,
+      "score": 0.0,
+      "verdict": "proved_incomplete"
+     },
+     "alert_changed": false,
+     "before": {
+      "alert": true,
+      "n_certificates": 68,
+      "order": 12,
+      "score": 0.0,
+      "verdict": "proved_incomplete"
+     },
+     "env": "sys2_n6_seed_dn",
+     "intended_change": false,
+     "regression": false
+    },
+    {
+     "after": {
+      "alert": false,
+      "n_certificates": 0,
+      "order": 720,
+      "score": 1.0,
+      "verdict": "probe_exhausted_no_certificate"
+     },
+     "alert_changed": false,
+     "before": {
+      "alert": false,
+      "n_certificates": 0,
+      "order": 720,
+      "score": 1.0,
+      "verdict": "probe_exhausted_no_certificate"
+     },
+     "env": "sys2_n6_seed_sn",
+     "intended_change": false,
+     "regression": false
+    },
+    {
+     "after": {
+      "alert": true,
+      "n_certificates": 12,
+      "order": 6,
+      "score": 0.0,
+      "verdict": "proved_incomplete"
+     },
+     "alert_changed": true,
+     "before": {
+      "alert": false,
+      "n_certificates": 0,
+      "order": 6,
+      "score": 0.821429,
+      "verdict": "probe_exhausted_no_certificate"
+     },
+     "env": "sys3a_n6_discover",
+     "intended_change": true,
+     "regression": false
+    }
+   ],
+   "regression_note": "回归口径：非 sys3a 环境的 alert/verdict 判定必须与修复前一致（证书数/分数允许只增不减的良性变化）；sys3a 的 no_alert→alert 是修复的预期效果（漏报盲区关闭），计 intended_change，不算退步",
+   "summary": {
+    "n_environments_compared": 8,
+    "n_judgment_regressions": 0,
+    "numeric_note": "本 summary 的数值字段供 src/audit_consistency.py 断言回源；sys3a_alert_after_fix_flag：1=修复后 SYS-3 A 告警（盲区关闭）",
+    "sys3a_alert_after_fix_flag": 1,
+    "sys3a_intended_flip_applied": 1
+   }
+  }
+ },
+ "note": "Verbatim excerpt of the cited fields from the research repository's record. The research repository is NOT part of this release; the mother path is published only as provenance. Values are copied without rounding or edits."
+}

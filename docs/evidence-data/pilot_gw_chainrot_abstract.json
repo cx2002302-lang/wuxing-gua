@@ -1,0 +1,16 @@
+{
+ "anchors": [
+  "E7",
+  "E9"
+ ],
+ "excerpt_of": "pilot/gw_chainrot_abstract.json",
+ "excerpted_on": "2026-10-29",
+ "fields": {
+  "H.order": 5,
+  "abstract.aut_group_checked": 75,
+  "abstract.aut_violations": 0,
+  "encoding.n_dummy": 47,
+  "encoding.n_real": 465
+ },
+ "note": "Verbatim excerpt of the cited fields from the research repository's record. The research repository is NOT part of this release; the mother path is published only as provenance. Values are copied without rounding or edits."
+}

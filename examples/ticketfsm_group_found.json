@@ -1,4 +1,7 @@
 {
+ "semantics": {
+  "action": "relabel"
+ },
  "command": "discover",
  "n_bits": 5,
  "n_states": 32,

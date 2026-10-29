@@ -1,0 +1,19 @@
+{
+ "anchors": [
+  "README-115"
+ ],
+ "excerpt_of": "experiments_w3_discriminator_v2.json",
+ "excerpted_on": "2026-10-29",
+ "fields": {
+  "matrix_summary.auc_main_w3d": 1.0,
+  "matrix_summary.confusion_2x2": {
+   "false_negative(达真判未达真)": 0,
+   "false_positive(未达真判达真)": 0,
+   "true_negative(未达真判未达真)": 46,
+   "true_positive(达真判达真)": 69
+  },
+  "matrix_summary.env_level_all_correct": true,
+  "matrix_summary.n_instances": 115
+ },
+ "note": "Verbatim excerpt of the cited fields from the research repository's record. The research repository is NOT part of this release; the mother path is published only as provenance. Values are copied without rounding or edits."
+}

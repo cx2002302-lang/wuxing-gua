@@ -1,0 +1,34 @@
+{
+ "n_states": 8,
+ "elements": [
+  [
+   0,
+   1,
+   2,
+   3,
+   4,
+   5,
+   6,
+   7
+  ],
+  [
+   0,
+   2,
+   1,
+   3,
+   4,
+   5,
+   6,
+   7
+  ]
+ ],
+ "meta": {
+  "construction": "order-2 group swapping the two structurally identical wait states 1 (wait-fin) and 2 (closing)",
+  "why_it_looks_legal": "the two states have the same shape: one outgoing edge into the goal, otherwise only penalized self-loops -- on the unlabeled graph the swap maps arrows to arrows",
+  "why_it_is_not_a_symmetry": "the completion events differ: state 1 waits for rcv FIN, state 2 waits for rcv ACK of FIN. With event names pinned the swap reads 'the peer's FIN arrived' as 'the peer acknowledged' -- a protocol error (TV 1.0 on the completion edges)",
+  "regenerate": "python -X utf8 examples/make_eventfsm_samples.py"
+ },
+ "semantics": {
+  "action": "fixed"
+ }
+}

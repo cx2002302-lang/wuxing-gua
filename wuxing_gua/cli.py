@@ -23,7 +23,7 @@ cli.py —— wuxing_gua 命令行接口
   check         --trans model.json --group group.json     完整转移表版两层判定
   check-sample  --samples samples.jsonl --group group.json [--trans model.json]
                                                           采样版三态判定
-  selftest                                                端到端自检（13 分支，2 分钟内）
+  selftest                                                端到端自检（15 分支，约 2 分钟）
   demo          --out DIR [--n 6]                         辅助：生成 README 示例夹具
 
 stdout 一律是可解析 JSON（demo/selftest 除外：它们输出人读进度）；
@@ -95,6 +95,14 @@ def cmd_discover(args):
         extra_candidates=extra,
         preset=preset,
         pad_aware=bool(getattr(args, "pad_aware", False)))
+    # discover 产出的群自动标注动作语义：discover 的搜索与裁决在 relabel 口径
+    # （动作可随状态换名，开关/里程碑位类正确）下进行——落盘复用时该标注随之
+    # 带走并保持 assumed=true，直到模型作者改成自己的显式声明。
+    payload["semantics"] = {
+        "action": "relabel", "assumed": True,
+        "note": ("discover 的搜索与等变裁决在 relabel 口径（动作可随状态换名）下"
+                 "进行；事件驱动系统（动作=外部事件）请把本块改声明为 \"fixed\""
+                 "——对照与自判指引见 docs/judge-semantics.md")}
     # --report-confidence：只读诊断块，默认关闭、
     # 关闭时输出逐字节不变；不改变退出码语义（预注册口径）。
     if args.report_confidence:
@@ -119,7 +127,15 @@ def cmd_discover(args):
 def cmd_check(args):
     model = core_check.load_model(args.trans)
     group = core_check.load_group(args.group)
-    payload = core_check.run_check(model, group)
+    payload = core_check.run_check(model, group, strict=getattr(args, "strict", False))
+    if payload.get("semantics_assumed"):
+        # 宽容默认必须显眼：群文件未声明动作语义时按 relabel 判读，
+        # 结论以该口径为条件——事件类系统在此口径下会被误放行（TCP 教训）。
+        sys.stderr.write(
+            "[口径警示] 群文件未声明动作语义（semantics 块）：按 relabel（动作可随"
+            "状态换名）判读，本结论以该口径为条件。事件驱动系统（动作=外部事件，"
+            "如协议报文）应把群文件里的 semantics 块声明为 \"fixed\"——"
+            "两类系统的对照与自判指引见 docs/judge-semantics.md\n")
     _emit(payload)
     return EXIT_PASS if payload["verdict"] == "pass" else EXIT_REJECT
 
@@ -247,6 +263,13 @@ def build_parser():
     p = sub.add_parser("check", help="完整转移表版判定（转移等变 + 奖励剖面，均零容忍）")
     p.add_argument("--trans", required=True, metavar="MODEL_JSON")
     p.add_argument("--group", required=True, metavar="GROUP_JSON")
+    p.add_argument("--strict", action="store_true",
+                   help="覆盖群声明为 fixed 口径：动作名必须原样对应，不得随状态"
+                        "换名（事件驱动系统——动作=外部事件——的正确口径；开关/"
+                        "里程碑位类系统请不要用本标志，改在群文件里声明 "
+                        "semantics.action=\"relabel\"，两类系统的对照与自判指引见"
+                        " docs/judge-semantics.md。不带本标志且群文件已声明时，"
+                        "按声明分派")
     p.set_defaults(func=cmd_check)
 
     p = sub.add_parser("check-sample", help="采样版判定（三态：pass/reject/abstain）")
@@ -257,7 +280,7 @@ def build_parser():
                    help="推荐提供：读 goals（吸收态口径）与 n_actions")
     p.set_defaults(func=cmd_check_sample)
 
-    p = sub.add_parser("selftest", help="端到端自检（13 分支，全程 2 分钟内）")
+    p = sub.add_parser("selftest", help="端到端自检（15 分支，约 2 分钟）")
     p.set_defaults(func=cmd_selftest)
 
     p = sub.add_parser("demo", help="辅助：生成 README 示例与 selftest 共用的夹具文件")

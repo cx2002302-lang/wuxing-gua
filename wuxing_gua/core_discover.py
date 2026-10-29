@@ -34,6 +34,8 @@ from experiments_completeness import (assess_completeness, standard_equiv_fn,
 from experiments_canonical_search import canonize as _graph_canonize
 from experiments_ovh_relabel import relabel as _relabel_adj, isom_map_ok as _isom_map_ok
 
+from .errors import InputError
+
 
 def _sec_magnitude(sec):
     """计时量级桶（数字纪律：单次运行计时必然漂移，只报量级不报精确值）。"""
@@ -98,12 +100,12 @@ def _canonize_model(trans, n_acts):
     返回 (order, inv, info)：inv = order 的逆（旧状态 → 新 id）；
     info = 报告字段（canonize 用时量级 / 映射摘要 / 搜索树节点数）。
 
-    ⚠️ 2026-10-27 多分量分流（GameWXXX 案例修复）：骨干图
+    ⚠️ 2026-10-27 多分量分流（游戏案例修复）：骨干图
     **非连通**时不再对整图做个体化-细化 canonize，改走
     experiments_discover_labeling.canonize_model_generic（逐分量 canonize + 按分量
     证书排序拼接，与 --preset robust 的 canonize 臂同一实现）。原因：整图口径的
     个体化-细化树在「多个同构分量」上会爆炸——每个同构分量都要逐个分支个体化，
-    分量数为 m 时叶数 ~ m!（GameWXXX：47 个 pad 哑态 = 47 个同构单点分量 ⇒ 47!），
+    分量数为 m 时叶数 ~ m!（该案例：47 个 pad 哑态 = 47 个同构单点分量 ⇒ 47!），
     且单节点成本 O(NS²)（canon_refine 迭代 NS+2 轮 × NS 顶点）在 512 态上实测
     ~11ms/节点 ⇒ 触达 CANON_NODE_CAP=400000 需 ~75 分钟，31 分钟硬停时连节点上限
     都没到。逐分量口径下同一张图 496 节点 / 5.6s 完成。单分量图（全部历史环境）
@@ -846,6 +848,19 @@ def run_discover(model, canonize=False, multi_label=None, multi_label_seed=20261
     """
     trans, n_acts, NS = model["trans"], model["n_actions"], model["n_states"]
     _ensure_recursion_depth(NS)     # 递归护栏：NS 大于头寸时抬高递归上限（NS≤872 零触碰）
+    # 2026-10-29 适用域守卫（口径声明层，2026-10-29）：discover 的候选搜索按位串动作约定
+    # 构造（动作 a = 翻第 a 位 ⇒ 要求 n_actions ≤ n_bits）。事件类模型（动作数
+    # 超过状态位数，如 rung 1c 的 4 事件 / 3 位）超出其适用域——此前会以
+    # IndexError 崩溃（退出码 3 + traceback），现改为入口处如实拒绝：事件类
+    # 系统请人工推导候选、用 check 配 semantics 声明判定（docs/judge-semantics.md）。
+    # 既有全部模型满足 n_actions ≤ n_bits，此守卫不触发、行为逐位不变。
+    if n_acts > model["n_bits"]:
+        raise InputError(
+            "discover 的搜索按位串动作约定构造（动作 a = 翻第 a 位），要求 "
+            "n_actions(%d) ≤ n_bits(%d)；本模型动作数超过状态位数，超出 discover "
+            "适用域。事件类模型（动作 = 外部事件）请人工推导候选群、用 check 判定"
+            "（群文件里声明 semantics.action=\"fixed\"；做法见 examples rung 1c 与 "
+            "docs/judge-semantics.md）" % (n_acts, model["n_bits"]))
     if not canonize and multi_label is None and not extra_candidates and not pad_aware:
         G, diag = _discover(trans, n_acts)
         orbits = sorted((sorted(ob) for ob in orbits_of(G, NS)), key=lambda o: o[0])
@@ -892,7 +907,7 @@ def run_discover(model, canonize=False, multi_label=None, multi_label_seed=20261
                 "skipped": True,
                 "reason": ("completeness 评估器的仿射探针按位串口径构造（假设 "
                            "n_states = 2^n_actions），本模型 n_actions=%d、n_states=%d "
-                           "不满足（如 GameWXXX 512=2^9 态 7 动作）——如实跳过；"
+                           "不满足（如 512=2^9 态 7 动作的游戏模型）——如实跳过；"
                            "判据本身不受影响（max TV=0 等变裁决、闭包、哨兵复检"
                            "全部照常执行）" % (n_acts, NS)),
             }

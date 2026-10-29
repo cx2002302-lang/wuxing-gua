@@ -1,4 +1,7 @@
 {
+ "semantics": {
+  "action": "relabel"
+ },
  "n_states": 32,
  "elements": [
   [

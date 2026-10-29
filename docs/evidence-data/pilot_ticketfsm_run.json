@@ -1,0 +1,27 @@
+{
+ "anchors": [
+  "E1",
+  "E2",
+  "E6",
+  "E19",
+  "E46"
+ ],
+ "excerpt_of": "pilot/ticketfsm_run.json",
+ "excerpted_on": "2026-10-29",
+ "fields": {
+  "extraction_selfcheck.main.n_actions": 5,
+  "extraction_selfcheck.main.n_states": 32,
+  "summary.main.completeness_alert": false,
+  "summary.main.completeness_verdict": "probe_exhausted_no_certificate",
+  "summary.main.compression_ratio": 1.3333333333333333,
+  "summary.main.confidence.verdict": "statistical_suspicion",
+  "summary.main.confidence.w3d_score": 1.0,
+  "summary.main.confidence.wl_gap": 6.0,
+  "summary.main.discover_exit_code": 0,
+  "summary.main.group_order": 2,
+  "summary.main.n_orbits": 24,
+  "summary.main.prereg_judgment": "PRIMARY_HIT"
+ },
+ "note": "Verbatim excerpt of the cited fields from the research repository's record. The research repository is NOT part of this release; the mother path is published only as provenance. Values are copied without rounding or edits.",
+ "release_alias_note": "The mother path of this record is written under its release alias: the ticket-dispatch case records are anonymized in this release (anchor E49 naming decision). Field paths and values are verbatim."
+}

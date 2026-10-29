@@ -26,7 +26,7 @@ python -X utf8 -m wuxing_gua demo --out demo_fixtures
 ```
 
 然后跑端到端自检（13 个分支，实测总耗时两分钟量级、上限 180 s——分支数与上限随
-版本演进，以输出汇总行为准；当前为 13 分支口径）：
+版本演进，以输出汇总行为准；当前为 15 分支口径）：
 
 ```bash
 python -X utf8 -m wuxing_gua selftest
@@ -401,7 +401,7 @@ n_states = 2^n_actions 位串口径构造），输出 `completeness.skipped=true
 秒级到数十秒量级。selftest 分支 12 用 16 状态能量环境 Q₄（双射动作 mini，
 `demo_env.build_popcount(4)`）验证单命令达真群 **384**（= 2⁴·4!，n=6 同构造
 实测 46080 = 2⁶·6! 的降维同构型；期望值 = 同构造确定性重跑的实测定值）——
-为守 selftest 120 s 总上限不跑大环境（32 状态同构 mini 单命令实测数十秒量级，
+为守 selftest 220 s 总上限不跑大环境（32 状态同构 mini 单命令实测数十秒量级，
 六十四卦数字以上述 json 为准）。
 
 ### discover 的 --extra-candidates 标志（动作置换候选源）
@@ -449,7 +449,7 @@ gua64 / 汉诺塔 n=7/n=8）回归「群阶不减、不误报」逐环境结果�
 
 **为什么**（判决 = 生成侧隔离，`pilot/s47_blindspot_v2.json`）：含 **pad 哑态**
 （全动作单后继自环 r=0 的行）的模型上，四路候选（确定性 / 随机重启 / 对合 /
-MRV fallback）系统性漏掉跨哑态-真态的对称元素——512 GameWXXX 模型池普查
+MRV fallback）系统性漏掉跨哑态-真态的对称元素——512 态游戏模型池普查
 real_touch_pass=0：det 的 48 个候选全 pad-only（pad 色类 47 元在回溯枚举序里
 先耗尽 max_gens=48）、rr 0 个（node_cap 死区）、对合 0 个（全部 WL 色类大小
 15/47/75 皆奇数 ⇒ 配对结构性无解）、MRV 4 个仍全 pad-only（DFS 回溯末位类
@@ -477,10 +477,10 @@ python -X utf8 -m wuxing_gua discover --trans <model.json> --pad-aware
 python -X utf8 -m wuxing_gua discover --trans <model.json> --pad-aware --preset robust
 ```
 
-**验收**（预注册 `pilot/gw_padaware_run.json`，先落盘后实现）：512 GameWXXX
+**验收**（预注册 `pilot/gw_padaware_run.json`，先落盘后实现）：512 态游戏模型
 模型 --pad-aware plain 在 900s 预算内从阶 1 拒答修到**发现非平凡群阶 5**
 （=H，与 S47 四臂对账一致），全部元素 ⊆ 抽象 Aut=75（⟨σ,π⟩=C5×C15 重建
-逐元素核对）、pad 全定点、哨兵 ok；回归：selftest 13 分支、默认/单标志路径
+逐元素核对）、pad 全定点、哨兵 ok；回归：selftest 15 分支、默认/单标志路径
 逐位 diff 全等（剥离计时字段口径）、C1-C6 矩阵抽 3 环境（Q4/K44/Heawood）
 复跑达真 18/18 不降、ticketfsm 复跑阶 2 不变——逐项数字以 `gw_padaware_run.json`
 的 stage_main / stage_regress 为准，判据文件 sha256 before/after 相等（判据
@@ -562,13 +562,23 @@ argparse 用法错误也被改为退出码 3（argparse 缺省的 2 与"样本�
   "n_states": 64,
   "elements": [[0, 1, 2, ...], ...],
   "n_actions": 6,
-  "goals": [63]
+  "goals": [63],
+  "semantics": {"action": "relabel"}
 }
 ```
 
 - `elements`：置换列表，每个是 `0..n_states-1` 的双射；**允许只给生成集**——工具自动取闭包并在输出的 `group.input_was_closed_group` / `elements_added_by_closure` 里如实注明
 - `discover` 的 stdout 直接可当作 group.json 用（多余字段被忽略）
 - `n_actions` / `goals` 仅 check-sample 在缺 `--trans` 时使用（可选字段）
+- `semantics`（可选，2026-10-29 起）：**动作语义显式声明**——`relabel`（动作可随状态换名，
+  开关/里程碑位类系统的正确口径，历史默认）/ `fixed`（动作名不可换，事件驱动状态机的正确
+  口径）/ `explicit`（配 `"action_map": [..]` 逐动作映射，须为动作集上的双射，且仅 explicit
+  可给）。未声明时按 relabel 判读，但输出 `semantics.declared=false`、`semantics_assumed=true`
+  并在 stderr 打「口径警示」——宽容默认不静默。`--strict` 一律覆盖为 fixed。块内可附
+  `assumed: true`（discover 自动盖章：未被模型作者确认的声明，check 照实按假定警示）与任意
+  说明字段（被忽略，故 discover stdout 落盘仍可直接用）。两类系统对照表与自判指引：
+  `docs/judge-semantics.md`；可复现对照实例：`examples` rung 1c（事件类）/ rung 0、1a、1b
+  （开关类）
 
 ### samples.jsonl（check-sample 的 `--samples`）
 
@@ -582,6 +592,14 @@ argparse 用法错误也被改为退出码 3（argparse 缺省的 2 与"样本�
    「max TV = 0 才放行」），容忍度 `TV_TOL = 1e-9`（与 discover 缺省 `tol` 一致）。
    |G| ≤ 5000 逐元素全查；更大时按 discover 的哨兵口径抽查（贪心生成元 + 头 64 / 中 64 / 尾 32），
    依据「等变关于复合封闭」的数学论证——demo 规模（≤64 状态）内不会触发。
+   2026-10-29 起**判据四分派**（判据数学零改动，只分派）：群文件 `semantics` 声明 relabel →
+   位串判据 `equiv_error`（n_actions ≤ n_bits 时）或泛化判据 `equiv_error_gua`
+   （n_actions > n_bits 时，`src/experiments_gua64.py`）；声明 fixed → 严格判据
+   `_equiv_error_strict`（动作名原样对应）；声明 explicit → `_equiv_error_explicit`
+   （按声明 action_map 查表，TV 机制与 dist_of/tvd 同源）。`--strict` 一律覆盖为 fixed。
+   实际分派结果记录在输出 `semantics.judge` 与 `layer_transition.judge`
+   （bitstring / generalized / strict / explicit）。relabel 分派与历史行为逐位一致
+   （声明不改变开关类结果——正确性不变量，selftest 分支 14 硬断言）。
 2. **奖励剖面层**：`cheap_check`（`src/experiments_p4.py` 完整转移表版）——对每个状态把
    (概率, 奖励) 多重集按轨道代表元聚合为「奖励剖面」，同轨道剖面全同 ⇔ 等变；
    `n_bad = 0` 零容忍。它抓的正是「保转移概率但不保奖励」的群。
@@ -600,8 +618,12 @@ argparse 用法错误也被改为退出码 3（argparse 缺省的 2 与"样本�
 ## 已知限制
 
 1. **位串口径**：等变裁决沿用研究实现，要求 `n_states = 2**n_bits` 且动作 a = 翻转第 a 位。
-   不满足的模型不会被误放行——会在转移等变层如实拒答（元素推不出合法动作映射），
-   discover 则可能只找到平凡群。
+   不满足的模型不会被误放行——check 会在转移等变层如实拒答（元素推不出合法动作映射），
+   discover 则只找到平凡群。2026-10-29 补充：**动作数超过状态位数**（n_actions > n_bits，
+   事件类模型的常见形态）时 check 走泛化判据（见「判据口径」的四分派）；discover 的候选
+   搜索仍按位串动作约定构造，此类模型在入口处如实拒绝（退出码 3，无 traceback）——事件类
+   系统请人工推导候选、用 check 配 `semantics` 声明判定（`docs/judge-semantics.md`、
+   examples rung 1c）。
 2. **平凡群恒放行**：check 回答"合法性"，不回答"有用性"。阶 1 的群两层判据真空通过
    （输出里带 note 说明压缩比 1.00×）；找群请用 discover。
 3. **discover 只看转移、不看奖励**：奖励破坏对称时（如能量环境上的 S₆ 之外的更大群），
@@ -644,7 +666,7 @@ cd <任意目录>
 python -X utf8 -m wuxing_gua selftest
 ```
 
-  期望：selftest 13/13 分支 PASS、退出码 0（实测两分钟量级，上限 180 s，以输出汇总
+  期望：selftest 15/15 分支 PASS、退出码 0（实测两分钟量级，上限 220 s，以输出汇总
   行为准）。安装树会同时含
   `wuxing_gua/` 与 `src/` 两个顶层目录——判据核心 import 自 src（见上文
   「文件结构与出处」表），只装 `wuxing_gua` 单包会在 import 时报错，这是设计使然；

@@ -1,0 +1,15 @@
+{
+ "anchors": [
+  "E3"
+ ],
+ "excerpt_of": "pilot/ticketfsm_check.json",
+ "excerpted_on": "2026-10-29",
+ "fields": {
+  "exit_code": 0,
+  "layer_reward_profile.n_bad": 0,
+  "layer_reward_profile.n_pair": 8,
+  "verdict": "pass"
+ },
+ "note": "Verbatim excerpt of the cited fields from the research repository's record. The research repository is NOT part of this release; the mother path is published only as provenance. Values are copied without rounding or edits.",
+ "release_alias_note": "The mother path of this record is written under its release alias: the ticket-dispatch case records are anonymized in this release (anchor E49 naming decision). Field paths and values are verbatim."
+}

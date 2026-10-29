@@ -9,6 +9,14 @@
  "check": {
   "exit_code": 0,
   "verdict": "pass",
+  "semantics": {
+   "action": "relabel",
+   "judge": "bitstring",
+   "declared": true,
+   "assumed": false,
+   "source": "group_file"
+  },
+  "semantics_assumed": false,
   "group_order": 2,
   "n_orbits": 24,
   "compression": 1.3333333333333333,
@@ -25,5 +33,7 @@
    "n_pair": 8,
    "n_bad": 0
   }
- }
+ },
+ "group_provenance": " (semantics declaration block added 2026-10-29)",
+ "semantics_note": "semantics / semantics_assumed fields added 2026-10-29 (re-recorded from a fresh run of the same commands; every pre-existing reading below is bit-identical to the 2026-10-28 record -- declaring the reading did not change it)"
 }

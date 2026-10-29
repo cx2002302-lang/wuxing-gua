@@ -1,0 +1,32 @@
+{
+ "anchors": [
+  "E4",
+  "E5"
+ ],
+ "excerpt_of": "pilot/aut_bruteforce.json",
+ "excerpted_on": "2026-10-29",
+ "fields": {
+  "main.aut_order_dedup_by_pi": 2,
+  "main.nontrivial_moves": [
+   {
+    "10": 12,
+    "11": 13,
+    "12": 10,
+    "13": 11,
+    "18": 20,
+    "19": 21,
+    "2": 4,
+    "20": 18,
+    "21": 19,
+    "26": 28,
+    "27": 29,
+    "28": 26,
+    "29": 27,
+    "3": 5,
+    "4": 2,
+    "5": 3
+   }
+  ]
+ },
+ "note": "Verbatim excerpt of the cited fields from the research repository's record. The research repository is NOT part of this release; the mother path is published only as provenance. Values are copied without rounding or edits."
+}

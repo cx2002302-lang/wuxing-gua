@@ -1,0 +1,14 @@
+{
+ "anchors": [
+  "E11"
+ ],
+ "excerpt_of": "pilot/gw_chainrot_checksample.json",
+ "excerpted_on": "2026-10-29",
+ "fields": {
+  "exit_code": 2,
+  "n_samples": 120000,
+  "reason": "有 10 个轨道未被采样覆盖；有 56 个轨道样本量低于功效门槛",
+  "verdict": "abstain"
+ },
+ "note": "Verbatim excerpt of the cited fields from the research repository's record. The research repository is NOT part of this release; the mother path is published only as provenance. Values are copied without rounding or edits."
+}

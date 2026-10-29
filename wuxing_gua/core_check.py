@@ -16,7 +16,8 @@ import json
 import math
 import os
 
-from experiments_p3 import equiv_error, closure_perms
+from experiments_p3 import equiv_error, closure_perms, tvd, dist_of
+from experiments_gua64 import equiv_error_gua   # 泛化判据：动作不必是「翻第 a 位」
 from experiments_p4 import cheap_check
 from experiments_e1 import orbits_of
 
@@ -54,8 +55,11 @@ def load_model(path):
     n_bits, n_actions = raw["n_bits"], raw["n_actions"]
     if not (_is_int(n_bits) and n_bits >= 1):
         raise InputError("n_bits 必须是 >=1 的整数")
-    if not (_is_int(n_actions) and 1 <= n_actions <= n_bits):
-        raise InputError("n_actions 必须是 1..n_bits 的整数（研究口径：动作 a = 翻转第 a 位）")
+    if not (_is_int(n_actions) and n_actions >= 1):
+        raise InputError("n_actions 必须是 >=1 的整数")
+    # 2026-10-29：原校验要求 n_actions <= n_bits（「动作 a = 翻第 a 位」的编码假设）。
+    # 该假设只约束**位串判据**；泛化判据 equiv_error_gua 不依赖它，故这里放行，
+    # 由转移层按 n_actions 与 n_bits 的关系分派判据。
     n_states = 1 << n_bits
     if "n_states" in raw and raw["n_states"] != n_states:
         raise InputError("n_states=%r 与 2**n_bits=%d 不一致" % (raw["n_states"], n_states))
@@ -177,8 +181,42 @@ def load_group(path):
     if g_na is not None and not (_is_int(g_na) and g_na >= 1):
         raise GroupInvalid("group.json 的 n_actions 必须是正整数")
 
+    # 2026-10-29：可选 semantics 块（动作语义显式声明，判据口径工程的声明层）。
+    #   {"action": "relabel"|"fixed"|"explicit", "action_map": [..] 仅 explicit}
+    #   relabel  = 动作可随状态换名（开关/里程碑位类系统的正确口径；历史默认）
+    #   fixed    = 动作名不可换（事件驱动状态机的正确口径；= 旧 --strict）
+    #   explicit = 逐动作映射（action_map 必须是动作集上的双射）
+    #   块内允许附加 "assumed": true（discover 自动标注其默认口径时盖上——
+    #   未被模型作者确认过的声明，check 如实按「假定为真」警示）与任意说明
+    #   字段（如 note）；未知键一律忽略，discover stdout 直接落盘仍可用。
+    g_sem = raw.get("semantics")
+    if g_sem is not None:
+        if not isinstance(g_sem, dict):
+            raise GroupInvalid("group.json 的 semantics 必须是对象"
+                               "（{\"action\": \"relabel\"|\"fixed\"|\"explicit\""
+                               "[, \"action_map\": [...]]}，见 wuxing_gua/README.md）")
+        g_sem_action = g_sem.get("action")
+        if g_sem_action not in ("relabel", "fixed", "explicit"):
+            raise GroupInvalid("semantics.action 必须是 \"relabel\" | \"fixed\" | "
+                               "\"explicit\" 之一（实得 %r）" % (g_sem_action,))
+        g_sem_map = g_sem.get("action_map")
+        if g_sem_action == "explicit":
+            if not (isinstance(g_sem_map, list) and g_sem_map
+                    and all(_is_int(x) for x in g_sem_map)):
+                raise GroupInvalid("semantics.action == \"explicit\" 时 action_map "
+                                   "必须是动作编号列表（0..n_actions-1 的双射）")
+            if sorted(g_sem_map) != list(range(len(g_sem_map))):
+                raise GroupInvalid("semantics.action_map 必须是动作集上的双射"
+                                   "（实得 %r）" % (g_sem_map,))
+        elif g_sem_map is not None:
+            raise GroupInvalid("仅 semantics.action == \"explicit\" 可给 action_map"
+                               "（relabel/fixed 的动作映射由判据口径决定，不逐动作指定）")
+        g_sem = {"action": g_sem_action, "action_map": g_sem_map,
+                 "assumed_flag": (g_sem.get("assumed") is True)}
+
     return {"path": path, "n_states": n_states, "elements": closed,
-            "info": info, "goals": g_goals, "n_actions": g_na}
+            "info": info, "goals": g_goals, "n_actions": g_na,
+            "semantics": g_sem}
 
 
 def orbits_of_group(group):
@@ -188,13 +226,113 @@ def orbits_of_group(group):
 
 
 # ---------------------------------------------------------------- check 主判定
-def _check_transition(model, elements, close_info):
+def _equiv_error_strict(trans, pi, n):
+    """严格等变：**动作名必须原样对应**。
+
+    与 equiv_error / equiv_error_gua 的区别：那两者允许「动作跟着状态一起改名」
+    （在 π(s) 的所有动作里找一个能接住后继的）。本函数要求动作 a 在 π(s) 上
+    仍然是动作 a——这才对应「事件语义不变」。
+
+    返回 (最大 TV, 检查过的 (s,a) 数)。
     """
-    转移等变层（零容忍）：每个群元素 π 的 equiv_error（max TV）必须 ≤ TV_TOL。
+    NS = len(pi)
+    worst = 0.0
+    for s in range(NS):
+        ps = pi[s]
+        for a in range(n):
+            p1 = {pi[u]: v for u, v in dist_of(trans, s, a).items()}
+            p2 = dist_of(trans, ps, a)
+            worst = max(worst, tvd(p1, p2))
+    return worst, NS * n
+
+
+def _equiv_error_explicit(trans, pi, rho, n):
+    """显式映射口径：**动作映射由群文件逐动作声明**（semantics.action_map）。
+
+    与 _equiv_error_strict 的唯一差别：strict 要求 b == a（动作名原样对应），
+    本函数取声明给出的 rho[a]。等变不等式与 TV 机制（dist_of / tvd，import 自
+    src/experiments_p3.py）逐字同源——判据数学零改动，新增的只是「动作下标
+    查声明表」这一层分派。
+
+    返回 (最大 TV, 检查过的 (s,a) 数)。
+    """
+    NS = len(pi)
+    worst = 0.0
+    for s in range(NS):
+        ps = pi[s]
+        for a in range(n):
+            p1 = {pi[u]: v for u, v in dist_of(trans, s, a).items()}
+            p2 = dist_of(trans, ps, rho[a])
+            worst = max(worst, tvd(p1, p2))
+    return worst, NS * n
+
+
+# check 的动作语义四分派（2026-10-29 起；此前只有 strict 布尔一根开关）：
+#   bitstring   = 位串判据 equiv_error（动作 a=翻第 a 位，动作名由 π 推导——relabel）
+#   generalized = 泛化判据 equiv_error_gua（在 π(s) 的动作里搜——relabel）
+#   strict      = _equiv_error_strict（b==a——fixed）
+#   explicit    = _equiv_error_explicit（按声明映射——explicit）
+_JUDGES = ("bitstring", "generalized", "strict", "explicit")
+
+
+def resolve_semantics(model, group, strict_flag=False):
+    """
+    把（群文件声明, --strict 标志）解析成 check 实际使用的动作语义。
+    返回 dict：action / judge / action_map / declared / assumed / source。
+
+    优先级：--strict 覆盖一切（= fixed；显式覆盖不算假定）；
+    群文件声明次之；都无 → relabel（历史默认）但 assumed=True——
+    准入工具的宽容默认必须显眼，不得静默。
+    """
+    decl = group.get("semantics")
+    n_acts, n_bits = model["n_actions"], model["n_bits"]
+    if strict_flag:
+        return {"action": "fixed", "judge": "strict", "action_map": None,
+                "declared": decl is not None, "assumed": False,
+                "source": "flag_strict",
+                "declared_action": (decl or {}).get("action")}
+    if decl is None:
+        return {"action": "relabel",
+                "judge": ("generalized" if n_acts > n_bits else "bitstring"),
+                "action_map": None, "declared": False, "assumed": True,
+                "source": "default", "declared_action": None}
+    action = decl["action"]
+    if action == "fixed":
+        judge = "strict"
+    elif action == "explicit":
+        judge = "explicit"
+    else:
+        judge = ("generalized" if n_acts > n_bits else "bitstring")
+    if action == "explicit" and len(decl["action_map"]) != n_acts:
+        raise InputError("semantics.action_map 长度 %d 与模型 n_actions=%d 不一致"
+                         % (len(decl["action_map"]), n_acts))
+    return {"action": action, "judge": judge,
+            "action_map": (list(decl["action_map"])
+                           if action == "explicit" else None),
+            "declared": True,
+            "assumed": bool(decl.get("assumed_flag")),
+            "source": "group_file", "declared_action": action}
+
+
+def _check_transition(model, elements, close_info, sem=None, strict=False):
+    """
+    转移等变层（零容忍）：每个群元素 π 的等变误差（max TV）必须 ≤ TV_TOL。
     |G| ≤ ELEM_VERIFY_CAP 时逐元素全查；否则按 discover 的哨兵口径
-    （贪心生成元 + 头 64 / 中 64 / 尾 32 样本）抽查。
+    （贪心生成元 + 头/中/尾样本）抽查。
+
+    sem（2026-10-29 口径声明分派）：resolve_semantics 的解析结果，judge ∈
+    bitstring / generalized / strict / explicit，explicit 附 action_map。
+    sem=None 时退回旧布尔口径（strict=True → strict 判据；否则 relabel 家族
+    按 n_actions 与 n_bits 关系分派）——旧行为逐位保留。
     """
     trans, n_acts, NS = model["trans"], model["n_actions"], model["n_states"]
+    if sem is not None:
+        judge_kind = sem["judge"]
+        action_map = sem["action_map"]
+    else:
+        judge_kind = "strict" if strict else (
+            "generalized" if n_acts > model["n_bits"] else "bitstring")
+        action_map = None
     if len(elements) <= ELEM_VERIFY_CAP:
         targets, mode = elements, "all_elements"
     else:
@@ -210,7 +348,14 @@ def _check_transition(model, elements, close_info):
     worst, has_inf, n_failed, first_bad = 0.0, False, 0, None
     for idx, pi in enumerate(targets):
         try:
-            e, _ = equiv_error(trans, list(pi), n_acts)
+            if judge_kind == "strict":
+                e, _ = _equiv_error_strict(trans, list(pi), n_acts)
+            elif judge_kind == "explicit":
+                e, _ = _equiv_error_explicit(trans, list(pi), action_map, n_acts)
+            elif judge_kind == "generalized":
+                e, _ = equiv_error_gua(trans, list(pi), n_acts)
+            else:
+                e, _ = equiv_error(trans, list(pi), n_acts)
         except IndexError:
             # 元素把动作 a 的位翻转映射到了动作集之外（位号 ≥ n_actions）：
             # 它不可能与该 MDP 的动作结构相容，按不等变处理
@@ -230,16 +375,22 @@ def _check_transition(model, elements, close_info):
                 }
             worst = max(worst, 1.0 if e == float("inf") else e)
     return {"passed": n_failed == 0, "tol": TV_TOL, "mode": mode,
+            "judge": judge_kind,
             "n_checked": len(targets), "n_failed": n_failed,
             "worst_tv": worst, "worst_tv_is_inf": has_inf, "first_bad": first_bad}
 
 
-def run_check(model, group):
+def run_check(model, group, strict=False):
     """
     完整转移表版判定（两层，均零容忍，都跑、都报告）：
       层 T 转移等变：equiv_error（src/experiments_p3.py）max TV ≤ 1e-9
       层 R 奖励剖面：cheap_check（src/experiments_p4.py 完整转移表版）n_bad == 0
     返回 stdout JSON payload；verdict ∈ {"pass", "reject"}。
+
+    动作语义（2026-10-29）：由群文件可选 semantics 块声明（relabel / fixed /
+    explicit），--strict 覆盖为 fixed；未声明时按 relabel 判读并在 payload 里
+    如实标注 semantics_assumed=true（宽容默认必须显眼）。判据数学零改动：
+    relabel 分派与历史行为逐位一致（开关类结论不翻案）。
     """
     if group["n_states"] != model["n_states"]:
         raise InputError("群 n_states=%d 与模型 2**n_bits=%d 不一致"
@@ -249,7 +400,8 @@ def run_check(model, group):
     orbits = orbits_of_group(group)
     n_orbits = len(orbits)
 
-    layer_t = _check_transition(model, elements, group["info"])
+    sem = resolve_semantics(model, group, strict_flag=strict)
+    layer_t = _check_transition(model, elements, group["info"], sem=sem)
     r_ok, r_diag = cheap_check(model["trans"], model["goals"], orbits, model["n_actions"])
     layer_r = {"passed": bool(r_ok), "n_pair": r_diag["n_pair"],
                "n_bad": r_diag["n_bad"], "sec": r_diag["sec"]}
@@ -276,12 +428,22 @@ def run_check(model, group):
     if passed and len(elements) <= 1:
         note = ("平凡群（阶 1）：判据上合法（恒放行），但压缩比 1.00×，没有抽象价值；"
                 "如需找非平凡群请用 discover 子命令")
+    semantics_block = {"action": sem["action"], "judge": sem["judge"],
+                       "declared": sem["declared"], "assumed": sem["assumed"],
+                       "source": sem["source"]}
+    if sem["declared"] and sem.get("declared_action") is not None \
+            and sem["declared_action"] != sem["action"]:
+        semantics_block["declared_action"] = sem["declared_action"]
+    if sem["action"] == "explicit":
+        semantics_block["action_map"] = list(sem["action_map"])
     return {
         "command": "check",
         "verdict": verdict,
         "exit_code": 0 if passed else 1,
         "reason": reason,
         "note": note,
+        "semantics": semantics_block,
+        "semantics_assumed": sem["assumed"],
         "n_bits": model["n_bits"], "n_states": NS, "n_actions": model["n_actions"],
         "group": {
             "n_states": NS,

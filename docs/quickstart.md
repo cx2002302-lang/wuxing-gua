@@ -63,8 +63,9 @@ python -X utf8 -m wuxing_gua selftest
 environment instead of fetching a separate build setup — keeps the install
 self-contained.)
 
-Expected: `13/13` branches PASS, exit code 0
-(`docs/evidence.md`, anchors E24, E40). Alternatively, unpack the source bundle
+Expected: `15/15` branches PASS, exit code 0. (Anchors E24/E40 record the
+bundle-era install verification, when the selftest had 13 branches; the
+selftest has since grown to 15 branches — see `CHANGELOG.md`.) Alternatively, unpack the source bundle
 shipped with the release (104 files) and run the same selftest from the unpacked
 directory (anchor E39).
 
@@ -94,14 +95,14 @@ reward-breaking variant), a renumbered copy of the standard one, a true group
 (S6, order 720), a symmetry group that preserves transitions but not rewards,
 and two trajectory samples (100 and 10,000 lines).
 
-Then run the end-to-end selftest — 13 branches covering every command, flag and
+Then run the end-to-end selftest — 15 branches covering every command, flag and
 exit path; takes on the order of two minutes (anchor E41):
 
 ```bash
 python -X utf8 -m wuxing_gua selftest
 ```
 
-Expected: all 13 branches PASS, exit code 0 (anchor E24).
+Expected: all 15 branches PASS, exit code 0 (anchor E24 records the bundle-era 13-branch run).
 
 ## 3. Find a group: `discover`
 

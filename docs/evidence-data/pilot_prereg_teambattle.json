@@ -1,0 +1,13 @@
+{
+ "anchors": [
+  "E17"
+ ],
+ "excerpt_of": "pilot/prereg_teambattle.json",
+ "excerpted_on": "2026-10-29",
+ "fields": {
+  "meta.preregistered.hand_derived_group_expectation.abstract_aut_floor": "抽象 14,415 态系统自同构群 ⊇ G_abs = ⟨σ_A,σ_B,π⟩ ≅ C5×C5×C15，阶 375。σ_A=chainA 元素旋转 (L,ℓ)→(GEN L,ℓ)（空链固定；动作映射 a_x→a_GEN[x] 仅 A 段，B/结束固定）——GEN 是 5-循环且 AddStep 规则在 GEN 旋转下不变（chain.go:83-99 逐条核）——阶 5；σ_B 同理作用于 chainB（动作映射 B 段）——阶 5；π=场推进 (ca,cb,f)→(ca,cb,advance f)（动作映射恒同）——advance 是场 15 态上的 15-循环（rotation.go:23-30 逐态核，case-2 同款）——阶 15；三者支集不相交故直积；σ_rot=π³（当令旋转 e→GEN[e]，t 固定，阶 5）。此为手推+直接验证口径：提取器对 375 元素 × 14,415×11 格全查（预期违约=0）",
+  "meta.preregistered.judgment.belt1_primary.expectation": "exit 0 = H ⊆ Aut（两层零容忍：层 T 转移等变 max TV≤1e-9 全元素 + 层 R 奖励剖面 n_bad=0）——提取器已本地全量预验证同判据（equiv_error import 自 src/ 一行未改，25/25 元素 TV=0 + cheap_check n_bad=0），CLI 为正式带官判",
+  "meta.preregistered.time_utc_at_preregistration": "2026-10-27"
+ },
+ "note": "Verbatim excerpt of the cited fields from the research repository's record. The research repository is NOT part of this release; the mother path is published only as provenance. Values are copied without rounding or edits."
+}

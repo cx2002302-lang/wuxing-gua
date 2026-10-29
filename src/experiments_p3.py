@@ -58,7 +58,7 @@ def equiv_error(trans, pi, n):
     纯数据等变检验：pi 为状态映射表（list），返回 (最大 TV 误差, 检验过的 (s,a) 数）。
     动作像 a' 由「翻转 pi(s) 与 pi(s^(1<<a)) 不同的那位」推得。
 
-    ⚠️ 2026-10-27 追加一道适用域守卫（GameWXXX 案例修复）：
+    ⚠️ 2026-10-27 追加一道适用域守卫（游戏案例修复）：
     π 诱导出的动作标签 pa 必须**存在**（pa < n_actions），否则 trans[·][pa] 越界
     IndexError。历史全部环境满足 n_actions == n_bits（动作 a = 翻第 a 位，
     n_states = 2^n_bits）⇒ pa ∈ [0, n_bits-1] 恒落在动作域内，守卫永不触发、

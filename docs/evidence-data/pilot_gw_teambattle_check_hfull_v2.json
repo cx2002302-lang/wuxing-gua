@@ -1,0 +1,14 @@
+{
+ "anchors": [
+  "E16"
+ ],
+ "excerpt_of": "pilot/gw_teambattle_check_hfull_v2.json",
+ "excerpted_on": "2026-10-29",
+ "fields": {
+  "exit_code": 1,
+  "layer_transition.n_checked": 125,
+  "layer_transition.n_failed": 100,
+  "verdict": "reject"
+ },
+ "note": "Verbatim excerpt of the cited fields from the research repository's record. The research repository is NOT part of this release; the mother path is published only as provenance. Values are copied without rounding or edits."
+}

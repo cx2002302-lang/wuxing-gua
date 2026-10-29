@@ -1,0 +1,13 @@
+{
+ "anchors": [
+  "E28"
+ ],
+ "excerpt_of": "experiments_sys4_n8.json",
+ "excerpted_on": "2026-10-29",
+ "fields": {
+  "n8.canon.auto": 1,
+  "n8.env.true_order": 6,
+  "n8.plain.auto": 6
+ },
+ "note": "Verbatim excerpt of the cited fields from the research repository's record. The research repository is NOT part of this release; the mother path is published only as provenance. Values are copied without rounding or edits."
+}

@@ -69,6 +69,32 @@ the same things.
   equivariant with total variation 0 (tolerance 1e-9); the demo's XOR group is
   equivariant yet still refused — by the reward layer (anchor E44).
 
+  Whether action names may be renamed along with the states is a separate
+  caliber question — see "Action semantics" below.
+
+## Action semantics
+
+Which of two kinds your action names are — it decides whether action names
+may be renamed along with the states. **Switch/milestone systems**: an action
+is bound to a state bit, so renaming a state renames its action with it, and
+the default criteria (which allow that renaming) are correct. **Event-driven
+machines**: an action name is an external event that must keep its name;
+`--strict` (exact action correspondence) is correct there, and the default
+would admit business-invalid permutations. The `layer_transition.judge` field
+in `check` output records which criterion ran (`bitstring` / `generalized` /
+`strict` / `explicit`). The tool cannot infer the kind from data — since
+2026-10-29 you **declare** it in the group file (`"semantics":
+{"action": "relabel" | "fixed" | "explicit"}`); undeclared groups run
+under relabel with a loud `semantics_assumed` warning (README §7; the
+comparison table and self-assessment questions:
+[docs/judge-semantics.md](judge-semantics.md)).
+
+- Example: in the work-order model "accept" and "en-route" are milestone
+  bits — renaming them together with their states is the same instruction, so
+  the default criterion is the right one; on an event-driven machine, an
+  event like "receive FIN" must keep its name, and only `--strict` judges it
+  with the correct reading.
+
 ## Total variation (TV)
 
 A standard distance between two probability distributions: 0 means identical,

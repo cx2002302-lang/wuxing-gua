@@ -2330,7 +2330,7 @@
   15326
  ],
  "meta": {
-  "source_system": "GameWXXX 团队战双队共享链×共享轮转场子系统（只读转录，案例 3）",
+  "source_system": "双人团队战子系统（双链共享轮转场；只读转录，案例 3）",
   "encoding": "14,415 真实态 = chainA(31)×chainB(31)×场(15)，φ = χA(bits0..4)｜χB(bits5..9)｜场v=e+5t(bits10..13)；pad 1,969 哑态自环 r=0（预注册伪影预案②同 case-2）",
   "action_names": [
    "A出金",

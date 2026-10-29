@@ -1,0 +1,13 @@
+{
+ "anchors": [
+  "E31"
+ ],
+ "excerpt_of": "experiments_multilabel_union.json",
+ "excerpted_on": "2026-10-29",
+ "fields": {
+  "diagnostics.gua64_union_vs_std_machine_group.machine_order_std": 294912,
+  "diagnostics.gua64_union_vs_std_machine_group.same_set": true,
+  "diagnostics.gua64_union_vs_std_machine_group.union_order_k13": 294912
+ },
+ "note": "Verbatim excerpt of the cited fields from the research repository's record. The research repository is NOT part of this release; the mother path is published only as provenance. Values are copied without rounding or edits."
+}

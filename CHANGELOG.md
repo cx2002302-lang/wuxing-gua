@@ -4,6 +4,46 @@ All notable changes to this project are documented in this file. The format is
 a plain keep-a-changelog-style list; the project has one released version so
 far.
 
+## Unreleased
+
+### Added
+
+- **Action-semantics declaration for group files** (`semantics` block, optional):
+  `{"action": "relabel" | "fixed" | "explicit"}` — `relabel` (actions may be
+  renamed along with states; the right reading for switch/milestone systems and
+  the historical default), `fixed` (event names pinned; the right reading for
+  event-driven state machines), `explicit` (per-action renaming via
+  `action_map`). Declared in the group file, resolved by `check`, and reported
+  in the output as `semantics` + `semantics_assumed`. Undeclared groups still
+  run under `relabel`, but with a loud warning on stderr — the permissive
+  default is never silent. `--strict` remains as the fixed override.
+  Two-class comparison table and a self-assessment guide:
+  [docs/judge-semantics.md](docs/judge-semantics.md).
+- Rung 1c in [examples/](examples/): a 4-reachable-state event-labeled close
+  fragment (padded to 8) with three candidate groups — the fixed positive
+  control (passes), the structurally-identical wait-state swap declaring
+  `fixed` (refused, TV 1.0), and the same elements declaring `relabel`
+  (passes). One candidate, two opposite verdicts: the two readings, made
+  runnable. Generator `make_eventfsm_samples.py --check` re-verifies byte
+  identity; both readings recorded in `examples/expected/eventfsm_expected.json`.
+- All twelve committed group files now carry an explicit `semantics`
+  declaration; the expected records under `examples/expected/` include the
+  declaration fields (re-recorded from fresh runs of the same commands — every
+  pre-existing reading bit-identical).
+
+### Changed
+
+- `discover` stamps its output with `semantics: {action: relabel, assumed:
+  true}` (its search judges under the relabel reading; the stamp travels with
+  a saved group file until the model author declares otherwise).
+- `discover` refuses models with `n_actions > n_bits` at the entry gate
+  (exit 3 with an explanatory message) instead of crashing — its candidate
+  search is built on the bit-string action convention; event-class models are
+  judged by hand-derived candidates + `check` (see rung 1c).
+- `selftest` grows from 13 to 15 branches: the declared-vs-undeclared reading
+  invariance (a declaration must not change a switch-class reading), and the
+  event-class fixed/relabel divergence with the discover domain guard.
+
 ## 0.1.0 — first public release
 
 The initial public release of `wuxing_gua`, a zero-dependency command-line tool
