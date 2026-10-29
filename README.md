@@ -1,8 +1,11 @@
 # wuxing-gua
 
-**In one sentence**: a symmetry-admission checker — on black-box transition data, **before** any state compression, it decides whether a symmetry group **is safe to use**, and **refuses** when it is not.
+> 📄 Now reading: **English** ｜ [🇨🇳 切换到简体中文](README.zh-CN.md)
+> This file mirrors the Chinese README section by section; one-line term definitions live in [docs/glossary.md](docs/glossary.md).
 
-[English](README.md) | [简体中文](README.zh-CN.md)
+Let's skip the abstract pitch. Say you maintain a system with tens of thousands of states — a dispatch queue, a game's combat logic, a protocol implementation. You've heard you can exploit *symmetry* to compress those states a few hundredfold and compute much faster. **That part is true.** What almost nobody mentions is the precondition: you first need to be sure the symmetry is *real*. Use a wrong one, and the compressed system quietly computes wrong answers — no error, no warning, nothing to tell you.
+
+This tool does exactly one job: **it inspects the symmetry before you compress**. The verdict is one of three — admit, refuse (telling you exactly where it breaks), or "not enough data, no verdict." It does not compress anything for you; its whole purpose is to stand between you and the mistake that would waste weeks of compute.
 
 ![Python](https://img.shields.io/badge/Python-3.10%2B-blue) ![dependencies](https://img.shields.io/badge/dependencies-zero-brightgreen) ![license](https://img.shields.io/badge/license-MIT-blue)
 
@@ -10,7 +13,13 @@
 
 ## 1. Why
 
-Symmetry-based state-space reduction is a mature technique. What is missing is the gate in front of it: when all you have is **black-box transition data** (a full transition table, or `(s,a,s',r)` sample traces), **nobody answers "is this symmetry group actually safe to use on this system?"** — compressing with a wrong symmetry silently changes the system's semantics, and most pipelines have no way to *refuse*.
+We built this tool because we got burned twice.
+
+The first time, it was a beautiful number. On one of our systems, the automatically discovered symmetry group was thousands of times larger than the hand-written one, and we treated it as a flagship result for a long while. Then a controlled experiment showed what it really was: **relabel the states of the very same system, and the number vanishes.** It survived 2 out of 13 renumberings. The "discovery" wasn't capability — it was luck. We quantified the trap (91 controlled instances), built three repair switches, and only then dared to treat "discovery" as a capability again.
+
+The second time, our own confidence module raised a full-scale alarm: "this group is incomplete." For many tools, that would have been the final word. We took one extra step — a brute-force verifier, exhaustive and independent — which proved the tool had in fact found the whole group; the alarm was a false positive on an unfamiliar environment shape. That misfire isn't hidden: it is now a documented known boundary with a mandatory hint in the output.
+
+Both burns taught us the same lesson: **what this field lacks is not a better compression algorithm, but the gate in front of compression.** When all you hold is black-box data (a full transition table, or `(s,a,s',r)` sample traces), nobody answers "is this symmetry group actually safe on this system?" — most pipelines don't even have a way to refuse. wuxing-gua is that gate.
 
 Concretely, a **symmetry group** here is a set of permutations of the states that leaves the system's behavior unchanged — relabel the states by any member of the set and every transition and reward stays the same. If a group qualifies, states in the same **orbit** (the states its permutations carry into each other) are interchangeable, so compression can keep one representative per orbit instead of every state. Whether a candidate group actually qualifies is exactly the question this tool decides.
 
