@@ -72,8 +72,10 @@ The check output carries the resolution explicitly:
 - `declared` / `source` — whether the reading came from the group file, from
   the `--strict` flag (`source: "flag_strict"`, which overrides any
   declaration), or was the un-declared default.
-- `semantics_assumed: true` — **the dangerous case, made loud**: no declaration
-  anywhere and no `--strict`. The verdict is then computed under `relabel` and
+- `semantics_assumed: true` — **the dangerous case, made loud**: the reading was
+  not explicitly declared by the model author — either no semantics block at all
+  (and no `--strict`), or only `discover`'s stamp on the group file (see below).
+  The verdict is then computed under `relabel` and
   is *conditional on that reading*; the tool prints a warning on stderr and
   marks the payload. An admission tool with a permissive silent default is the
   wrong direction — the default still exists (historic outputs stay valid), but

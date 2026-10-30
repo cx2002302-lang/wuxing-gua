@@ -129,13 +129,23 @@ def cmd_check(args):
     group = core_check.load_group(args.group)
     payload = core_check.run_check(model, group, strict=getattr(args, "strict", False))
     if payload.get("semantics_assumed"):
-        # 宽容默认必须显眼：群文件未声明动作语义时按 relabel 判读，
-        # 结论以该口径为条件——事件类系统在此口径下会被误放行（TCP 教训）。
-        sys.stderr.write(
-            "[口径警示] 群文件未声明动作语义（semantics 块）：按 relabel（动作可随"
-            "状态换名）判读，本结论以该口径为条件。事件驱动系统（动作=外部事件，"
-            "如协议报文）应把群文件里的 semantics 块声明为 \"fixed\"——"
-            "两类系统的对照与自判指引见 docs/judge-semantics.md\n")
+        # 宽容默认必须显眼：按 relabel 判读时结论以该口径为条件——
+        # 事件类系统在此口径下会被误放行（TCP 教训）。两种触发情形分开设法：
+        # ① 群文件无 semantics 块；② 仅带 discover 盖的 assumed 戳记（declared
+        # 为 true 但非作者显式声明，见 core_check.resolve_semantics）。
+        if payload.get("semantics", {}).get("declared"):
+            sys.stderr.write(
+                "[口径警示] 群文件仅带 discover 的 assumed 戳记（未作显式声明）："
+                "按 relabel（动作可随状态换名）判读，本结论以该口径为条件。"
+                "事件驱动系统（动作=外部事件，如协议报文）应把 semantics 块"
+                "显式声明为 \"fixed\"——两类系统的对照与自判指引见 "
+                "docs/judge-semantics.md\n")
+        else:
+            sys.stderr.write(
+                "[口径警示] 群文件未声明动作语义（semantics 块）：按 relabel（动作可随"
+                "状态换名）判读，本结论以该口径为条件。事件驱动系统（动作=外部事件，"
+                "如协议报文）应把群文件里的 semantics 块声明为 \"fixed\"——"
+                "两类系统的对照与自判指引见 docs/judge-semantics.md\n")
     _emit(payload)
     return EXIT_PASS if payload["verdict"] == "pass" else EXIT_REJECT
 

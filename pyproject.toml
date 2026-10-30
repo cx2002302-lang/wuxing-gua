@@ -10,7 +10,7 @@
 # ── 验证口径（Windows / Python 3.12.10 / setuptools 78.1.0 / pip 25.0.1 实测）──
 #   python -m pip install . --target <项目外临时目录> --no-build-isolation
 #   cd <临时目录> && python -X utf8 -m wuxing_gua selftest
-#   → selftest 13/13 分支 PASS，退出码 0（全树自带 13 分支自检，安装后即可复验）
+#   → selftest 15/15 分支 PASS，退出码 0（全树自带 15 分支自检，安装后即可复验）
 
 [build-system]
 requires = ["setuptools>=61"]
