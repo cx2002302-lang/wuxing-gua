@@ -187,6 +187,8 @@ All three cases transcribe a real system's behavior into a transition model, and
 
 > **Read the verification column together with the ratios, not the ratios alone.** The only case with an independent brute-force cross-check is ticketfsm — and its compression reading is 1.33×. The 4.0× and 16.0× readings come from the two cases that have hand transcription, the tool's zero-tolerance check and in-project independent arms, but **no third-party tool cross-check**. Ratios are readings either way; the verification column is what says how far each reading has been independently tested.
 
+That missing column now has a public home: [symmetry-court](https://github.com/cx2002302-lang/symmetry-court) puts this engine's verdicts on public standards (TCP RFC 9293, DHCP RFC 2131, IMAP RFC 3501) in front of a third-party arbiter (networkx) — every case reproducible from the RFC text, both action-name calibers side by side.
+
 > Where "padded" comes from: the input convention is a bit-string shape (states written as strings of 0s and 1s, so the count must be a power of two: `n_states = 2^n_bits`), real state counts usually aren't a power of two, and the gap gets filled with dummy states — all self-loop, reward 0, standing for no real situation at all.
 
 **The 512 case gets its own paragraph, because it was fixed after a crash.**
