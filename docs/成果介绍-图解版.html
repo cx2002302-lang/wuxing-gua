@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>wuxing-gua 成果一页看懂 · 图解版</title>
+<style>
+  :root{
+    --ink:#1a1a2e; --sub:#55566b; --bg:#fafaf8; --card:#ffffff;
+    --blue:#2563eb; --green:#059669; --red:#dc2626; --amber:#d97706; --line:#e5e4de;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{font-family:"Microsoft YaHei","PingFang SC",system-ui,sans-serif; background:var(--bg); color:var(--ink); line-height:1.75;}
+  .wrap{max-width:960px; margin:0 auto; padding:40px 20px 80px;}
+  header{text-align:center; padding:30px 0 10px;}
+  header h1{font-size:34px; letter-spacing:2px;}
+  header .tag{color:var(--sub); font-size:16px; margin-top:8px;}
+  header .links{margin-top:14px; font-size:14px;}
+  header .links a{color:var(--blue); text-decoration:none; margin:0 10px; border-bottom:1px dashed var(--blue);}
+  section{background:var(--card); border:1px solid var(--line); border-radius:14px; padding:28px 30px; margin-top:28px;}
+  section h2{font-size:22px; margin-bottom:6px;}
+  section h2 .no{color:var(--blue); font-family:Consolas,monospace; margin-right:8px;}
+  section .lead{color:var(--sub); font-size:15px; margin-bottom:16px;}
+  .svgbox{width:100%; overflow-x:auto;}
+  svg text{font-family:"Microsoft YaHei","PingFang SC",sans-serif;}
+  .cards{display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:14px; margin-top:8px;}
+  .mini{border:1px solid var(--line); border-radius:10px; padding:14px 16px; font-size:14px;}
+  .mini b{display:block; font-size:15px; margin-bottom:4px;}
+  .verdict{margin-top:18px; padding:14px 18px; border-radius:10px; font-size:15px;}
+  .v-green{background:#ecfdf5; border:1px solid #a7f3d0; color:#065f46;}
+  .v-amber{background:#fffbeb; border:1px solid #fde68a; color:#92400e;}
+  footer{text-align:center; color:var(--sub); font-size:13px; margin-top:40px;}
+  .num{font-family:Consolas,monospace; font-weight:bold;}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <h1>五行卦 wuxing-gua</h1>
+  <div class="tag">对称性使用前的安检门 · 图解成果介绍（全部数字实测在案）</div>
+  <div class="links">
+    <a href="https://github.com/cx2002302-lang/wuxing-gua">主仓 · 判据引擎</a>
+    <a href="https://github.com/cx2002302-lang/symmetry-court">对称法庭 · 公开考场</a>
+  </div>
+</header>
+
+<!-- ============ 1. 一道闸 ============ -->
+<section>
+  <h2><span class="no">01</span>它是什么：压缩之前的一道闸</h2>
+  <div class="lead">对称性压缩是成熟技术：几万个状态折成几百个，计算便宜两个量级。但它的前提——“这个对称性是真的”——通常只是直觉。wuxing-gua 只做一件事：<b>压缩之前，把对称性逐条对账验真。</b></div>
+  <div class="svgbox">
+  <svg viewBox="0 0 900 330" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <marker id="arr" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 z" fill="#55566b"/></marker>
+    </defs>
+    <!-- 左：密密麻麻的状态 -->
+    <text x="150" y="30" text-anchor="middle" font-size="15" fill="#1a1a2e" font-weight="bold">16,384 个状态</text>
+    <text x="150" y="50" text-anchor="middle" font-size="12" fill="#55566b">一个真实游戏团队战系统</text>
+    <!-- 生成点阵（手动绘制 12x14 网格） -->
+    <!-- 中间：闸门 -->
+    <rect x="370" y="90" width="160" height="130" rx="14" fill="#eef2ff" stroke="#2563eb" stroke-width="2"/>
+    <path d="M450 100 l40 16 v34 c0 30 -18 46 -40 56 c-22 -10 -40 -26 -40 -56 v-34 z" fill="#2563eb" opacity="0.12" transform="translate(-25,-5)"/>
+    <text x="450" y="145" text-anchor="middle" font-size="16" font-weight="bold" fill="#2563eb">逐条对账</text>
+    <text x="450" y="170" text-anchor="middle" font-size="13" fill="#1a1a2e">错一条就拒</text>
+    <text x="450" y="190" text-anchor="middle" font-size="12" fill="#55566b">零容忍</text>
+    <line x1="240" y1="155" x2="360" y2="155" stroke="#55566b" stroke-width="2" marker-end="url(#arr)"/>
+    <line x1="540" y1="155" x2="660" y2="155" stroke="#55566b" stroke-width="2" marker-end="url(#arr)"/>
+    <text x="300" y="140" text-anchor="middle" font-size="12" fill="#55566b">候选对称性</text>
+    <text x="600" y="140" text-anchor="middle" font-size="12" fill="#55566b">验真后放行</text>
+    <!-- 右：少量状态 -->
+    <text x="760" y="30" text-anchor="middle" font-size="15" fill="#059669" font-weight="bold">1,024 类</text>
+    <text x="760" y="50" text-anchor="middle" font-size="12" fill="#55566b">每类留一个代表（读数 16×）</text>
+    <g fill="#059669" opacity="0.75">
+      <circle cx="700" cy="110" r="7"/><circle cx="730" cy="110" r="7"/><circle cx="760" cy="110" r="7"/><circle cx="790" cy="110" r="7"/><circle cx="820" cy="110" r="7"/>
+      <circle cx="715" cy="140" r="7"/><circle cx="745" cy="140" r="7"/><circle cx="775" cy="140" r="7"/><circle cx="805" cy="140" r="7"/>
+      <circle cx="700" cy="170" r="7"/><circle cx="730" cy="170" r="7"/><circle cx="760" cy="170" r="7"/><circle cx="790" cy="170" r="7"/><circle cx="820" cy="170" r="7"/>
+      <circle cx="715" cy="200" r="7"/><circle cx="745" cy="200" r="7"/><circle cx="775" cy="200" r="7"/><circle cx="805" cy="200" r="7"/>
+    </g>
+    <!-- 退出码灯 -->
+    <g font-size="14">
+      <rect x="120" y="255" width="660" height="52" rx="10" fill="#f8fafc" stroke="#e5e4de"/>
+      <text x="140" y="287" fill="#55566b">退出码＝结果灯：</text>
+      <circle cx="300" cy="281" r="9" fill="#059669"/><text x="316" y="287" fill="#1a1a2e">0 放行</text>
+      <circle cx="405" cy="281" r="9" fill="#dc2626"/><text x="421" y="287" fill="#1a1a2e">1 拒答（指出错在哪条）</text>
+      <circle cx="580" cy="281" r="9" fill="#d97706"/><text x="596" y="287" fill="#1a1a2e">2 数据不足，明说不知道</text>
+    </g>
+    <!-- 左侧点阵（网格 10x12，模拟海量） -->
+    <g fill="#94a3b8" opacity="0.8">
+      <circle cx="70" cy="90" r="4"/><circle cx="92" cy="90" r="4"/><circle cx="114" cy="90" r="4"/><circle cx="136" cy="90" r="4"/><circle cx="158" cy="90" r="4"/><circle cx="180" cy="90" r="4"/><circle cx="202" cy="90" r="4"/><circle cx="224" cy="90" r="4"/>
+      <circle cx="70" cy="110" r="4"/><circle cx="92" cy="110" r="4"/><circle cx="114" cy="110" r="4"/><circle cx="136" cy="110" r="4"/><circle cx="158" cy="110" r="4"/><circle cx="180" cy="110" r="4"/><circle cx="202" cy="110" r="4"/><circle cx="224" cy="110" r="4"/>
+      <circle cx="70" cy="130" r="4"/><circle cx="92" cy="130" r="4"/><circle cx="114" cy="130" r="4"/><circle cx="136" cy="130" r="4"/><circle cx="158" cy="130" r="4"/><circle cx="180" cy="130" r="4"/><circle cx="202" cy="130" r="4"/><circle cx="224" cy="130" r="4"/>
+      <circle cx="70" cy="150" r="4"/><circle cx="92" cy="150" r="4"/><circle cx="114" cy="150" r="4"/><circle cx="136" cy="150" r="4"/><circle cx="158" cy="150" r="4"/><circle cx="180" cy="150" r="4"/><circle cx="202" cy="150" r="4"/><circle cx="224" cy="150" r="4"/>
+      <circle cx="70" cy="170" r="4"/><circle cx="92" cy="170" r="4"/><circle cx="114" cy="170" r="4"/><circle cx="136" cy="170" r="4"/><circle cx="158" cy="170" r="4"/><circle cx="180" cy="170" r="4"/><circle cx="202" cy="170" r="4"/><circle cx="224" cy="170" r="4"/>
+      <circle cx="70" cy="190" r="4"/><circle cx="92" cy="190" r="4"/><circle cx="114" cy="190" r="4"/><circle cx="136" cy="190" r="4"/><circle cx="158" cy="190" r="4"/><circle cx="180" cy="190" r="4"/><circle cx="202" cy="190" r="4"/><circle cx="224" cy="190" r="4"/>
+      <circle cx="70" cy="210" r="4"/><circle cx="92" cy="210" r="4"/><circle cx="114" cy="210" r="4"/><circle cx="136" cy="210" r="4"/><circle cx="158" cy="210" r="4"/><circle cx="180" cy="210" r="4"/><circle cx="202" cy="210" r="4"/><circle cx="224" cy="210" r="4"/>
+      <text x="147" y="240" text-anchor="middle" font-size="12" fill="#94a3b8">· · · 还有 16,000 多个 · · ·</text>
+    </g>
+  </svg>
+  </div>
+</section>
+
+<!-- ============ 2. 孪生审判 ============ -->
+<section>
+  <h2><span class="no">02</span>灵魂实验「孪生审判」：一样，也分两种</h2>
+  <div class="lead">TCP 协议里有一对双胞胎状态：结构一模一样，各自只有一条出路、通向同一个终点——但<b>等的东西不同</b>。合并它们＝宣布“收到 FIN”等于“收到 ACK”，协议即错。</div>
+  <div class="svgbox">
+  <svg viewBox="0 0 900 350" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <marker id="arr2" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 z" fill="#55566b"/></marker>
+    </defs>
+    <!-- 双胞胎 -->
+    <g>
+      <circle cx="180" cy="110" r="46" fill="#eef2ff" stroke="#2563eb" stroke-width="2.5"/>
+      <text x="180" y="105" text-anchor="middle" font-size="14" font-weight="bold" fill="#1a1a2e">FIN-WAIT-2</text>
+      <text x="180" y="125" text-anchor="middle" font-size="11" fill="#55566b">在等：对方的 FIN</text>
+    </g>
+    <g>
+      <circle cx="420" cy="110" r="46" fill="#fdf2f8" stroke="#db2777" stroke-width="2.5" stroke-dasharray="6 3"/>
+      <text x="420" y="105" text-anchor="middle" font-size="14" font-weight="bold" fill="#1a1a2e">CLOSING</text>
+      <text x="420" y="125" text-anchor="middle" font-size="11" fill="#55566b">在等：对方对 FIN 的 ACK</text>
+    </g>
+    <text x="300" y="42" text-anchor="middle" font-size="13" fill="#55566b">（长得一样 ←→ 等的不同）</text>
+    <!-- 共同终点 -->
+    <rect x="470" y="240" width="150" height="44" rx="22" fill="#f1f5f9" stroke="#94a3b8"/>
+    <text x="545" y="267" text-anchor="middle" font-size="14" fill="#1a1a2e">TIME-WAIT</text>
+    <path d="M195 152 Q 300 230 470 258" fill="none" stroke="#55566b" stroke-width="2" marker-end="url(#arr2)"/>
+    <path d="M435 152 Q 470 220 480 240" fill="none" stroke="#55566b" stroke-width="2" marker-end="url(#arr2)"/>
+    <text x="255" y="205" font-size="12" fill="#2563eb">边事件：rcv FIN</text>
+    <text x="452" y="205" font-size="12" fill="#db2777" text-anchor="end">边事件：rcv ACK</text>
+    <!-- 两种口径 -->
+    <g font-size="14">
+      <rect x="620" y="60" width="250" height="96" rx="10" fill="#fffbeb" stroke="#d97706"/>
+      <text x="645" y="90" fill="#92400e" font-weight="bold">口径一「可换名」（relabel）</text>
+      <text x="645" y="115" fill="#1a1a2e">事件名允许跟着状态换</text>
+      <text x="765" y="143" text-anchor="middle" font-size="16" font-weight="bold" fill="#059669">判：放行 ⚠️</text>
+      <rect x="620" y="180" width="250" height="96" rx="10" fill="#ecfdf5" stroke="#059669"/>
+      <text x="645" y="210" fill="#065f46" font-weight="bold">口径二「钉死名」（fixed）</text>
+      <text x="645" y="235" fill="#1a1a2e">事件名是外部事件，不许换</text>
+      <text x="765" y="263" text-anchor="middle" font-size="16" font-weight="bold" fill="#dc2626">判：拒答 ✓</text>
+    </g>
+    <text x="450" y="330" text-anchor="middle" font-size="13" fill="#55566b">同一个主张，两种口径判决相反 —— 工具现在强制你先声明“你要的是哪一种一样”</text>
+  </svg>
+  </div>
+  <div class="verdict v-amber">这一问由外部复核用公开标准（RFC 9293 + networkx 第三方对照）逼出，现已成为工具核心特性，并做成了开源教学仓「<b>对称法庭 Symmetry Court</b>」：TCP / DHCP / IMAP 三个公开协议案卷，三方仲裁 11/11 全吻合。</div>
+</section>
+
+<!-- ============ 3. 三个真实案例阶梯 ============ -->
+<section>
+  <h2><span class="no">03</span>三个真实系统上的实测（规模 ×512）</h2>
+  <div class="svgbox">
+  <svg viewBox="0 0 900 300" xmlns="http://www.w3.org/2000/svg">
+    <!-- 台阶 -->
+    <g>
+      <rect x="60"  y="220" width="200" height="40" rx="8" fill="#dbeafe" stroke="#2563eb"/>
+      <rect x="300" y="160" width="200" height="100" rx="8" fill="#bfdbfe" stroke="#2563eb"/>
+      <rect x="540" y="90"  width="200" height="170" rx="8" fill="#93c5fd" stroke="#2563eb"/>
+      <text x="160" y="245" text-anchor="middle" font-size="15" font-weight="bold" fill="#1a1a2e">32 态</text>
+      <text x="400" y="185" text-anchor="middle" font-size="15" font-weight="bold" fill="#1a1a2e">512 态</text>
+      <text x="640" y="115" text-anchor="middle" font-size="15" font-weight="bold" fill="#1e3a8a">16,384 态</text>
+      <text x="160" y="205" text-anchor="middle" font-size="12" fill="#55566b">工单派单系统</text>
+      <text x="400" y="150" text-anchor="middle" font-size="12" fill="#55566b">游戏战斗子系统</text>
+      <text x="640" y="85" text-anchor="middle" font-size="12" fill="#1e3a8a">游戏团队战系统</text>
+    </g>
+    <!-- 每级读数 -->
+    <g font-size="13" fill="#1a1a2e">
+      <text x="160" y="278" text-anchor="middle">32→24 类 · 群阶 2</text>
+      <text x="400" y="278" text-anchor="middle">群阶 5 · 读数 4.0×</text>
+      <text x="640" y="278" text-anchor="middle">群阶 25 · 1,024 类 · 读数 16.0×</text>
+    </g>
+    <!-- 验证强度 -->
+    <g font-size="12.5">
+      <rect x="770" y="90" width="115" height="170" rx="8" fill="#f8fafc" stroke="#e5e4de"/>
+      <text x="827" y="112" text-anchor="middle" fill="#55566b" font-weight="bold">验证强度</text>
+      <text x="827" y="140" text-anchor="middle" fill="#059669">✓ 独立穷举</text>
+      <text x="827" y="158" text-anchor="middle" fill="#059669">  对账（唯一）</text>
+      <text x="827" y="196" text-anchor="middle" fill="#d97706">△ 项目内独立臂</text>
+      <text x="827" y="214" text-anchor="middle" fill="#d97706">  无第三方对照</text>
+      <text x="827" y="240" text-anchor="middle" fill="#d97706">△ 同左</text>
+    </g>
+    <text x="450" y="55" text-anchor="middle" font-size="14" fill="#55566b">三方对账全胜：人工手推 = 工具验证 = 独立程序计算，一个不多一个不少</text>
+  </svg>
+  </div>
+  <div class="verdict v-amber">诚实读法：唯一做过独立穷举对账的案例（32 态）压缩读数只有 <span class="num">1.33×</span>；大的读数来自无第三方对照的案例——<b>倍数只是读数，验证强度才告诉你该信几分</b>（这句话就写在开源 README 里）。</div>
+</section>
+
+<!-- ============ 4. 实战盲测 ============ -->
+<section>
+  <h2><span class="no">04</span>实战盲测：五个陌生系统，考试结果 30/30</h2>
+  <div class="lead">不用自己的数据考自己。五个完全外部的真实系统，工具判决 vs 独立第三套基准代码，双路互盲对账。</div>
+  <div class="svgbox">
+  <svg viewBox="0 0 900 330" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <marker id="arr3" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 z" fill="#55566b"/></marker>
+    </defs>
+    <!-- 五个系统 -->
+    <g font-size="13">
+      <rect x="30"  y="40" width="120" height="40" rx="8" fill="#f1f5f9" stroke="#94a3b8"/><text x="90"  y="65" text-anchor="middle">Raft 一致性</text>
+      <rect x="30"  y="95" width="120" height="40" rx="8" fill="#f1f5f9" stroke="#94a3b8"/><text x="90"  y="120" text-anchor="middle">Hadoop MR</text>
+      <rect x="30"  y="150" width="120" height="40" rx="8" fill="#f1f5f9" stroke="#94a3b8"/><text x="90"  y="175" text-anchor="middle">K8s Pod</text>
+      <rect x="30"  y="205" width="120" height="40" rx="8" fill="#f1f5f9" stroke="#94a3b8"/><text x="90"  y="230" text-anchor="middle">TLS 1.3</text>
+      <rect x="30"  y="260" width="120" height="40" rx="8" fill="#f1f5f9" stroke="#94a3b8"/><text x="90"  y="285" text-anchor="middle">USB 2.0</text>
+    </g>
+    <text x="90" y="25" text-anchor="middle" font-size="12" fill="#55566b">五个零关系真实系统</text>
+    <!-- 双路 -->
+    <rect x="240" y="80" width="220" height="80" rx="10" fill="#eef2ff" stroke="#2563eb"/>
+    <text x="350" y="112" text-anchor="middle" font-size="14" font-weight="bold" fill="#2563eb">公开仓盲跑</text>
+    <text x="350" y="138" text-anchor="middle" font-size="12" fill="#55566b">像陌生用户一样 git clone 来跑</text>
+    <rect x="240" y="190" width="220" height="80" rx="10" fill="#ecfdf5" stroke="#059669"/>
+    <text x="350" y="222" text-anchor="middle" font-size="14" font-weight="bold" fill="#059669">独立基准（全新代码）</text>
+    <text x="350" y="248" text-anchor="middle" font-size="12" fill="#55566b">暴力枚举＋networkx＋回溯三方法</text>
+    <line x1="155" y1="120" x2="235" y2="120" stroke="#55566b" stroke-width="2" marker-end="url(#arr3)"/>
+    <line x1="155" y1="230" x2="235" y2="230" stroke="#55566b" stroke-width="2" marker-end="url(#arr3)"/>
+    <text x="350" y="178" text-anchor="middle" font-size="12" fill="#dc2626">两路互盲：谁也看不见谁</text>
+    <!-- 汇聚 -->
+    <line x1="465" y1="120" x2="540" y2="175" stroke="#55566b" stroke-width="2" marker-end="url(#arr3)"/>
+    <line x1="465" y1="230" x2="540" y2="175" stroke="#55566b" stroke-width="2" marker-end="url(#arr3)"/>
+    <rect x="550" y="120" width="320" height="110" rx="14" fill="#ecfdf5" stroke="#059669" stroke-width="2"/>
+    <text x="710" y="155" text-anchor="middle" font-size="20" font-weight="bold" fill="#065f46">30 / 30 判决一致</text>
+    <text x="710" y="182" text-anchor="middle" font-size="14" fill="#065f46">15 群 × 2 口径 · 一致率 100%</text>
+    <text x="710" y="210" text-anchor="middle" font-size="14" fill="#065f46">假阳性 0 · 假阴性 0 · 口径分歧 0</text>
+    <text x="710" y="275" text-anchor="middle" font-size="15" font-weight="bold" fill="#1a1a2e">裁决：不是空中楼阁</text>
+    <text x="710" y="300" text-anchor="middle" font-size="12" fill="#55566b">5 个凭直觉会做的状态合并主张，全部被正确拦下</text>
+  </svg>
+  </div>
+</section>
+
+<!-- ============ 5. 诚实传统 ============ -->
+<section>
+  <h2><span class="no">05</span>性格：说“不”比说“是”更有价值</h2>
+  <div class="cards">
+    <div class="mini"><b>🛑 零漏放</b>100 个专门构造的“该拒案子”，一个没放过（误通过 <span class="num">0/100</span>）。</div>
+    <div class="mini"><b>🤷 敢说不知道</b>采样数据不够时明说“不足”（退出码 2），绝不装作没看出问题。</div>
+    <div class="mini"><b>🧱 墙在哪，写哪</b>1.6 万态自动搜索，三档预算 15/25/60 分钟全部超时——如实归档，没有粉饰。</div>
+    <div class="mini"><b>🔍 自我翻案史</b>早期“招牌数字”（比人工大 2520 倍）被自己证伪：13 次重新编号只活 2 次，是编号运气。翻案过程公开写进文档。</div>
+    <div class="mini"><b>📉 负结果入档</b>走死的研究方向全部记录在案（开源仓内可查），不藏。</div>
+    <div class="mini"><b>⚙️ 零依赖</b>纯 Python 标准库，pip 装完即用；自检 16 项分支一键复验。</div>
+  </div>
+</section>
+
+<!-- ============ 6. 两个开源仓 ============ -->
+<section>
+  <h2><span class="no">06</span>交付：两个互相背书的开源仓</h2>
+  <div class="cards">
+    <div class="mini"><b><a href="https://github.com/cx2002302-lang/wuxing-gua" style="color:var(--blue)">wuxing-gua（判据引擎）</a></b>五命令 CLI（发现/验证/采样判定/演示/自检）· 八级样例阶梯 · 证据链仓内可溯 · MIT</div>
+    <div class="mini"><b><a href="https://github.com/cx2002302-lang/symmetry-court" style="color:var(--blue)">symmetry-court（对称法庭）</a></b>公开标准当考官：9 份案卷（TCP/DHCP/IMAP 三协议 + 盲测五系统 + mini2048）× 双口径判决 × networkx 三方仲裁 · clone 五分钟看完一场庭审</div>
+  </div>
+  <div class="verdict v-green">主仓证明<b>能力</b>（三个真实系统 32/512/16,384 态），法庭证明<b>可信</b>（公开标准人人可对账），盲测证明<b>过得了陌生人这一关</b>（30/30）。</div>
+</section>
+
+<!-- ============ 7. 闸门价值对比 + 2048 正控候选（2026-11-03 追加） ============ -->
+<section>
+  <h2><span class="no">07</span>闸门值多少钱：同一批合并主张，用 vs 不用各跑一遍</h2>
+  <div class="lead">在公开标准与真实系统的 9 个案卷、32 个合并主张上做 A/B：一边是"结构长得一样就合并"的朴素决策（networkx 不带标签口径的同类做法），一边是过闸（逐格对账后才放行）。数字回源对称法庭仓的 <span class="num">comparison.*.json</span> 收据。</div>
+  <div class="svgbox">
+  <svg viewBox="0 0 900 280" xmlns="http://www.w3.org/2000/svg">
+    <text x="450" y="28" text-anchor="middle" font-size="14" fill="#55566b">9 案 32 群 · 同一份数据 · 两种决策</text>
+    <!-- 朴素臂条 -->
+    <text x="60" y="80" font-size="15" fill="#92400e" font-weight="bold">不用闸（朴素臂）</text>
+    <rect x="60" y="95" width="700" height="34" rx="8" fill="#f1f5f9" stroke="#e5e4de"/>
+    <rect x="60" y="95" width="116" height="34" rx="8" fill="#dc2626" opacity="0.85"/>
+    <rect x="176" y="95" width="584" height="34" rx="0" fill="#d97706" opacity="0.55"/>
+    <text x="118" y="117" text-anchor="middle" font-size="13" fill="#fff" font-weight="bold">2 次有害合并</text>
+    <text x="468" y="117" text-anchor="middle" font-size="13" fill="#7c2d12">10 次恰好安全（7 次填充态对换 + 3 次真对称）</text>
+    <text x="790" y="117" font-size="13" fill="#1a1a2e">放行 12</text>
+    <text x="60" y="152" font-size="12.5" fill="#55566b">有害的 2 次 = TCP 孪生对（FIN-WAIT-2 ↔ CLOSING，6 个 (状态×事件) 行为格，"等 FIN"被宣布等于"等 ACK"）+ mini2048 的"转棋盘但方向键钉死"（740 个行为格）——合计 746 格，朴素臂均无从得知自己错了</text>
+    <!-- 闸门臂条 -->
+    <text x="60" y="200" font-size="15" fill="#065f46" font-weight="bold">用闸（闸门臂）</text>
+    <rect x="60" y="215" width="700" height="34" rx="8" fill="#f1f5f9" stroke="#e5e4de"/>
+    <rect x="60" y="215" width="220" height="34" rx="8" fill="#059669" opacity="0.9"/>
+    <rect x="280" y="215" width="480" height="34" rx="0" fill="#94a3b8" opacity="0.5"/>
+    <text x="170" y="237" text-anchor="middle" font-size="13" fill="#fff" font-weight="bold">放行 10 · 破坏格 0</text>
+    <text x="520" y="237" text-anchor="middle" font-size="13" fill="#334155">拦下 22（每一次拒答都指出错在哪条）</text>
+    <text x="790" y="237" font-size="13" fill="#1a1a2e">秒级量级</text>
+    <text x="60" y="272" font-size="12.5" fill="#55566b">放行群破坏格 0 是判据的数学性质（pass 要求逐格 TV≤1e-9）；闸门总耗时为 32 群单机实测求和的量级记录（历史落盘 1.9–5.8 秒、最近一次重跑 5.6 秒，随机器负载浮动——精确值见各 comparison.*.json 的 gate_seconds 字段）</text>
+  </svg>
+  </div>
+  <div class="verdict v-amber"><b>2048 翻案已兑现（2026-11-04）</b>：2048 合并机制的 2×2 确定性变体（mini2048，棋盘对称群 D4）是 explicit 口径（状态置换+逐元素声明映射）的真实系统正控案卷——其"该放"由案卷生成器穷举断言（逐元素映射唯一 + 群同态律）；g1/g3/g4（旋转/翻转/全 D4）已按声明口径放行，轨道 <span class="num">70/136/55</span>，压缩读数 <span class="num">3.657×/1.882×/4.655×</span>（worst_tv 0.0），全 D4 群 <span class="num">4.655×</span>（55 轨道）兑现。翻案史一句：此前引擎 explicit 层的单映射设计（同一映射强加于闭包群全部元素、含恒等元）曾令其在工具层结构性拒答（g4 全 D4：7/8 元素拒于恒等元），上游补逐元素映射后翻案——其"键钉死旋转"变体（740 格）至今仍被正确拒答，即朴素臂两处有害合并之一。明细：对称法庭仓 <span class="num">docs/闸门价值对比.html</span> 与 <span class="num">docs/nontrivial-admit.md</span>。</div>
+</section>
+
+<footer>
+  本页所有数字均来自项目落盘实测记录（冻结数字表）· wuxing-gua 项目组 · 2026-11<br>
+  本页为静态图解介绍，无脚本、无外部依赖、无数据收集
+</footer>
+
+</div>
+</body>
+</html>

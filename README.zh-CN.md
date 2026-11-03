@@ -147,10 +147,10 @@ echo $?      # 1
 ```bash
 pip install .
 python -m wuxing_gua demo --out demo_fixtures   # 生成确定性演示夹具（秒级）
-python -m wuxing_gua selftest                   # 端到端自检：15 个分支全 PASS、退出码 0
+python -m wuxing_gua selftest                   # 端到端自检：16 个分支全 PASS、退出码 0
 ```
 
-`selftest` 只是检查环境装没装好，不教你任何东西。跑一次 15/15 全过、退出码 0，就说明安装没问题。
+`selftest` 只是检查环境装没装好，不教你任何东西。跑一次 16/16 全过、退出码 0，就说明安装没问题。
 
 想看人话而不是 JSON？`python -X utf8 wuxing_guard.py --model examples/ticketfsm_milestones_model.json` 把整个闭环包成一条命令——搜索、验证、最后给一句结论（值得压 / 别压了 / 能压但不划算）。它只是同一组命令的薄封装，说的是句子而不是 JSON；自己的退出码只有 `0`（给出了结论）和 `3`（没能运行）。见 [wuxing_guard.py](wuxing_guard.py) 文件头。
 
@@ -332,6 +332,8 @@ python -m wuxing_gua selftest                   # 端到端自检：15 个分支
 | 标志 × 判据全表 | [wuxing_gua/README.md](wuxing_gua/README.md) |
 | 版本变更 | [CHANGELOG.md](CHANGELOG.md) |
 | 怎么参与贡献 | [CONTRIBUTING.md](CONTRIBUTING.md) |
+
+**图解版**：本 README 的一页图版本——[docs/成果介绍-图解版.html](docs/成果介绍-图解版.html)，整页 SVG 图解成果介绍（纯静态、无脚本、无数据收集）；页内数字与 [docs/evidence.md](docs/evidence.md) 及对称法庭仓的 comparison 收据同源。
 
 **许可**：MIT（见 [LICENSE](LICENSE)）。需要的话也可以改用 Apache-2.0，全文在 [licenses/LICENSE-Apache-2.0.txt](licenses/LICENSE-Apache-2.0.txt)。
 

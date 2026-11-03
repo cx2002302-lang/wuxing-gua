@@ -147,10 +147,10 @@ That is the whole contract in miniature: **what looks right can still be falsifi
 ```bash
 pip install .
 python -m wuxing_gua demo --out demo_fixtures   # deterministic demo fixtures (seconds)
-python -m wuxing_gua selftest                   # end-to-end self-check: 15/15 branches PASS, exit 0
+python -m wuxing_gua selftest                   # end-to-end self-check: 16/16 branches PASS, exit 0
 ```
 
-`selftest` only checks that the environment is wired up; it teaches you nothing about the tool. 15/15 PASS and exit code 0 means the install is fine.
+`selftest` only checks that the environment is wired up; it teaches you nothing about the tool. 16/16 PASS and exit code 0 means the install is fine.
 
 Prefer plain language over JSON? `python -X utf8 wuxing_guard.py --model examples/ticketfsm_milestones_model.json` wraps the whole loop into one command — search, then verify, then a one-line human conclusion (worth compressing / don't / possible but not worth it). It is a thin wrapper over the same commands, speaking sentences instead of JSON; its own exit codes are `0` (a conclusion was reached) and `3` (couldn't run). See the header of [wuxing_guard.py](wuxing_guard.py).
 
@@ -332,6 +332,8 @@ One rule of thumb: **models where an action isn't "flip bit a"** (actions carry 
 | Which action reading (`relabel` / `fixed`) your system needs, and how to declare it | [docs/judge-semantics.md](docs/judge-semantics.md) |
 | Version history | [CHANGELOG.md](CHANGELOG.md) |
 | How to contribute | [CONTRIBUTING.md](CONTRIBUTING.md) |
+
+**Visual tour**: the one-page picture version of this README — [docs/成果介绍-图解版.html](docs/成果介绍-图解版.html), a full-page SVG illustrated introduction (pure static, no scripts, no data collection); its numbers trace to [docs/evidence.md](docs/evidence.md) and the symmetry-court comparison receipts.
 
 **License**: MIT (see [LICENSE](LICENSE)). Apache-2.0 is available if you prefer it; full text in [licenses/LICENSE-Apache-2.0.txt](licenses/LICENSE-Apache-2.0.txt).
 
