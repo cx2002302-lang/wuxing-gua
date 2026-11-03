@@ -189,6 +189,14 @@ All three cases transcribe a real system's behavior into a transition model, and
 
 That missing column now has a public home: [symmetry-court](https://github.com/cx2002302-lang/symmetry-court) puts this engine's verdicts on public standards (TCP RFC 9293, DHCP RFC 2131, IMAP RFC 3501) in front of a third-party arbiter (networkx) — every case reproducible from the RFC text, both action-name calibers side by side.
 
+**Public validation arm ① — the symmetry court:** this engine's verdicts answer to a public protocol: the [symmetry-court](https://github.com/cx2002302-lang/symmetry-court) docket holds 9 real-system cases (tcp, dhcp, imap, raft, hadoop, k8s, tls13, usb2, mini2048), each carrying independent reading columns from a third-party networkx jury, and every verdict re-runs inside that repo — receipts: `verdicts/<case>.verdict.json` and `verdicts/comparison.*.json`.
+
+**Public validation arm ② — the field blind trial:** 5 external systems with zero relation to this project × 15 candidate groups × 2 decision calibers = 30 verdicts, 100% consistent with an independent benchmark (exhaustive enumeration / VF2 / backtracking, cross-validated) — 0 false positives, 0 false negatives; those 5 cases are incorporated into the court docket, with reconciliation receipts in each case's `expected.json` provenance.
+
+**Public validation arm ③ — what the gate is worth (A/B, the court's `compare` subcommand):** 9 dockets, 32 groups, both arms side by side: a structure-only naive merge would admit 12 groups, 2 of them harmful — 746 real behavior cells silently rewritten; the zero-tolerance gate admits 10 with zero broken cells, and what it blocks is exactly those 2 harmful merges. The gate arm totals 5.6 s over all 32 groups — seconds-scale; receipts: `verdicts/comparison.summary.json`.
+
+**Public validation arm ④ — the mini2048 flip:** an external positive-control filing once broke against the explicit caliber's one-action-map-per-group limitation → an upstream per-element `action_maps` fix (homomorphism law checked at load) → mini2048's three true groups now pass (rotation / mirror / full D4: orbits 70/136/55, compression readings 3.657×/1.882×/4.655×) — another entry in the self-falsification tradition, recorded end to end in the court repo's `docs/nontrivial-admit.md`.
+
 > Where "padded" comes from: the input convention is a bit-string shape (states written as strings of 0s and 1s, so the count must be a power of two: `n_states = 2^n_bits`), real state counts usually aren't a power of two, and the gap gets filled with dummy states — all self-loop, reward 0, standing for no real situation at all.
 
 **The 512 case gets its own paragraph, because it was fixed after a crash.**

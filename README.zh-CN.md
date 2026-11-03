@@ -189,6 +189,14 @@ python -m wuxing_gua selftest                   # 端到端自检：16 个分支
 
 这一列缺失的对照如今有了公开去处：[symmetry-court](https://github.com/cx2002302-lang/symmetry-court) 把本引擎的判决放到公开标准上（TCP RFC 9293、DHCP RFC 2131、IMAP RFC 3501），交由第三方仲裁者（networkx）复核——每个案例都可对照 RFC 原文复跑，两种动作名口径并排可查。
 
+**公开验证臂①——对称法庭：** 本引擎的判决受一份公开协议约束：[symmetry-court](https://github.com/cx2002302-lang/symmetry-court) 的案卷现有 9 宗真实系统案件（tcp、dhcp、imap、raft、hadoop、k8s、tls13、usb2、mini2048），每案都带第三方 networkx 陪审团的独立读数列，全部判决可在该仓内复跑——回执：`verdicts/<案>.verdict.json` 与 `verdicts/comparison.*.json`。
+
+**公开验证臂②——实战盲测：** 5 个与本项目零关系的外部系统 × 15 个候选群 × 2 套判定口径 = 30 个判决，与独立基准（穷举/VF2/回溯三方法交叉验证）100% 一致——0 假阳性、0 假阴性；这 5 案已收编进法庭案卷，对账收据在各案 `expected.json` 的 provenance 节。
+
+**公开验证臂③——闸门价值 A/B（法庭仓 `compare` 子命令）：** 9 案 32 群两臂同跑：只看结构的朴素合并会放行 12 群，其中 2 群有害——746 个真实行为格被静默改写；零容忍闸门放行 10 群、破坏格全零，且它拦下的恰是那 2 个有害合并。闸门臂 32 群共 5.6 秒——秒级量级；回源 `verdicts/comparison.summary.json`。
+
+**公开验证臂④——mini2048 翻案史：** 一份外部正控案卷曾击穿 explicit 口径"每群一张动作映射"的局限→上游逐元素 `action_maps` 修复（装载时验同态律）→mini2048 的三个真群放行（旋转/镜像/完整 D4：轨道 70/136/55，压缩读数 3.657×/1.882×/4.655×）——自我揭短传统的又一例，全程记录见法庭仓 `docs/nontrivial-admit.md`。
+
 > 「补齐」是这么来的：工具的输入约定是位串形状（状态用一串 0/1 表示，所以状态数必须是 2 的幂：`n_states = 2^n_bits`），真实状态数往往不是 2 的幂，不够的用"哑态"填充——哑态全自环、回报 0，不代表任何真实局面。
 
 **512 那个案例值得单独说，因为它是翻车后修好的。**
