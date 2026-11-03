@@ -189,11 +189,11 @@ python -m wuxing_gua selftest                   # 端到端自检：16 个分支
 
 这一列缺失的对照如今有了公开去处：[symmetry-court](https://github.com/cx2002302-lang/symmetry-court) 把本引擎的判决放到公开标准上（TCP RFC 9293、DHCP RFC 2131、IMAP RFC 3501），交由第三方仲裁者（networkx）复核——每个案例都可对照 RFC 原文复跑，两种动作名口径并排可查。
 
-**公开验证臂①——对称法庭：** 本引擎的判决受一份公开协议约束：[symmetry-court](https://github.com/cx2002302-lang/symmetry-court) 的案卷现有 10 宗真实系统案件（tcp、dhcp、imap、raft、hadoop、k8s、tls13、usb2、mini2048、lightsout3），每案都带第三方 networkx 陪审团的独立读数列，全部判决可在该仓内复跑——回执：`verdicts/<案>.verdict.json` 与 `verdicts/comparison.*.json`。
+**公开验证臂①——对称法庭：** 本引擎的判决受一份公开协议约束：[symmetry-court](https://github.com/cx2002302-lang/symmetry-court) 的案卷现有 11 宗真实系统案件（tcp、dhcp、imap、raft、hadoop、k8s、tls13、usb2、mini2048、lightsout3、sliding2x3），每案都带第三方 networkx 陪审团的独立读数列，全部判决可在该仓内复跑——回执：`verdicts/<案>.verdict.json` 与 `verdicts/comparison.*.json`。
 
 **公开验证臂②——实战盲测：** 5 个与本项目零关系的外部系统 × 15 个候选群 × 2 套判定口径 = 30 个判决，与独立基准（穷举/VF2/回溯三方法交叉验证）100% 一致——0 假阳性、0 假阴性；这 5 案已收编进法庭案卷，对账收据在各案 `expected.json` 的 provenance 节。
 
-**公开验证臂③——闸门价值 A/B（法庭仓 `compare` 子命令）：** 10 案 37 群两臂同跑：只看结构的朴素合并会放行 17 群，其中 3 群有害——13034 个真实行为格被静默改写（TCP 孪生 6 格；两案键钉死棋盘旋转 740 + 12288 格）；零容忍闸门放行 14 群、破坏格全零，且它拦下的恰是那 3 个有害合并。闸门臂 37 群共 6.6 秒——秒级量级；回源 `verdicts/comparison.summary.json`。
+**公开验证臂③——闸门价值 A/B（法庭仓 `compare` 子命令）：** 11 案 41 群两臂同跑：只看结构的朴素合并会放行 21 群，其中 4 群有害——14474 个真实行为格被静默改写（TCP 孪生 6 格；三案方向/按钮钉死棋盘旋转与镜像 740 + 12288 + 1440 格）；零容忍闸门放行 17 群、破坏格全零，且它拦下的恰是那 4 个有害合并。闸门臂 41 群共 7.4 秒——秒级量级；回源 `verdicts/comparison.summary.json`。
 
 **公开验证臂④——mini2048 翻案史：** 一份外部正控案卷曾击穿 explicit 口径"每群一张动作映射"的局限→上游逐元素 `action_maps` 修复（装载时验同态律）→mini2048 的三个真群放行（旋转/镜像/完整 D4：轨道 70/136/55，压缩读数 3.657×/1.882×/4.655×）——自我揭短传统的又一例，全程记录见法庭仓 `docs/nontrivial-admit.md`。2026-11-04 起案卷另收 `lightsout3`（Lights Out，3×3，512 态、无补位）：同一 D4 群、不同机理（Toggle 代数，而非合并滑动）——完整棋盘群以逐元素按钮映射放行（102 轨道、5.020×），是法庭的第二个非平凡真对称正控，臂③的 A/B 台账已含其读数。
 
