@@ -1,0 +1,113 @@
+{
+ "n_states": 16,
+ "elements": [
+  [
+   0,
+   1,
+   2,
+   3,
+   4,
+   5,
+   6,
+   7,
+   8,
+   9,
+   10,
+   11,
+   12,
+   13,
+   14,
+   15
+  ],
+  [
+   1,
+   3,
+   0,
+   2,
+   4,
+   5,
+   6,
+   7,
+   8,
+   9,
+   10,
+   11,
+   12,
+   13,
+   14,
+   15
+  ],
+  [
+   3,
+   2,
+   1,
+   0,
+   4,
+   5,
+   6,
+   7,
+   8,
+   9,
+   10,
+   11,
+   12,
+   13,
+   14,
+   15
+  ],
+  [
+   2,
+   0,
+   3,
+   1,
+   4,
+   5,
+   6,
+   7,
+   8,
+   9,
+   10,
+   11,
+   12,
+   13,
+   14,
+   15
+  ]
+ ],
+ "semantics": {
+  "action": "explicit",
+  "action_maps": [
+   [
+    0,
+    1,
+    2,
+    3
+   ],
+   [
+    1,
+    2,
+    3,
+    0
+   ],
+   [
+    2,
+    3,
+    0,
+    1
+   ],
+   [
+    3,
+    0,
+    1,
+    2
+   ]
+  ]
+ },
+ "meta": {
+  "claim": "the C4 board rotation of the rung 1d walker, each element carrying its own forced direction-key renaming (per-element action_maps, declared semantics explicit)",
+  "construction": "C4 in order id, rot90cw, rot180, rot90ccw; action_maps[i] is the exhaustive-search-derived renaming of elements[i] (unique per element; homomorphism law asserted on all 16 ordered pairs by make_rung1d_explicit.py)",
+  "semantics_note": "declared explicit: the renaming is part of the claim -- rotating the board turns the up key into the right key, so no single renaming serves all four elements (the legacy single action_map field cannot express this group; docs/judge-semantics.md)",
+  "expected": "admitted by check (exit 0); orbits of C4 on the 16 states: one 4-cycle over the real cells + 12 fixed padding states = 13; compression 16/13",
+  "regenerate": "python -X utf8 examples/make_rung1d_explicit.py"
+ }
+}

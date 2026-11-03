@@ -1,17 +1,20 @@
 # Examples
 
-Eight worked examples arranged as a ladder. Four of them are hand-constructed
-teaching models (rungs 0, R, 1a and 1c): rungs 0 and R are small enough to draw
+Nine worked examples arranged as a ladder. Five of them are hand-constructed
+teaching models (rungs 0, R, 1a, 1c and 1d): rungs 0 and R are small enough to draw
 on paper, rung 1a is shaped like an ordinary two-channel reconciliation job
 and exists to show what one missing business constraint does to the answer,
-and rung 1c is a close-fragment with event-labeled edges that shows why the
-tool asks you to declare what your actions *are*. The
+rung 1c is a close-fragment with event-labeled edges that shows why the
+tool asks you to declare what your actions *are*, and rung 1d is a 2×2 walker
+on a rotating board that shows the *explicit* caliber declaring each group
+element's own action renaming — the same rotation admitted with its per-element
+key renamings, refused with the keys pinned. The
 top three are finite-state-machine transition models hand-transcribed from the
 source code of existing software systems (with every transcription rule checked
 against the cited source lines at extraction time); rung S in between adds
 sampled trajectory logs — the input shape the sample-based verifier
 `check-sample` is built for — on a 4-state host you can also draw on paper. All
-eight are analyzed with the `wuxing_gua` CLI.
+nine are analyzed with the `wuxing_gua` CLI.
 
 These are static models. Nothing in this repository is a claim about live
 production behavior of those systems; what the examples demonstrate is how
@@ -35,6 +38,7 @@ is explained in plain language in [interpreting-output](../docs/interpreting-out
 | R — refusal | `tier1_xor_goalswap_group.json` on the same model | 8 | a candidate that looks legal; read the certified refusal | 1 |
 | 1a | `dualchannel_guarded_model.json` (+ `dualchannel_model.json` contrast, two candidate groups) | 16 | one business constraint cuts the symmetry from 24 relabelings to 2 | 0, 0, 1 |
 | 1c | `eventfsm_model.json` + three candidate groups | 4 reachable (+ 4 padding) | event-driven actions: the same swap passes or is refused depending on the *declared* action reading | 0, 1, 0 (`discover` refuses: 3) |
+| 1d | `rung1d_explicit_model.json` + `rung1d_explicit_group.json` (+ `rung1d_explicit_wrong_group.json`: the same rotations, keys pinned) | 16 (4 real + 12 padding) | the explicit-caliber teaching sample: the same C4 board rotation — admitted once each element carries its forced direction-key renaming (per-element action maps), refused when the keys are pinned | 0, 1 |
 | 1b | `ticketfsm_milestones_model.json` | 32 | `discover` **finding** a group by itself on the smallest real system | 0 |
 | S — sampling | `sampling_tiny_model.json` + `sampling_tiny_group.json` + `samples_tiny_*.jsonl` (+ ticketfsm boundary demo) | 4 host (+ 32) | when all you have are logs: abstain below the power requirement, pass at the calibrated budget — and the boundary where the sample layer must refuse at any size | 2, 0, 1 |
 | 2 | `gw_chainrot_model.json` + `gw_chainrot_group_h.json` | 512 | `check` carrying the load once a hand-derived candidate exists | 0 |
@@ -47,7 +51,11 @@ full table. Rung 1a is the one to read if you have never used a tool like this o
 system: it shows what a single missing business constraint does to the answer.
 Rung 1c is the one to read if your actions are external events (protocol
 messages, user operations) rather than state bits: it shows why the tool asks
-you to declare that, and what either answer costs. Rungs R, 2 and 3 show
+you to declare that, and what either answer costs. Rung 1d is the one to read
+if the action names themselves move with the system (direction keys on a
+rotating board, camera-relative controls): it shows the explicit caliber
+declaring the renaming element by element — and what pinning the names costs.
+Rungs R, 2 and 3 show
 **verification** carrying the load once a candidate group exists — R also
 shows what a refusal looks like and how to read it.
 
@@ -328,6 +336,70 @@ Which reading does *your* system need? Three questions and the full
 declaration syntax: [judge-semantics](../docs/judge-semantics.md). Both
 readings of this rung are recorded in
 `expected/eventfsm_expected.json`.
+
+## Rung 1d — a rotating 2×2 walker (16 states): declare the renaming, element by element
+
+`rung1d_explicit_model.json` is a hand-constructed teaching model — generated,
+deterministically and byte-identically, by `make_rung1d_explicit.py` in this
+directory (`python -X utf8 examples/make_rung1d_explicit.py --check` re-verifies
+the byte identity). It is a system where a symmetry *needs* a
+renaming: a pawn on a 2×2 board, four direction keys (up / right / down /
+left), reward 1.0 for a move and 0.0 for a wall stay — plus 12 unreachable
+padding states to satisfy the power-of-two input contract (the same
+transcription rule as the 512- and 16,384-state real cases).
+
+Spinning the board 90° clockwise maps every arrow to an arrow — but only if
+the keys rotate with the board: after the spin, moving the pawn the way *up*
+used to is the physical *right* key. Each of the four rotations therefore
+carries its own forced renaming, and no single renaming serves all four (the
+180° rotation needs a different one than the 90° rotation). The generator
+derives each element's renaming by exhaustive search over the 24 permutations
+of the four keys and asserts the solution is unique, then asserts the
+renamings compose as the rotations do — the homomorphism law, on all 16
+ordered pairs.
+
+The true group declares exactly that: `semantics` `{"action": "explicit",
+"action_maps": ...}` — one renaming per group element (the *explicit*
+caliber). The control declares the same four rotations with the keys pinned
+(`{"action": "fixed"}`):
+
+```bash
+python -X utf8 -m wuxing_gua check --trans examples/rung1d_explicit_model.json --group examples/rung1d_explicit_group.json
+python -X utf8 -m wuxing_gua check --trans examples/rung1d_explicit_model.json --group examples/rung1d_explicit_wrong_group.json
+```
+
+**What you'll see:**
+
+- the per-element declaration → `"verdict": "pass"`, exit code **0**, 4/4
+  elements at `"worst_tv": 0.0`, `judge: "explicit"` throughout, and
+  `semantics.homomorphism_checked: "full"` — 4 ≤ 500 elements, so the
+  homomorphism law is checked on every ordered pair at load time;
+- the same rotations with pinned keys → `"verdict": "reject"`, exit code
+  **1**, 3 of 4 elements failing the transition layer at `"worst_tv": 1.0` —
+  and the **reward layer passes it** (0 bad of 6 pairs): every cell has the
+  same reward profile (two wall stays at 0.0, two moves at 1.0), so only the
+  arrows catch the pinned keys.
+
+**What it means:** for a rotation, "the states rename" and "the action names
+rename" are one claim, not two. The `relabel` caliber (rungs 0/1a/1b) renames
+actions along with states under one implicit convention; the `explicit`
+caliber lets you state each element's renaming by hand and checks your
+statement — each map against the arrows, and all maps together against the
+group table (the homomorphism law). Pin the keys instead (`fixed`) and the
+same four elements are refused: rotating a board while insisting "up is up"
+is not a symmetry of the machine.
+
+One boundary worth noticing: a single shared `action_map` (the legacy
+explicit form) cannot serve this group — the identity element forces its
+renaming to be the identity, so any non-identity shared renaming is refused
+at the identity element. That degradation is exactly what the per-element
+`action_maps` form lifts.
+
+Which reading does *your* system need? Three questions and the full
+declaration syntax: [judge-semantics](../docs/judge-semantics.md). Both
+readings of this rung are recorded in
+`expected/rung1d_explicit_expected.json` and
+`expected/rung1d_explicit_wrong_expected.json`.
 
 ## The three real case studies
 
@@ -629,6 +701,12 @@ encoding (`docs/evidence.md`, anchors E14, E15, E16).
 | `eventfsm_group_swap_relabel.json` | 0.8 KB |
 | `expected/eventfsm_expected.json` | 4.8 KB |
 | `make_eventfsm_samples.py` | 13.0 KB |
+| `rung1d_explicit_model.json` | 5.7 KB |
+| `rung1d_explicit_group.json` | 1.6 KB |
+| `rung1d_explicit_wrong_group.json` | 1.3 KB |
+| `make_rung1d_explicit.py` | 17.9 KB |
+| `expected/rung1d_explicit_expected.json` | 2.2 KB |
+| `expected/rung1d_explicit_wrong_expected.json` | 2.0 KB |
 | `make_tier1_samples.py` | 6.3 KB |
 | `sampling_tiny_model.json` | 2.1 KB |
 | `sampling_tiny_group.json` | 1.9 KB |
@@ -653,7 +731,8 @@ encoding (`docs/evidence.md`, anchors E14, E15, E16).
 | `gw_teambattle_group_h.json` | 4.2 MB |
 
 Sizes are of the files in this directory as committed (KB = 1000 bytes,
-re-measured 2026-10-28 when the teaching rungs were added). The two large
+re-measured 2026-10-28 when the teaching rungs were added; the rung 1d rows
+re-measured 2026-11-04 when that rung was added). The two large
 files are committed as-is; both are far below the 50 MB level at which GitHub
 begins warning about individual files.
 
@@ -675,11 +754,14 @@ the sampling rung carry their machine-readable record directly in
 `tier1_xor_goalswap_expected.json`, `ticketfsm_check_found_expected.json`,
 `ticketfsm_wrong_swap_expected.json`, `dualchannel_expected.json`,
 `eventfsm_expected.json`,
+`rung1d_explicit_expected.json`, `rung1d_explicit_wrong_expected.json`,
 `sampling_tiny_fulltable_expected.json`,
 `sampling_tiny_100_expected.json`, `sampling_tiny_10000_expected.json`,
 `sampling_ticketfsm_boundary_expected.json`; recorded from the real runs of
 2026-10-28, with the semantics-declaration fields re-recorded from fresh runs
-of the same commands on 2026-10-29 — every pre-existing reading bit-identical).
+of the same commands on 2026-10-29 — every pre-existing reading bit-identical;
+the rung 1d records were added from real runs of the same commands on
+2026-11-04).
 All commands in this file are
 deterministic and their inputs are the committed files themselves, so every
 output is trivially re-runnable by anyone; the committed teaching model and

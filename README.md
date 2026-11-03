@@ -228,9 +228,9 @@ Every number in sections 2, 5 and 6 is traceable: [docs/evidence.md](docs/eviden
 
 ---
 
-## 6. Eight rungs — from "drawable on paper" to "16k states"
+## 6. Nine rungs — from "drawable on paper" to "16k states"
 
-[examples/](examples/) holds eight graded samples, each rung harder than the last. Every rung ships the expected output of an actual run, so you can re-run it yourself.
+[examples/](examples/) holds nine graded samples, each rung harder than the last. Every rung ships the expected output of an actual run, so you can re-run it yourself.
 
 | Rung | Real-world shape | States | What this rung shows you |
 |---|---|---|---|
@@ -239,6 +239,7 @@ Every number in sections 2, 5 and 6 is traceable: [docs/evidence.md](docs/eviden
 | **S samples** | no full table, only **100 / 10,000** operation logs | 4 | With thin data it says "not enough", and never admits |
 | **1a business constraint** | **two-channel reconciliation**: two payment channels, each collects then reconciles | 16 | Same code, with or without the business constraint, **24 relabelings collapse to 2** |
 | **1c event actions** | a **close fragment with event-labeled edges** (teaching model) | 4 reachable | The same swap passes or is refused depending on the *declared* action reading — what your actions are is yours to declare |
+| **1d explicit buttons** | a **2×2 walker on a rotating board** (teaching model) | 16 (4 real + 12 padding) | The same board rotation is admitted once each group element carries its own forced direction-key renaming (per-element `action_maps`), and refused when the keys are pinned |
 | **1b real system** | the full **repair ticket dispatch** flow (real system, name anonymized) | 32 | Automatic search finds the group on the smallest real system, independently |
 | **2 scale ×16** | **card-battle resolution** sequences | 512 | Verification holds up, search crashed and got fixed |
 | **3 scale ×512** | **two-team battle** resolution | 16,384 | Verification passes in seconds, search hits a wall, the wall's location recorded as-is |
