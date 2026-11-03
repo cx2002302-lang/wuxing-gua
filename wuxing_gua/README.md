@@ -26,7 +26,7 @@ python -X utf8 -m wuxing_gua demo --out demo_fixtures
 ```
 
 然后跑端到端自检（13 个分支，实测总耗时两分钟量级、上限 180 s——分支数与上限随
-版本演进，以输出汇总行为准；当前为 15 分支口径）：
+版本演进，以输出汇总行为准；当前为 16 分支口径）：
 
 ```bash
 python -X utf8 -m wuxing_gua selftest
@@ -401,7 +401,7 @@ n_states = 2^n_actions 位串口径构造），输出 `completeness.skipped=true
 秒级到数十秒量级。selftest 分支 12 用 16 状态能量环境 Q₄（双射动作 mini，
 `demo_env.build_popcount(4)`）验证单命令达真群 **384**（= 2⁴·4!，n=6 同构造
 实测 46080 = 2⁶·6! 的降维同构型；期望值 = 同构造确定性重跑的实测定值）——
-为守 selftest 220 s 总上限不跑大环境（32 状态同构 mini 单命令实测数十秒量级，
+为守 selftest 240 s 总上限不跑大环境（32 状态同构 mini 单命令实测数十秒量级，
 六十四卦数字以上述 json 为准）。
 
 ### discover 的 --extra-candidates 标志（动作置换候选源）
@@ -480,7 +480,8 @@ python -X utf8 -m wuxing_gua discover --trans <model.json> --pad-aware --preset 
 **验收**（预注册 `pilot/gw_padaware_run.json`，先落盘后实现）：512 态游戏模型
 模型 --pad-aware plain 在 900s 预算内从阶 1 拒答修到**发现非平凡群阶 5**
 （=H，与 S47 四臂对账一致），全部元素 ⊆ 抽象 Aut=75（⟨σ,π⟩=C5×C15 重建
-逐元素核对）、pad 全定点、哨兵 ok；回归：selftest 15 分支、默认/单标志路径
+逐元素核对）、pad 全定点、哨兵 ok；回归：selftest 13 分支（当时口径；分支数随
+版本演进，现 16 分支口径）、默认/单标志路径
 逐位 diff 全等（剥离计时字段口径）、C1-C6 矩阵抽 3 环境（Q4/K44/Heawood）
 复跑达真 18/18 不降、ticketfsm 复跑阶 2 不变——逐项数字以 `gw_padaware_run.json`
 的 stage_main / stage_regress 为准，判据文件 sha256 before/after 相等（判据
@@ -666,7 +667,7 @@ cd <任意目录>
 python -X utf8 -m wuxing_gua selftest
 ```
 
-  期望：selftest 15/15 分支 PASS、退出码 0（实测两分钟量级，上限 220 s，以输出汇总
+  期望：selftest 16/16 分支 PASS、退出码 0（实测两分钟量级，上限 240 s，以输出汇总
   行为准）。安装树会同时含
   `wuxing_gua/` 与 `src/` 两个顶层目录——判据核心 import 自 src（见上文
   「文件结构与出处」表），只装 `wuxing_gua` 单包会在 import 时报错，这是设计使然；

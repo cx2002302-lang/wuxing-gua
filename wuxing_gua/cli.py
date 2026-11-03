@@ -23,7 +23,7 @@ cli.py —— wuxing_gua 命令行接口
   check         --trans model.json --group group.json     完整转移表版两层判定
   check-sample  --samples samples.jsonl --group group.json [--trans model.json]
                                                           采样版三态判定
-  selftest                                                端到端自检（15 分支，约 2 分钟）
+  selftest                                                端到端自检（16 分支，约 2 分钟）
   demo          --out DIR [--n 6]                         辅助：生成 README 示例夹具
 
 stdout 一律是可解析 JSON（demo/selftest 除外：它们输出人读进度）；
@@ -290,7 +290,7 @@ def build_parser():
                    help="推荐提供：读 goals（吸收态口径）与 n_actions")
     p.set_defaults(func=cmd_check_sample)
 
-    p = sub.add_parser("selftest", help="端到端自检（15 分支，约 2 分钟）")
+    p = sub.add_parser("selftest", help="端到端自检（16 分支，约 2 分钟）")
     p.set_defaults(func=cmd_selftest)
 
     p = sub.add_parser("demo", help="辅助：生成 README 示例与 selftest 共用的夹具文件")
