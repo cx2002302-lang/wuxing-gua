@@ -15,6 +15,7 @@ core_check.py —— check / check-sample 共用的装载、校验与两层零�
 import json
 import math
 import os
+import random
 
 from experiments_p3 import equiv_error, closure_perms, tvd, dist_of
 from experiments_gua64 import equiv_error_gua   # 泛化判据：动作不必是「翻第 a 位」
@@ -132,6 +133,111 @@ def close_group(elements, n_states):
     return sorted(cur), info
 
 
+# ---------------------------------------------------------------- 逐元素动作映射
+# 2026-11-04（第 36 波，队长裁定规格）：explicit 口径逐元素化。
+# 新增 semantics.action_maps：与群文件 elements 一一对应的逐元素动作映射排列
+# （背景：旧单全局 action_map 把恒等元也按同一 ρ 判，恒等元等变强制 ρ=id，
+# 任何非平凡动作改名在数学上必被拒——逐元素映射解除这一退化）。
+# 铁律：判据数学（dist_of / tvd / 位串 / 泛化 / strict / explicit 判据本体）
+# 零改动——本节只做「声明层」结构校验与元素-映射配对。校验失败一律
+# InputError（退出码 3，干净报错无 traceback）；legacy action_map 的
+# GroupInvalid(1) 既有口径一行不动。
+HOMOM_FULL_CAP = 500        # 元素数 ≤ 500：同态律全检全部有序对
+HOMOM_SAMPLE_PAIRS = 200    # 元素数 > 500：生成元对全检 + 确定性抽样 200 对
+HOMOM_SAMPLE_SEED = 20261104
+
+
+def _validate_action_maps(elements_raw, closed, info, n_states, g_na, amaps):
+    """校验 semantics.action_maps（逐元素动作映射声明）。
+
+    规格：与群文件 elements 列表（原序，含重复时映射须一致）一一对应；每条
+    是动作集上的排列且长度一致（群文件声明 n_actions 时须与其相等）；恒等
+    元素对应恒等映射；同态律 ρ_(g∘h) = ρ_g∘ρ_h（本仓置换复合约定同
+    closure_perms：(g∘h)[s] = g[h[s]]，故定律右端为 ρ_g[ρ_h[a]]）。元素数
+    ≤ HOMOM_FULL_CAP 全检全部有序对；> HOMOM_FULL_CAP 生成元有序对全检 +
+    确定性抽样 HOMOM_SAMPLE_PAIRS 对（固定种子，可复现）。逐元素映射必须
+    覆盖每个群元素，故要求声明元素本身已构成封闭群。
+
+    返回 (maps_sorted, homomorphism_checked)：maps_sorted[i] 与 load_group
+    返回的 elements（排序去重闭包）逐位对齐，check 按元素索引取 ρ；
+    homomorphism_checked ∈ {"full", "sampled"}，原样进 payload。
+    """
+    if not isinstance(amaps, list) or not amaps:
+        raise InputError("semantics.action_maps 必须是与 elements 一一对应的"
+                         "非空列表（逐元素动作映射）")
+    if len(amaps) != len(elements_raw):
+        raise InputError("semantics.action_maps 长度 %d 与 elements 长度 %d "
+                         "不一致（逐元素映射必须一一对应）"
+                         % (len(amaps), len(elements_raw)))
+    maps = []
+    for i, m in enumerate(amaps):
+        if not (isinstance(m, list) and m and all(_is_int(x) for x in m)):
+            raise InputError("semantics.action_maps[%d] 必须是动作编号列表" % i)
+        if sorted(m) != list(range(len(m))):
+            raise InputError("semantics.action_maps[%d] 不是动作集上的排列"
+                             "（必须是 0..len-1 的双射，实得 %r）" % (i, m))
+        maps.append(list(m))
+    lens = {len(m) for m in maps}
+    if len(lens) != 1:
+        raise InputError("semantics.action_maps 各元素映射长度不一致 %r"
+                         "（必须同为同一动作集上的排列）" % sorted(lens))
+    n_acts = len(maps[0])
+    if g_na is not None and n_acts != g_na:
+        raise InputError("semantics.action_maps 映射长度 %d 与群文件 "
+                         "n_actions=%d 不一致" % (n_acts, g_na))
+    by_perm = {}
+    for e, m in zip(elements_raw, maps):
+        key = tuple(e)
+        if key in by_perm and by_perm[key] != m:
+            raise InputError("elements 重复元素 %r 对应了不同的 action_maps "
+                             "条目（逐元素映射必须一一对应）" % (list(key),))
+        by_perm[key] = m
+    if not closed:
+        raise InputError("semantics.action_maps 要求 elements 本身构成封闭群"
+                         "（逐元素映射必须覆盖每个群元素；当前声明缺闭包补入"
+                         "的 %d 个元素，其映射无从定义）"
+                         % info.get("n_added_by_closure", 0))
+    ident = tuple(range(n_states))
+    if ident not in by_perm:
+        raise InputError("semantics.action_maps：elements 缺恒等元 %r"
+                         % (list(ident),))
+    if by_perm[ident] != list(range(n_acts)):
+        raise InputError("恒等元素必须对应恒等映射（ρ_id = id，实得 %r）"
+                         % (by_perm[ident],))
+
+    def law_violated(g, h):
+        """ρ_(g∘h) == ρ_g∘ρ_h？（(g∘h)[s]=g[h[s]] ⇒ 右端 ρ_g[ρ_h[a]]）"""
+        rho_gh = by_perm.get(tuple(g[x] for x in h))
+        if rho_gh is None:
+            return True
+        rho_g, rho_h = by_perm[g], by_perm[h]
+        return any(rho_gh[a] != rho_g[rho_h[a]] for a in range(n_acts))
+
+    perms = sorted(by_perm)          # 与 load_group 返回的 elements 逐位一致
+    if len(perms) <= HOMOM_FULL_CAP:
+        mode = "full"
+        for g in perms:
+            for h in perms:
+                if law_violated(g, h):
+                    raise InputError(
+                        "同态律违反：ρ_(g∘h) ≠ ρ_g∘ρ_h（g=%r, h=%r；逐元素"
+                        "映射必须构成群同态 G→Sym(actions)）" % (list(g), list(h)))
+    else:
+        mode = "sampled"
+        rng = random.Random(HOMOM_SAMPLE_SEED)
+        gens = [tuple(x) for x in info.get("generators", [])]
+        pairs = [(g, h) for g in gens for h in gens]
+        for _ in range(HOMOM_SAMPLE_PAIRS):
+            pairs.append((perms[rng.randrange(len(perms))],
+                          perms[rng.randrange(len(perms))]))
+        for g, h in pairs:
+            if law_violated(g, h):
+                raise InputError(
+                    "同态律违反（生成元对/确定性抽样对）：ρ_(g∘h) ≠ ρ_g∘ρ_h"
+                    "（g=%r, h=%r）" % (list(g), list(h)))
+    return [by_perm[t] for t in perms], mode
+
+
 def load_group(path):
     """装载并校验 group.json。文件缺失/解析失败 → InputError(3)；内容不是置换群 → GroupInvalid(1)。"""
     if not os.path.isfile(path):
@@ -186,6 +292,10 @@ def load_group(path):
     #   relabel  = 动作可随状态换名（开关/里程碑位类系统的正确口径；历史默认）
     #   fixed    = 动作名不可换（事件驱动状态机的正确口径；= 旧 --strict）
     #   explicit = 逐动作映射（action_map 必须是动作集上的双射）
+    # 2026-11-04（第 36 波）：explicit 另可给 action_maps——与 elements 一一
+    #   对应的逐元素动作映射排列（含同态律校验，见 _validate_action_maps）；
+    #   旧单 action_map = 全部元素同一映射（恒等元也被同一 ρ 判定 ⇒ 非平凡
+    #   改名必拒的退化口径），行为不变、文档标 deprecated。
     #   块内允许附加 "assumed": true（discover 自动标注其默认口径时盖上——
     #   未被模型作者确认过的声明，check 如实按「假定为真」警示）与任意说明
     #   字段（如 note）；未知键一律忽略，discover stdout 直接落盘仍可用。
@@ -200,19 +310,39 @@ def load_group(path):
             raise GroupInvalid("semantics.action 必须是 \"relabel\" | \"fixed\" | "
                                "\"explicit\" 之一（实得 %r）" % (g_sem_action,))
         g_sem_map = g_sem.get("action_map")
-        if g_sem_action == "explicit":
-            if not (isinstance(g_sem_map, list) and g_sem_map
-                    and all(_is_int(x) for x in g_sem_map)):
-                raise GroupInvalid("semantics.action == \"explicit\" 时 action_map "
-                                   "必须是动作编号列表（0..n_actions-1 的双射）")
-            if sorted(g_sem_map) != list(range(len(g_sem_map))):
-                raise GroupInvalid("semantics.action_map 必须是动作集上的双射"
-                                   "（实得 %r）" % (g_sem_map,))
-        elif g_sem_map is not None:
-            raise GroupInvalid("仅 semantics.action == \"explicit\" 可给 action_map"
-                               "（relabel/fixed 的动作映射由判据口径决定，不逐动作指定）")
-        g_sem = {"action": g_sem_action, "action_map": g_sem_map,
-                 "assumed_flag": (g_sem.get("assumed") is True)}
+        g_sem_amaps = g_sem.get("action_maps")
+        # 2026-11-04（第 36 波）：action_maps 仅 explicit 可带（与 action_map
+        # 同一条作用域规则；两字段互斥——legacy 单全局映射已弃用但行为不变）。
+        if g_sem_action != "explicit" and g_sem_amaps is not None:
+            raise GroupInvalid("仅 semantics.action == \"explicit\" 可给 action_maps"
+                               "（relabel/fixed 的动作映射由判据口径决定，不逐元素指定）")
+        if g_sem_action == "explicit" and g_sem_amaps is not None \
+                and g_sem_map is not None:
+            raise InputError("semantics.action_map（legacy 单全局映射，已弃用）与 "
+                             "semantics.action_maps（逐元素映射）只能二选一")
+        if g_sem_action == "explicit" and g_sem_amaps is not None:
+            amaps_aligned, homo_mode = _validate_action_maps(
+                elements_raw, info["closed_input"], info, n_states, g_na,
+                g_sem_amaps)
+            g_sem = {"action": g_sem_action, "action_map": None,
+                     "action_maps": amaps_aligned,
+                     "homomorphism_checked": homo_mode,
+                     "assumed_flag": (g_sem.get("assumed") is True)}
+        else:
+            if g_sem_action == "explicit":
+                if not (isinstance(g_sem_map, list) and g_sem_map
+                        and all(_is_int(x) for x in g_sem_map)):
+                    raise GroupInvalid("semantics.action == \"explicit\" 时 action_map "
+                                       "必须是动作编号列表（0..n_actions-1 的双射）")
+                if sorted(g_sem_map) != list(range(len(g_sem_map))):
+                    raise GroupInvalid("semantics.action_map 必须是动作集上的双射"
+                                       "（实得 %r）" % (g_sem_map,))
+            elif g_sem_map is not None:
+                raise GroupInvalid("仅 semantics.action == \"explicit\" 可给 action_map"
+                                   "（relabel/fixed 的动作映射由判据口径决定，不逐动作指定）")
+            g_sem = {"action": g_sem_action, "action_map": g_sem_map,
+                     "action_maps": None, "homomorphism_checked": None,
+                     "assumed_flag": (g_sem.get("assumed") is True)}
 
     return {"path": path, "n_states": n_states, "elements": closed,
             "info": info, "goals": g_goals, "n_actions": g_na,
@@ -278,7 +408,9 @@ _JUDGES = ("bitstring", "generalized", "strict", "explicit")
 def resolve_semantics(model, group, strict_flag=False):
     """
     把（群文件声明, --strict 标志）解析成 check 实际使用的动作语义。
-    返回 dict：action / judge / action_map / declared / assumed / source。
+    返回 dict：action / judge / action_map / action_maps / homomorphism_checked /
+    declared / assumed / source。（action_maps = 第 36 波逐元素口径，与群元素
+    一一对应；homomorphism_checked ∈ {"full","sampled",None}。）
 
     优先级：--strict 覆盖一切（= fixed；显式覆盖不算假定）；
     群文件声明次之；都无 → relabel（历史默认）但 assumed=True——
@@ -288,13 +420,16 @@ def resolve_semantics(model, group, strict_flag=False):
     n_acts, n_bits = model["n_actions"], model["n_bits"]
     if strict_flag:
         return {"action": "fixed", "judge": "strict", "action_map": None,
+                "action_maps": None, "homomorphism_checked": None,
                 "declared": decl is not None, "assumed": False,
                 "source": "flag_strict",
                 "declared_action": (decl or {}).get("action")}
     if decl is None:
         return {"action": "relabel",
                 "judge": ("generalized" if n_acts > n_bits else "bitstring"),
-                "action_map": None, "declared": False, "assumed": True,
+                "action_map": None, "action_maps": None,
+                "homomorphism_checked": None,
+                "declared": False, "assumed": True,
                 "source": "default", "declared_action": None}
     action = decl["action"]
     if action == "fixed":
@@ -303,12 +438,26 @@ def resolve_semantics(model, group, strict_flag=False):
         judge = "explicit"
     else:
         judge = ("generalized" if n_acts > n_bits else "bitstring")
-    if action == "explicit" and len(decl["action_map"]) != n_acts:
-        raise InputError("semantics.action_map 长度 %d 与模型 n_actions=%d 不一致"
-                         % (len(decl["action_map"]), n_acts))
+    # 2026-11-04（第 36 波）：explicit 两形态——逐元素 action_maps（新）或
+    # legacy 单 action_map（行为不变）。映射长度都必须等于模型 n_actions。
+    has_amaps = (action == "explicit" and decl.get("action_maps") is not None)
+    if action == "explicit":
+        if has_amaps:
+            if len(decl["action_maps"][0]) != n_acts:
+                raise InputError(
+                    "semantics.action_maps 映射长度 %d 与模型 n_actions=%d "
+                    "不一致（逐元素映射必须作用于模型的动作集）"
+                    % (len(decl["action_maps"][0]), n_acts))
+        elif len(decl["action_map"]) != n_acts:
+            raise InputError("semantics.action_map 长度 %d 与模型 n_actions=%d 不一致"
+                             % (len(decl["action_map"]), n_acts))
     return {"action": action, "judge": judge,
             "action_map": (list(decl["action_map"])
-                           if action == "explicit" else None),
+                           if action == "explicit" and not has_amaps else None),
+            "action_maps": ([list(m) for m in decl["action_maps"]]
+                            if has_amaps else None),
+            "homomorphism_checked": (decl.get("homomorphism_checked")
+                                     if has_amaps else None),
             "declared": True,
             "assumed": bool(decl.get("assumed_flag")),
             "source": "group_file", "declared_action": action}
@@ -333,6 +482,18 @@ def _check_transition(model, elements, close_info, sem=None, strict=False):
         judge_kind = "strict" if strict else (
             "generalized" if n_acts > model["n_bits"] else "bitstring")
         action_map = None
+    # 2026-11-04（第 36 波）：explicit 逐元素口径——action_maps 与群元素
+    # 一一对应，按元素索引取该元素的 ρ。判据本体 _equiv_error_explicit
+    # 一行未动（等变不等式与 TV 机制不变）；变的只是「每个元素喂哪个映射」
+    # 这一声明层分派。legacy 单映射（action_map）仍对全部元素同一 ρ。
+    rho_by_elem = None
+    if sem is not None and judge_kind == "explicit" \
+            and sem.get("action_maps") is not None:
+        if len(sem["action_maps"]) != len(elements):
+            raise InputError("semantics.action_maps 长度 %d 与群元素数 %d "
+                             "不一致" % (len(sem["action_maps"]), len(elements)))
+        rho_by_elem = {tuple(e): sem["action_maps"][i]
+                       for i, e in enumerate(elements)}
     if len(elements) <= ELEM_VERIFY_CAP:
         targets, mode = elements, "all_elements"
     else:
@@ -351,7 +512,15 @@ def _check_transition(model, elements, close_info, sem=None, strict=False):
             if judge_kind == "strict":
                 e, _ = _equiv_error_strict(trans, list(pi), n_acts)
             elif judge_kind == "explicit":
-                e, _ = _equiv_error_explicit(trans, list(pi), action_map, n_acts)
+                if rho_by_elem is not None:
+                    rho = rho_by_elem.get(tuple(pi))
+                    if rho is None:
+                        raise InputError("群元素 %r 缺逐元素映射"
+                                         "（semantics.action_maps 未覆盖）"
+                                         % (list(pi),))
+                else:
+                    rho = action_map
+                e, _ = _equiv_error_explicit(trans, list(pi), rho, n_acts)
             elif judge_kind == "generalized":
                 e, _ = equiv_error_gua(trans, list(pi), n_acts)
             else:
@@ -435,7 +604,17 @@ def run_check(model, group, strict=False):
             and sem["declared_action"] != sem["action"]:
         semantics_block["declared_action"] = sem["declared_action"]
     if sem["action"] == "explicit":
-        semantics_block["action_map"] = list(sem["action_map"])
+        # 2026-11-04（第 36 波）：逐元素 action_maps（新口径）回显全表 + 记录
+        # 同态律校验策略（full = 全部有序对 / sampled = 生成元对+确定性抽样）；
+        # legacy 单映射口径 homomorphism_checked 如实为 null（同态律不单检——
+        # 恒等元也被同一 ρ 判定，非平凡改名由判据本身拒绝）。
+        if sem.get("action_maps") is not None:
+            semantics_block["action_maps"] = [list(m) for m in sem["action_maps"]]
+            semantics_block["homomorphism_checked"] = \
+                sem.get("homomorphism_checked")
+        else:
+            semantics_block["action_map"] = list(sem["action_map"])
+            semantics_block["homomorphism_checked"] = None
     return {
         "command": "check",
         "verdict": verdict,

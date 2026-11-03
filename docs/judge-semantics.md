@@ -46,14 +46,28 @@ A group file may carry an optional top-level block:
 |---|---|---|
 | `"relabel"` | Actions may be renamed along with the states. Correct for switch/milestone systems; the tool's historical default. | `bitstring` (when `n_actions <= n_bits`), else `generalized` |
 | `"fixed"` | Event names are pinned: state renaming must preserve behavior with the *same* action names. Correct for event-driven systems. | `strict` |
-| `"explicit"` | You spell out the action renaming yourself: add `"action_map": [ρ(0), ρ(1), ...]` (a bijection of the action indices). | `explicit` |
+| `"explicit"` | You spell out the action renaming yourself: per **group element** via `"action_maps"` (below), or — deprecated — one global renaming for every element via `"action_map": [ρ(0), ρ(1), ...]`. | `explicit` |
 
 Rules the loader enforces:
 
 - The block is optional. A group file without it still runs — see the warning
   below.
-- `action_map` is only allowed with `"explicit"` and must be a bijection of
-  `0..n_actions-1` whose length equals the model's `n_actions`.
+- `action_map` (legacy, **deprecated**) is only allowed with `"explicit"` and
+  must be a bijection of `0..n_actions-1` whose length equals the model's
+  `n_actions`. It applies one renaming to *every* group element — including
+  the identity, whose own equivariance then forces ρ = id, so any non-trivial
+  renaming is mathematically refused. Behavior is unchanged; use
+  `action_maps` instead.
+- `action_maps` (since 2026-11-04) is only allowed with `"explicit"` and must
+  be a list parallel to the file's `elements`: one action renaming (a
+  bijection of the action set) per element. The loader validates that the
+  lengths match, every entry is a permutation of the action set, the identity
+  element carries the identity map, and the maps form a group homomorphism
+  ρ_(g∘h) = ρ_g∘ρ_h — all ordered pairs up to 500 elements, beyond that all
+  generator pairs plus a deterministic 200-pair sample (reported in the output
+  as `semantics.homomorphism_checked`: `"full"` or `"sampled"`). Any violation
+  is a clean input error (exit 3, no traceback). The declared elements must
+  already form a closed group (per-element maps must cover every element).
 - Any additional keys inside the block (e.g. a `note`) are ignored, so a saved
   `discover` stdout remains directly usable as a group file.
 
@@ -69,6 +83,11 @@ The check output carries the resolution explicitly:
 
 - `judge` — which judge the transition layer actually ran (`bitstring` /
   `generalized` / `strict` / `explicit`); mirrored in `layer_transition.judge`.
+- For the `explicit` reading the block also echoes what was declared: the
+  legacy single `action_map`, or the per-element `action_maps` together with
+  `homomorphism_checked` (`"full"` when every ordered pair of elements was
+  law-checked, `"sampled"` when generator pairs plus a deterministic 200-pair
+  sample were).
 - `declared` / `source` — whether the reading came from the group file, from
   the `--strict` flag (`source: "flag_strict"`, which overrides any
   declaration), or was the un-declared default.
@@ -120,9 +139,12 @@ elements side by side).
   compares reward profiles as sorted per-action multisets and is intentionally
   blind to action renamings; rung 1c's refused candidate passes the reward
   layer under both readings, which is why the transition layer exists.
-- A single declared `action_map` is one global renaming applied to every group
-  element. Per-element action renamings (the general relabel reading) remain
-  the `relabel` judges' own derivation, unchanged.
+- A single declared `action_map` (deprecated) is one global renaming applied
+  to every group element — including the identity, whose equivariance then
+  forces ρ = id, so any non-trivial renaming is mathematically refused.
+  Per-element renamings are declarable via `action_maps` (homomorphism-law
+  checked at load; see the declaration section). The `relabel` judges' own
+  derivation of action renamings is unchanged.
 
 ## 中文速览
 
@@ -137,8 +159,16 @@ elements side by side).
 ```json
 "semantics": {"action": "relabel"}      // 开关/里程碑位类（历史默认口径）
 "semantics": {"action": "fixed"}        // 事件驱动类（= 旧 --strict）
-"semantics": {"action": "explicit",     // 逐动作映射（自定动作改名）
-              "action_map": [1, 0, 2]}
+"semantics": {"action": "explicit",     // 逐元素映射（2026-11-04 起）：
+              "action_maps": [[0,1,2], [2,0,1], [1,2,0]]}
+                                        //   与 elements 一一对应、每条为动作集
+                                        //   上的排列、恒等元对应恒等映射、须满足
+                                        //   同态律 ρ_(g∘h)=ρ_g∘ρ_h（≤500 元素全检
+                                        //   有序对；更大抽样并记
+                                        //   homomorphism_checked=full|sampled）
+"semantics": {"action": "explicit",     // legacy 单全局映射（已弃用、行为不变）：
+              "action_map": [1, 0, 2]} //   同一 ρ 判全部元素含恒等元 ⇒ 非平凡
+                                        //   改名必拒（退化口径），请改用 action_maps
 ```
 
 **自判三问**：①动作能否不指着状态说清自己是什么（能 → fixed）；②两状态换名

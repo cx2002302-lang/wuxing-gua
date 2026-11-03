@@ -8,6 +8,20 @@ far.
 
 ### Added
 
+- **Per-element action renamings for the `explicit` reading** (`action_maps`,
+  since 2026-11-04): a list parallel to the group file's `elements`, declaring
+  one action renaming (bijection of the action set) per group element. The
+  loader validates the pairing and the homomorphism law
+  ρ_(g∘h) = ρ_g∘ρ_h — all ordered pairs up to 500 elements, beyond that all
+  generator pairs plus a deterministic 200-pair sample, reported in the
+  output as `semantics.homomorphism_checked` (`"full"` / `"sampled"`); any
+  violation is a clean input error (exit 3). The legacy single `action_map`
+  (one global renaming for every element, including the identity — which
+  forces ρ = id and therefore refuses any non-trivial renaming) still runs
+  unchanged but is **deprecated** in favor of `action_maps`. The judging
+  mathematics (max TV = 0 and the reward profile) is untouched — only the
+  declaration layer changed. Selftest covers this as branch 16 (16 branches
+  total).
 - **Action-semantics declaration for group files** (`semantics` block, optional):
   `{"action": "relabel" | "fixed" | "explicit"}` — `relabel` (actions may be
   renamed along with states; the right reading for switch/milestone systems and

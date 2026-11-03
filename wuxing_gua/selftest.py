@@ -3,7 +3,7 @@
 selftest.py —— 端到端自检（canonize / multi-label / extra-candidates / preset robust /
 report-confidence / 口径声明 分支全覆盖）
 
-十五个分支，全部通过 CLI 子进程真实执行（python -X utf8 -m wuxing_gua ...），
+十六个分支，全部通过 CLI 子进程真实执行（python -X utf8 -m wuxing_gua ...），
 不是函数级调用——退出码就是交付的退出码：
 
   1 discover 真群发现        → 退出码 0；order==720 且 n_orbits==7
@@ -121,6 +121,23 @@ report-confidence / 口径声明 分支全覆盖）
                                期望值源 = 本分支同构造确定性重跑的实测定值
                                （与 examples/expected/eventfsm_expected.json
                                同源同数字）。
+  16 check 口径声明 explicit 逐元素化（第 36 波；合成 C4 玩具：4 态 4 动作、
+                               转移 T(s,a)=δ((s+c_a)%4)、C4 旋转群，夹具内联
+                               确定性重建）：①semantics.action_maps 逐元素
+                               映射真群放行——ρ_r=对换(01) 的非平凡同态
+                               C4→C2（ρ_id=id、ρ_r²=id、ρ_r³=对换），判据
+                               explicit / TV 0、semantics.homomorphism_checked
+                               =full（≤500 元素全检有序对）、action_maps 全表
+                               回显且不回显 legacy action_map；②坏映射四例
+                               各干净 exit 3（stderr 输入错误文案、无
+                               traceback）：非排列 / 长度不符 / 恒等元非恒等
+                               映射 / 同态律违反（ρ_r² 声明成非 ρ_r∘ρ_r）；
+                               ③legacy 单 action_map 行为不变：恒等映射放行
+                               照旧、非平凡映射在恒等元必拒照旧（4/4 元素
+                               TV=1.0、homomorphism_checked=null）——单全局
+                               映射「恒等元强制 ρ=id ⇒ 非平凡动作改名必拒」
+                               的退化口径原样保留，逐元素映射解除该退化。
+                               期望值源 = 本分支同构造确定性重跑的实测定值。
 
 夹具与 README 示例完全同一套（demo_env.write_fixtures，确定性重建；
 model_translated_q6.json 由 build_translated_standard 确定性构造）。
@@ -136,8 +153,8 @@ import time
 
 from . import PROJECT_ROOT, demo_env
 
-N_BRANCHES = 15             # 分支数与下方 step 调用数一致（audit 现读本常量核对 README）
-TOTAL_SEC_LIMIT = 220.0     # 15 分支时代（含 --report-confidence 与口径声明两分支）；上限随分支数演进，以实跑汇总为准
+N_BRANCHES = 16             # 分支数与下方 step 调用数一致（audit 现读本常量核对 README）
+TOTAL_SEC_LIMIT = 240.0     # 16 分支时代（15 分支时代 220.0；上限随分支数演进，以实跑汇总为准）
 PER_BRANCH_TIMEOUT = 100.0
 
 
@@ -829,6 +846,179 @@ def _step_semantics_fixed(w, i, total, rows):
         w.write("         ! %s\n" % e)
 
 
+# ---------------------------------------------------------------- 分支 16：explicit 逐元素
+_C4_ID, _C4_R = [0, 1, 2, 3], [1, 2, 3, 0]
+_C4_R2, _C4_R3 = [2, 3, 0, 1], [3, 0, 1, 2]
+_C4_SWAP01 = [1, 0, 2, 3]
+_C4_ELEMENTS = [_C4_ID, _C4_R, _C4_R2, _C4_R3]
+
+
+def _build_c4_fixture(out_dir):
+    """分支 16 夹具：合成 C4 玩具（4 态 4 动作，第 36 波 explicit 逐元素口径）。
+    转移 T(s,a)=δ((s+c_a)%4)、奖励全 0（确定性重建，无随机源）：
+      · 模型 A c=[1,1,2,3]：动作 0/1 同为 +1 ⇒ 允许非平凡同态 C4→C2
+        （ρ_r=对换(01)、ρ_r²=id、ρ_r³=对换、ρ_id=id，同态律 ρ_(g∘h)=ρ_g∘ρ_h
+        逐对可验）——逐元素 action_maps 真群正例；
+      · 模型 B c=[0,1,2,3]：动作各不相同 ⇒ 任何非平凡单全局映射在恒等元
+        TV=1.0 必拒——legacy 退化拒答的固定案例。"""
+    def _model(constants):
+        trans = [[[[1.0, (s + constants[a]) % 4, 0.0]] for a in range(4)]
+                 for s in range(4)]
+        return {"n_bits": 2, "n_actions": 4, "n_states": 4, "goals": [],
+                "trans": trans}
+
+    def _group(name, semantics):
+        gp = os.path.join(out_dir, "group_c4_%s.json" % name)
+        with open(gp, "w", encoding="utf-8") as f:
+            json.dump({"n_states": 4, "elements": _C4_ELEMENTS,
+                       "semantics": semantics}, f)
+        return gp
+
+    mp_a = os.path.join(out_dir, "model_c4a.json")
+    with open(mp_a, "w", encoding="utf-8") as f:
+        json.dump(_model([1, 1, 2, 3]), f)
+    mp_b = os.path.join(out_dir, "model_c4b.json")
+    with open(mp_b, "w", encoding="utf-8") as f:
+        json.dump(_model([0, 1, 2, 3]), f)
+    paths = {
+        "model_a": mp_a, "model_b": mp_b,
+        # ① 逐元素真群（ρ 依元素各异、构成同态 C4→C2）
+        "amaps_ok": _group("amaps_ok", {"action": "explicit", "action_maps":
+                                        [_C4_ID, _C4_SWAP01, _C4_ID, _C4_SWAP01]}),
+        # ② 坏映射四例（各 → 干净 exit 3）
+        "bad_notperm": _group("bad_notperm", {"action": "explicit", "action_maps":
+                                              [_C4_ID, [0, 0, 2, 3], _C4_ID, _C4_SWAP01]}),
+        "bad_len": _group("bad_len", {"action": "explicit", "action_maps":
+                                      [_C4_ID, _C4_SWAP01, _C4_ID]}),
+        "bad_ident": _group("bad_ident", {"action": "explicit", "action_maps":
+                                          [_C4_SWAP01, _C4_SWAP01, _C4_ID, _C4_SWAP01]}),
+        "bad_homom": _group("bad_homom", {"action": "explicit", "action_maps":
+                                          [_C4_ID, _C4_SWAP01, _C4_SWAP01, _C4_SWAP01]}),
+        # ③ legacy 单映射：恒等映射放行照旧 / 非平凡映射退化拒答照旧（模型 B）
+        "legacy_ident": _group("legacy_ident", {"action": "explicit",
+                                                "action_map": list(_C4_ID)}),
+        "legacy_swap": _group("legacy_swap", {"action": "explicit",
+                                              "action_map": list(_C4_SWAP01)}),
+    }
+    return paths
+
+
+def _step_semantics_explicit(w, i, total, rows):
+    """分支 16（explicit 逐元素口径，第 36 波）：action_maps 真群放行 +
+    坏映射四例干净 exit 3 + legacy 单映射行为不变（恒等元非平凡映射必拒
+    照旧）。判据本体零改动的自证在 git diff（本分支只喂不同 ρ）。"""
+    name = "check 口径声明 explicit 逐元素（action_maps 放行+四坏拒+legacy 不变）"
+    t1 = time.time()
+    errs = []
+    tmp = tempfile.mkdtemp(prefix="wuxing_gua_c4_")
+    readings = []
+    try:
+        fx = _build_c4_fixture(tmp)
+        # ① 逐元素真群放行 + 读数
+        p = _run_cli(["check", "--trans", fx["model_a"], "--group", fx["amaps_ok"]])
+        try:
+            payload = json.loads(p.stdout)
+        except ValueError:
+            payload = None
+            errs.append("逐元素真群 stdout 不是合法 JSON：%r" % p.stdout[:120])
+        if p.returncode != 0:
+            errs.append("逐元素真群应放行（退出码 0），实得 %d；stderr：%s"
+                        % (p.returncode, p.stderr.strip()[-200:]))
+        if payload is not None:
+            sem = payload.get("semantics") or {}
+            lt = payload.get("layer_transition") or {}
+            if payload.get("verdict") != "pass":
+                errs.append("逐元素真群 verdict=%r != pass（reason=%r）"
+                            % (payload.get("verdict"), payload.get("reason")))
+            if lt.get("judge") != "explicit" or sem.get("judge") != "explicit":
+                errs.append("judge 应 explicit，实得 layer=%r sem=%r"
+                            % (lt.get("judge"), sem.get("judge")))
+            if lt.get("worst_tv") != 0.0 or lt.get("n_checked") != 4 \
+                    or lt.get("n_failed") != 0:
+                errs.append("逐元素真群应 TV 0、4/4 元素全过，实得 %r %r/%r"
+                            % (lt.get("worst_tv"), lt.get("n_failed"),
+                               lt.get("n_checked")))
+            if sem.get("homomorphism_checked") != "full":
+                errs.append("homomorphism_checked=%r != full（4 元素 ≤500 应全检"
+                            "有序对）" % sem.get("homomorphism_checked"))
+            amaps = sem.get("action_maps")
+            if not (isinstance(amaps, list) and len(amaps) == 4
+                    and all(isinstance(m, list) and len(m) == 4 for m in amaps)):
+                errs.append("semantics.action_maps 应回显 4 条长度 4 的映射，实得 %r"
+                            % (amaps,))
+            if "action_map" in sem:
+                errs.append("逐元素口径不应回显 legacy action_map 字段：%r"
+                            % (sem.get("action_map"),))
+            if sem.get("declared") is not True or sem.get("assumed") is not False \
+                    or sem.get("source") != "group_file":
+                errs.append("声明字段应 declared=True/assumed=False/group_file，"
+                            "实得 %r" % (sem,))
+            readings.append(("amaps", payload.get("verdict"),
+                             sem.get("homomorphism_checked")))
+        # ② 坏映射四例：各干净 exit 3
+        for tag in ("bad_notperm", "bad_len", "bad_ident", "bad_homom"):
+            p = _run_cli(["check", "--trans", fx["model_a"], "--group", fx[tag]])
+            if p.returncode != 3:
+                errs.append("%s 应干净退出码 3，实得 %d；stderr：%s"
+                            % (tag, p.returncode, p.stderr.strip()[-160:]))
+            if "输入错误" not in p.stderr:
+                errs.append("%s stderr 缺输入错误文案：%r"
+                            % (tag, p.stderr.strip()[-160:]))
+            if "Traceback" in p.stderr:
+                errs.append("%s 不应带 traceback（声明层校验应干净拒绝）" % tag)
+            readings.append((tag, "exit3", None))
+        # ③ legacy 单映射行为不变
+        p = _run_cli(["check", "--trans", fx["model_b"], "--group", fx["legacy_ident"]])
+        try:
+            payload = json.loads(p.stdout)
+        except ValueError:
+            payload = None
+            errs.append("legacy 恒等映射 stdout 不是合法 JSON：%r" % p.stdout[:120])
+        if p.returncode != 0 or (payload or {}).get("verdict") != "pass":
+            errs.append("legacy 恒等映射应放行照旧（退出码 0/pass），实得 %d/%r"
+                        % (p.returncode, payload and payload.get("verdict")))
+        if payload is not None:
+            sem = payload.get("semantics") or {}
+            if sem.get("homomorphism_checked") is not None \
+                    or "action_map" not in sem:
+                errs.append("legacy 口径应回显 action_map 且 homomorphism_checked"
+                            "=null，实得 %r" % (sem,))
+            readings.append(("legacy_ident", payload.get("verdict"), None))
+        p = _run_cli(["check", "--trans", fx["model_b"], "--group", fx["legacy_swap"]])
+        try:
+            payload = json.loads(p.stdout)
+        except ValueError:
+            payload = None
+            errs.append("legacy 非平凡映射 stdout 不是合法 JSON：%r" % p.stdout[:120])
+        if p.returncode != 1 or (payload or {}).get("verdict") != "reject":
+            errs.append("legacy 非平凡单映射应退化拒答照旧（退出码 1/reject），"
+                        "实得 %d/%r" % (p.returncode, payload and payload.get("verdict")))
+        if payload is not None:
+            lt = payload.get("layer_transition") or {}
+            sem = payload.get("semantics") or {}
+            if lt.get("worst_tv") != 1.0 or lt.get("n_failed") != 4 \
+                    or lt.get("n_checked") != 4:
+                errs.append("legacy 非平凡映射应 4/4 元素 TV=1.0（恒等元强制 ρ=id "
+                            "⇒ 非平凡改名必拒），实得 %r %r/%r"
+                            % (lt.get("worst_tv"), lt.get("n_failed"),
+                               lt.get("n_checked")))
+            if sem.get("homomorphism_checked") is not None:
+                errs.append("legacy 口径 homomorphism_checked 应为 null，实得 %r"
+                            % (sem.get("homomorphism_checked"),))
+            readings.append(("legacy_swap", payload.get("verdict"),
+                             lt.get("worst_tv")))
+    finally:
+        shutil.rmtree(tmp, ignore_errors=True)
+    ok = not errs
+    sec = time.time() - t1
+    rows.append((name, ok, 0, sec))
+    w.write("  [%d/%d] %-46s %s（%s，%.1fs）\n"
+            % (i, total, name, "PASS" if ok else "FAIL",
+               "；".join("%s→%s/%s" % r for r in readings) or "无输出", sec))
+    for e in errs:
+        w.write("         ! %s\n" % e)
+
+
 # ---------------------------------------------------------------- 主流程
 def run(out=None):
     w = out or sys.stdout
@@ -932,6 +1122,9 @@ def run(out=None):
         # 分支 15（口径声明 fixed / 事件类）：fixed 拒事件异对换、真对称放行、
         # 同群 relabel 放行（两口径读数相反）；discover 适用域守卫退出码 3
         _step_semantics_fixed(w, 15, total, rows)
+        # 分支 16（口径声明 explicit 逐元素，第 36 波）：action_maps 真群放行 +
+        # 坏映射四例干净 exit 3 + legacy 单映射行为不变（退化拒答照旧）
+        _step_semantics_explicit(w, 16, total, rows)
 
         total_sec = time.time() - t0
         n_ok = sum(1 for r in rows if r[1])
