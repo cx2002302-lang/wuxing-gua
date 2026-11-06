@@ -243,40 +243,41 @@
   <h2><span class="no">06</span>交付：两个互相背书的开源仓</h2>
   <div class="cards">
     <div class="mini"><b><a href="https://github.com/cx2002302-lang/wuxing-gua" style="color:var(--blue)">wuxing-gua（判据引擎）</a></b>五命令 CLI（发现/验证/采样判定/演示/自检）· 八级样例阶梯 · 证据链仓内可溯 · MIT</div>
-    <div class="mini"><b><a href="https://github.com/cx2002302-lang/symmetry-court" style="color:var(--blue)">symmetry-court（对称法庭）</a></b>公开标准当考官：9 份案卷（TCP/DHCP/IMAP 三协议 + 盲测五系统 + mini2048）× 双口径判决 × networkx 三方仲裁 · clone 五分钟看完一场庭审</div>
+    <div class="mini"><b><a href="https://github.com/cx2002302-lang/symmetry-court" style="color:var(--blue)">symmetry-court（对称法庭）</a></b>公开标准当考官：12 份案卷（TCP/DHCP/IMAP 三协议 + 盲测五系统 + mini2048/lightsout3/sliding2x3/hanoi3 四游戏谜题）× 双口径判决 × networkx 三方仲裁 · clone 五分钟看完一场庭审</div>
   </div>
   <div class="verdict v-green">主仓证明<b>能力</b>（三个真实系统 32/512/16,384 态），法庭证明<b>可信</b>（公开标准人人可对账），盲测证明<b>过得了陌生人这一关</b>（30/30）。</div>
 </section>
 
-<!-- ============ 7. 闸门价值对比 + 三个非平凡正控（2026-11-07 对齐 11 案 41 群台账） ============ -->
+<!-- ============ 7. 闸门价值对比 + 四个非平凡正控（2026-11-07 对齐 12 案 45 群台账） ============ -->
 <section>
   <h2><span class="no">07</span>闸门值多少钱：同一批合并主张，用 vs 不用各跑一遍</h2>
-  <div class="lead">在公开标准与真实系统的 11 个案卷、41 个合并主张上做 A/B：一边是"结构长得一样就合并"的朴素决策（networkx 不带标签口径的同类做法），一边是过闸（逐格对账后才放行）。数字回源对称法庭仓的 <span class="num">comparison.*.json</span> 收据。</div>
+  <div class="lead">在公开标准与真实系统的 12 个案卷、45 个合并主张上做 A/B：一边是"结构长得一样就合并"的朴素决策（networkx 不带标签口径的同类做法），一边是过闸（逐格对账后才放行）。数字回源对称法庭仓的 <span class="num">comparison.*.json</span> 收据。</div>
   <div class="svgbox">
-  <svg viewBox="0 0 900 280" xmlns="http://www.w3.org/2000/svg">
-    <text x="450" y="28" text-anchor="middle" font-size="14" fill="#55566b">11 案 41 群 · 同一份数据 · 两种决策</text>
+  <svg viewBox="0 0 900 300" xmlns="http://www.w3.org/2000/svg">
+    <text x="450" y="28" text-anchor="middle" font-size="14" fill="#55566b">12 案 45 群 · 同一份数据 · 两种决策</text>
     <!-- 朴素臂条 -->
     <text x="60" y="80" font-size="15" fill="#92400e" font-weight="bold">不用闸（朴素臂）</text>
     <rect x="60" y="95" width="700" height="34" rx="8" fill="#f1f5f9" stroke="#e5e4de"/>
-    <rect x="60" y="95" width="133" height="34" rx="8" fill="#dc2626" opacity="0.85"/>
-    <rect x="193" y="95" width="567" height="34" rx="0" fill="#d97706" opacity="0.55"/>
-    <text x="126" y="117" text-anchor="middle" font-size="13" fill="#fff" font-weight="bold">4 次有害合并</text>
-    <text x="476" y="117" text-anchor="middle" font-size="13" fill="#7c2d12">17 次恰好安全（8 次填充态对换 + 9 次真对称）</text>
-    <text x="790" y="117" font-size="13" fill="#1a1a2e">放行 21</text>
-    <text x="60" y="152" font-size="12.5" fill="#55566b">有害的 4 次 = TCP 孪生对（FIN-WAIT-2 ↔ CLOSING，6 个 (状态×事件) 行为格，"等 FIN"被宣布等于"等 ACK"）+ mini2048 的"转棋盘但方向键钉死"（740 格）</text>
-    <text x="60" y="174" font-size="12.5" fill="#55566b">+ lightsout3 的"转棋盘但按钮钉死"（12,288 格）+ sliding2x3 的"翻滑板但方向钉死"（1,440 格）——合计 14,474 格，朴素臂均无从得知自己错了</text>
+    <rect x="60" y="95" width="140" height="34" rx="8" fill="#dc2626" opacity="0.85"/>
+    <rect x="200" y="95" width="560" height="34" rx="0" fill="#d97706" opacity="0.55"/>
+    <text x="130" y="117" text-anchor="middle" font-size="13" fill="#fff" font-weight="bold">5 次有害合并</text>
+    <text x="480" y="117" text-anchor="middle" font-size="13" fill="#7c2d12">20 次恰好安全（9 次填充态对换 + 11 次真对称）</text>
+    <text x="790" y="117" font-size="13" fill="#1a1a2e">放行 25</text>
+    <text x="60" y="152" font-size="12.5" fill="#55566b">有害的 5 次 = TCP 孪生对（FIN-WAIT-2 ↔ CLOSING，6 个 (状态×事件) 行为格，"等 FIN"被宣布等于"等 ACK"）+ mini2048 的"转棋盘但方向键钉死"（740 格）</text>
+    <text x="60" y="174" font-size="12.5" fill="#55566b">+ lightsout3 的"转棋盘但按钮钉死"（12,288 格）+ sliding2x3 的"翻滑板但方向钉死"（1,440 格）</text>
+    <text x="60" y="196" font-size="12.5" fill="#55566b">+ hanoi3 的"柱互换但有序对钉死"（122 格）——合计 14,596 格，朴素臂均无从得知自己错了</text>
     <!-- 闸门臂条 -->
-    <text x="60" y="200" font-size="15" fill="#065f46" font-weight="bold">用闸（闸门臂）</text>
-    <rect x="60" y="215" width="700" height="34" rx="8" fill="#f1f5f9" stroke="#e5e4de"/>
-    <rect x="60" y="215" width="290" height="34" rx="8" fill="#059669" opacity="0.9"/>
-    <rect x="350" y="215" width="410" height="34" rx="0" fill="#94a3b8" opacity="0.5"/>
-    <text x="205" y="237" text-anchor="middle" font-size="13" fill="#fff" font-weight="bold">放行 17 · 破坏格 0</text>
-    <text x="555" y="237" text-anchor="middle" font-size="13" fill="#334155">拦下 24（每一次拒答都指出错在哪条）</text>
-    <text x="790" y="237" font-size="13" fill="#1a1a2e">7.4 秒量级</text>
-    <text x="60" y="272" font-size="12.5" fill="#55566b">放行群破坏格 0 是判据的数学性质（pass 要求逐格 TV≤1e-9）；闸门总耗时为 41 群单机实测求和的量级记录（最近落盘 7.4 秒量级，随机器负载浮动——精确值见各 comparison.*.json 的 gate_seconds 字段）</text>
+    <text x="60" y="220" font-size="15" fill="#065f46" font-weight="bold">用闸（闸门臂）</text>
+    <rect x="60" y="235" width="700" height="34" rx="8" fill="#f1f5f9" stroke="#e5e4de"/>
+    <rect x="60" y="235" width="311" height="34" rx="8" fill="#059669" opacity="0.9"/>
+    <rect x="371" y="235" width="389" height="34" rx="0" fill="#94a3b8" opacity="0.5"/>
+    <text x="215" y="257" text-anchor="middle" font-size="13" fill="#fff" font-weight="bold">放行 20 · 破坏格 0</text>
+    <text x="565" y="257" text-anchor="middle" font-size="13" fill="#334155">拦下 25（每一次拒答都指出错在哪条）</text>
+    <text x="790" y="257" font-size="13" fill="#1a1a2e">8.8 秒量级</text>
+    <text x="60" y="292" font-size="12.5" fill="#55566b">放行群破坏格 0 是判据的数学性质（pass 要求逐格 TV≤1e-9）；闸门总耗时为 45 群单机实测求和的量级记录（最近落盘 8.8 秒量级，随机器负载浮动——精确值见各 comparison.*.json 的 gate_seconds 字段）</text>
   </svg>
   </div>
-  <div class="verdict v-amber"><b>2048 翻案已兑现（2026-11-04）</b>：2048 合并机制的 2×2 确定性变体（mini2048，棋盘对称群 D4）是 explicit 口径（状态置换+逐元素声明映射）的真实系统正控案卷——其"该放"由案卷生成器穷举断言（逐元素映射唯一 + 群同态律）；g1/g3/g4（旋转/翻转/全 D4）已按声明口径放行，轨道 <span class="num">70/136/55</span>，压缩读数 <span class="num">3.657×/1.882×/4.655×</span>（worst_tv 0.0），全 D4 群 <span class="num">4.655×</span>（55 轨道）兑现。翻案史一句：此前引擎 explicit 层的单映射设计（同一映射强加于闭包群全部元素、含恒等元）曾令其在工具层结构性拒答（g4 全 D4：7/8 元素拒于恒等元），上游补逐元素映射后翻案——其"键钉死旋转"变体（740 格）至今仍被正确拒答，即朴素臂四处有害合并之一。明细：对称法庭仓 <span class="num">docs/闸门价值对比.html</span> 与 <span class="num">docs/nontrivial-admit.md</span>。<br>三个非平凡正控各一行读数（均为 explicit 口径、按声明逐元素映射放行、零破坏）：<br>· <b>mini2048</b>（2048 确定性变体，棋盘群 D4）：g1/g3/g4 轨道 <span class="num">70/136/55</span>，压缩读数 <span class="num">3.657×/1.882×/4.655×</span><br>· <b>lightsout3</b>（3×3 关灯，按钮群 D4）：g4/g5（全 D4 / D4×C2）轨道 <span class="num">102/51</span>，压缩读数 <span class="num">5.020×/10.039×</span><br>· <b>sliding2x3</b>（2×3 滑块，矩形群 V4）：g1/g4（左右镜像 / 全 V4）轨道 <span class="num">664/484</span>，压缩读数 <span class="num">1.542×/2.116×</span></div>
+  <div class="verdict v-amber"><b>2048 翻案已兑现（2026-11-04）</b>：2048 合并机制的 2×2 确定性变体（mini2048，棋盘对称群 D4）是 explicit 口径（状态置换+逐元素声明映射）的真实系统正控案卷——其"该放"由案卷生成器穷举断言（逐元素映射唯一 + 群同态律）；g1/g3/g4（旋转/翻转/全 D4）已按声明口径放行，轨道 <span class="num">70/136/55</span>，压缩读数 <span class="num">3.657×/1.882×/4.655×</span>（worst_tv 0.0），全 D4 群 <span class="num">4.655×</span>（55 轨道）兑现。翻案史一句：此前引擎 explicit 层的单映射设计（同一映射强加于闭包群全部元素、含恒等元）曾令其在工具层结构性拒答（g4 全 D4：7/8 元素拒于恒等元），上游补逐元素映射后翻案——其"键钉死旋转"变体（740 格）至今仍被正确拒答，即朴素臂五处有害合并之一。明细：对称法庭仓 <span class="num">docs/闸门价值对比.html</span> 与 <span class="num">docs/nontrivial-admit.md</span>。<br>四个非平凡正控各一行读数（均为 explicit 口径、按声明逐元素映射放行、零破坏）：<br>· <b>mini2048</b>（2048 确定性变体，棋盘群 D4）：g1/g3/g4 轨道 <span class="num">70/136/55</span>，压缩读数 <span class="num">3.657×/1.882×/4.655×</span><br>· <b>lightsout3</b>（3×3 关灯，按钮群 D4）：g4/g5（全 D4 / D4×C2）轨道 <span class="num">102/51</span>，压缩读数 <span class="num">5.020×/10.039×</span><br>· <b>sliding2x3</b>（2×3 滑块，矩形群 V4）：g1/g4（左右镜像 / 全 V4）轨道 <span class="num">664/484</span>，压缩读数 <span class="num">1.542×/2.116×</span><br>· <b>hanoi3</b>（三柱汉诺塔，柱置换群 S3）：g1/g3（A↔B 柱互换·有序对动作映射 / 全 S3）轨道 <span class="num">19/10</span>，压缩读数 <span class="num">1.684×/3.200×</span></div>
 </section>
 
 <footer>
