@@ -186,41 +186,52 @@
 
 <!-- ============ 4. 实战盲测 ============ -->
 <section>
-  <h2><span class="no">04</span>实战盲测：五个陌生系统，考试结果 30/30</h2>
-  <div class="lead">不用自己的数据考自己。五个完全外部的真实系统，工具判决 vs 独立第三套基准代码，双路互盲对账。</div>
+  <h2><span class="no">04</span>实战盲测：两轮八系统，一轮 30/30 + 二轮 60/60</h2>
+  <div class="lead">不用自己的数据考自己。第一轮：五个完全外部的真实系统，工具判决 vs 独立第三套基准代码；第二轮：三个新系统（HTTP/2 / PPP LCP / BGP），工具判决 vs 独立全新实现的密封真值（先转录、后判决、真值写一次密封、再开封对账）。两轮双路互盲。</div>
   <div class="svgbox">
   <svg viewBox="0 0 900 330" xmlns="http://www.w3.org/2000/svg">
     <defs>
       <marker id="arr3" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 z" fill="#55566b"/></marker>
     </defs>
-    <!-- 五个系统 -->
-    <g font-size="13">
-      <rect x="30"  y="40" width="120" height="40" rx="8" fill="#f1f5f9" stroke="#94a3b8"/><text x="90"  y="65" text-anchor="middle">Raft 一致性</text>
-      <rect x="30"  y="95" width="120" height="40" rx="8" fill="#f1f5f9" stroke="#94a3b8"/><text x="90"  y="120" text-anchor="middle">Hadoop MR</text>
-      <rect x="30"  y="150" width="120" height="40" rx="8" fill="#f1f5f9" stroke="#94a3b8"/><text x="90"  y="175" text-anchor="middle">K8s Pod</text>
-      <rect x="30"  y="205" width="120" height="40" rx="8" fill="#f1f5f9" stroke="#94a3b8"/><text x="90"  y="230" text-anchor="middle">TLS 1.3</text>
-      <rect x="30"  y="260" width="120" height="40" rx="8" fill="#f1f5f9" stroke="#94a3b8"/><text x="90"  y="285" text-anchor="middle">USB 2.0</text>
+    <!-- 第一轮五个系统 -->
+    <text x="95" y="22" text-anchor="middle" font-size="12" fill="#55566b">第一轮 · 五个零关系真实系统</text>
+    <g font-size="12.5">
+      <rect x="30"  y="32" width="130" height="34" rx="8" fill="#f1f5f9" stroke="#94a3b8"/><text x="95"  y="54" text-anchor="middle">Raft 一致性</text>
+      <rect x="30"  y="76" width="130" height="34" rx="8" fill="#f1f5f9" stroke="#94a3b8"/><text x="95"  y="98" text-anchor="middle">Hadoop MR</text>
+      <rect x="30"  y="120" width="130" height="34" rx="8" fill="#f1f5f9" stroke="#94a3b8"/><text x="95"  y="142" text-anchor="middle">K8s Pod</text>
+      <rect x="30"  y="164" width="130" height="34" rx="8" fill="#f1f5f9" stroke="#94a3b8"/><text x="95"  y="186" text-anchor="middle">TLS 1.3</text>
+      <rect x="30"  y="208" width="130" height="34" rx="8" fill="#f1f5f9" stroke="#94a3b8"/><text x="95"  y="230" text-anchor="middle">USB 2.0</text>
     </g>
-    <text x="90" y="25" text-anchor="middle" font-size="12" fill="#55566b">五个零关系真实系统</text>
+    <!-- 第二轮三个系统 -->
+    <text x="245" y="22" text-anchor="middle" font-size="12" fill="#55566b">第二轮 · 三个新系统</text>
+    <g font-size="12.5">
+      <rect x="180" y="32" width="130" height="34" rx="8" fill="#fef3c7" stroke="#d97706"/><text x="245" y="54" text-anchor="middle">HTTP/2 流</text>
+      <rect x="180" y="76" width="130" height="34" rx="8" fill="#fef3c7" stroke="#d97706"/><text x="245" y="98" text-anchor="middle">PPP LCP</text>
+      <rect x="180" y="120" width="130" height="34" rx="8" fill="#fef3c7" stroke="#d97706"/><text x="245" y="142" text-anchor="middle">BGP FSM</text>
+    </g>
+    <text x="245" y="178" text-anchor="middle" font-size="11.5" fill="#92400e">12 候选群 × 5 轴</text>
+    <text x="245" y="196" text-anchor="middle" font-size="11.5" fill="#92400e">真值写一次密封 · 再开封</text>
     <!-- 双路 -->
-    <rect x="240" y="80" width="220" height="80" rx="10" fill="#eef2ff" stroke="#2563eb"/>
-    <text x="350" y="112" text-anchor="middle" font-size="14" font-weight="bold" fill="#2563eb">公开仓盲跑</text>
-    <text x="350" y="138" text-anchor="middle" font-size="12" fill="#55566b">像陌生用户一样 git clone 来跑</text>
-    <rect x="240" y="190" width="220" height="80" rx="10" fill="#ecfdf5" stroke="#059669"/>
-    <text x="350" y="222" text-anchor="middle" font-size="14" font-weight="bold" fill="#059669">独立基准（全新代码）</text>
-    <text x="350" y="248" text-anchor="middle" font-size="12" fill="#55566b">暴力枚举＋networkx＋回溯三方法</text>
-    <line x1="155" y1="120" x2="235" y2="120" stroke="#55566b" stroke-width="2" marker-end="url(#arr3)"/>
-    <line x1="155" y1="230" x2="235" y2="230" stroke="#55566b" stroke-width="2" marker-end="url(#arr3)"/>
-    <text x="350" y="178" text-anchor="middle" font-size="12" fill="#dc2626">两路互盲：谁也看不见谁</text>
+    <rect x="360" y="60" width="190" height="76" rx="10" fill="#eef2ff" stroke="#2563eb"/>
+    <text x="455" y="90" text-anchor="middle" font-size="14" font-weight="bold" fill="#2563eb">公开仓盲跑</text>
+    <text x="455" y="112" text-anchor="middle" font-size="11.5" fill="#55566b">像陌生用户一样 git clone 来跑</text>
+    <rect x="360" y="176" width="190" height="76" rx="10" fill="#ecfdf5" stroke="#059669"/>
+    <text x="455" y="206" text-anchor="middle" font-size="14" font-weight="bold" fill="#059669">独立真值线（全新代码）</text>
+    <text x="455" y="228" text-anchor="middle" font-size="11.5" fill="#55566b">暴力枚举＋networkx＋密封对账</text>
+    <line x1="165" y1="130" x2="355" y2="105" stroke="#55566b" stroke-width="2" marker-end="url(#arr3)"/>
+    <line x1="315" y1="145" x2="355" y2="205" stroke="#55566b" stroke-width="2" marker-end="url(#arr3)"/>
+    <text x="455" y="152" text-anchor="middle" font-size="11.5" fill="#dc2626">两路互盲：谁也看不见谁</text>
     <!-- 汇聚 -->
-    <line x1="465" y1="120" x2="540" y2="175" stroke="#55566b" stroke-width="2" marker-end="url(#arr3)"/>
-    <line x1="465" y1="230" x2="540" y2="175" stroke="#55566b" stroke-width="2" marker-end="url(#arr3)"/>
-    <rect x="550" y="120" width="320" height="110" rx="14" fill="#ecfdf5" stroke="#059669" stroke-width="2"/>
-    <text x="710" y="155" text-anchor="middle" font-size="20" font-weight="bold" fill="#065f46">30 / 30 判决一致</text>
-    <text x="710" y="182" text-anchor="middle" font-size="14" fill="#065f46">15 群 × 2 口径 · 一致率 100%</text>
-    <text x="710" y="210" text-anchor="middle" font-size="14" fill="#065f46">假阳性 0 · 假阴性 0 · 口径分歧 0</text>
-    <text x="710" y="275" text-anchor="middle" font-size="15" font-weight="bold" fill="#1a1a2e">裁决：不是空中楼阁</text>
-    <text x="710" y="300" text-anchor="middle" font-size="12" fill="#55566b">5 个凭直觉会做的状态合并主张，全部被正确拦下</text>
+    <line x1="555" y1="98" x2="620" y2="130" stroke="#55566b" stroke-width="2" marker-end="url(#arr3)"/>
+    <line x1="555" y1="214" x2="620" y2="182" stroke="#55566b" stroke-width="2" marker-end="url(#arr3)"/>
+    <rect x="625" y="80" width="255" height="150" rx="14" fill="#ecfdf5" stroke="#059669" stroke-width="2"/>
+    <text x="752" y="112" text-anchor="middle" font-size="19" font-weight="bold" fill="#065f46">一轮 30 / 30 · 二轮 60 / 60</text>
+    <text x="752" y="137" text-anchor="middle" font-size="12.5" fill="#065f46">一轮：15 群 × 2 口径 · 两路一致</text>
+    <text x="752" y="158" text-anchor="middle" font-size="12.5" fill="#065f46">二轮：12 群 × 5 轴 · 60 项全一致</text>
+    <text x="752" y="182" text-anchor="middle" font-size="12.5" fill="#065f46">假阳性 0 · 假阴性 0 · 口径分歧 0</text>
+    <text x="752" y="207" text-anchor="middle" font-size="13" font-weight="bold" fill="#065f46">两轮 90 项判决零分歧</text>
+    <text x="450" y="292" text-anchor="middle" font-size="15" font-weight="bold" fill="#1a1a2e">裁决：不是空中楼阁</text>
+    <text x="450" y="316" text-anchor="middle" font-size="12" fill="#55566b">两轮 8 个凭直觉会做的状态合并主张，该拒的全被拦下、该放的按声明口径放行</text>
   </svg>
   </div>
 </section>
@@ -243,41 +254,41 @@
   <h2><span class="no">06</span>交付：两个互相背书的开源仓</h2>
   <div class="cards">
     <div class="mini"><b><a href="https://github.com/cx2002302-lang/wuxing-gua" style="color:var(--blue)">wuxing-gua（判据引擎）</a></b>五命令 CLI（发现/验证/采样判定/演示/自检）· 八级样例阶梯 · 证据链仓内可溯 · MIT</div>
-    <div class="mini"><b><a href="https://github.com/cx2002302-lang/symmetry-court" style="color:var(--blue)">symmetry-court（对称法庭）</a></b>公开标准当考官：12 份案卷（TCP/DHCP/IMAP 三协议 + 盲测五系统 + mini2048/lightsout3/sliding2x3/hanoi3 四游戏谜题）× 双口径判决 × networkx 三方仲裁 · clone 五分钟看完一场庭审</div>
+    <div class="mini"><b><a href="https://github.com/cx2002302-lang/symmetry-court" style="color:var(--blue)">symmetry-court（对称法庭）</a></b>公开标准当考官：15 份案卷（TCP/DHCP/IMAP 三协议 + 盲测两轮八系统 + mini2048/lightsout3/sliding2x3/hanoi3 四游戏谜题）× 双口径判决 × networkx 三方仲裁 · clone 五分钟看完一场庭审</div>
   </div>
-  <div class="verdict v-green">主仓证明<b>能力</b>（三个真实系统 32/512/16,384 态），法庭证明<b>可信</b>（公开标准人人可对账），盲测证明<b>过得了陌生人这一关</b>（30/30）。</div>
+  <div class="verdict v-green">主仓证明<b>能力</b>（三个真实系统 32/512/16,384 态），法庭证明<b>可信</b>（公开标准人人可对账），盲测证明<b>过得了陌生人这一关</b>（两轮八系统：一轮 30/30 + 二轮 60/60）。</div>
 </section>
 
-<!-- ============ 7. 闸门价值对比 + 四个非平凡正控（2026-11-07 对齐 12 案 45 群台账） ============ -->
+<!-- ============ 7. 闸门价值对比 + 四个非平凡正控 + 一个语义二元案（2026-11-08 对齐 15 案 57 群台账） ============ -->
 <section>
   <h2><span class="no">07</span>闸门值多少钱：同一批合并主张，用 vs 不用各跑一遍</h2>
-  <div class="lead">在公开标准与真实系统的 12 个案卷、45 个合并主张上做 A/B：一边是"结构长得一样就合并"的朴素决策（networkx 不带标签口径的同类做法），一边是过闸（逐格对账后才放行）。数字回源对称法庭仓的 <span class="num">comparison.*.json</span> 收据。</div>
+  <div class="lead">在公开标准与真实系统的 15 个案卷、57 个合并主张上做 A/B：一边是"结构长得一样就合并"的朴素决策（networkx 不带标签口径的同类做法），一边是过闸（逐格对账后才放行）。数字回源对称法庭仓的 <span class="num">comparison.*.json</span> 收据。</div>
   <div class="svgbox">
   <svg viewBox="0 0 900 300" xmlns="http://www.w3.org/2000/svg">
-    <text x="450" y="28" text-anchor="middle" font-size="14" fill="#55566b">12 案 45 群 · 同一份数据 · 两种决策</text>
+    <text x="450" y="28" text-anchor="middle" font-size="14" fill="#55566b">15 案 57 群 · 同一份数据 · 两种决策</text>
     <!-- 朴素臂条 -->
     <text x="60" y="80" font-size="15" fill="#92400e" font-weight="bold">不用闸（朴素臂）</text>
     <rect x="60" y="95" width="700" height="34" rx="8" fill="#f1f5f9" stroke="#e5e4de"/>
-    <rect x="60" y="95" width="140" height="34" rx="8" fill="#dc2626" opacity="0.85"/>
-    <rect x="200" y="95" width="560" height="34" rx="0" fill="#d97706" opacity="0.55"/>
-    <text x="130" y="117" text-anchor="middle" font-size="13" fill="#fff" font-weight="bold">5 次有害合并</text>
-    <text x="480" y="117" text-anchor="middle" font-size="13" fill="#7c2d12">20 次恰好安全（9 次填充态对换 + 11 次真对称）</text>
-    <text x="790" y="117" font-size="13" fill="#1a1a2e">放行 25</text>
-    <text x="60" y="152" font-size="12.5" fill="#55566b">有害的 5 次 = TCP 孪生对（FIN-WAIT-2 ↔ CLOSING，6 个 (状态×事件) 行为格，"等 FIN"被宣布等于"等 ACK"）+ mini2048 的"转棋盘但方向键钉死"（740 格）</text>
-    <text x="60" y="174" font-size="12.5" fill="#55566b">+ lightsout3 的"转棋盘但按钮钉死"（12,288 格）+ sliding2x3 的"翻滑板但方向钉死"（1,440 格）</text>
-    <text x="60" y="196" font-size="12.5" fill="#55566b">+ hanoi3 的"柱互换但有序对钉死"（122 格）——合计 14,596 格，朴素臂均无从得知自己错了</text>
+    <rect x="60" y="95" width="145" height="34" rx="8" fill="#dc2626" opacity="0.85"/>
+    <rect x="205" y="95" width="555" height="34" rx="0" fill="#d97706" opacity="0.55"/>
+    <text x="132" y="117" text-anchor="middle" font-size="13" fill="#fff" font-weight="bold">6 次有害合并</text>
+    <text x="482" y="117" text-anchor="middle" font-size="13" fill="#7c2d12">23 次恰好安全（12 次填充态对换 + 11 次真对称）</text>
+    <text x="790" y="117" font-size="13" fill="#1a1a2e">放行 29</text>
+    <text x="60" y="152" font-size="12.5" fill="#55566b">有害的 6 次 = TCP 孪生对（FIN-WAIT-2 ↔ CLOSING，6 个 (状态×事件) 行为格，"等 FIN"被宣布等于"等 ACK"）+ mini2048 的"转棋盘但方向键钉死"（740 格）</text>
+    <text x="60" y="174" font-size="12.5" fill="#55566b">+ lightsout3 的"转棋盘但按钮钉死"（12,288 格）+ sliding2x3 的"翻滑板但方向钉死"（1,440 格）+ hanoi3 的"柱互换但有序对钉死"（122 格）</text>
+    <text x="60" y="196" font-size="12.5" fill="#55566b">+ http2 的"端点镜像但帧事件命名钉死"（12 格）——合计 14,608 格，朴素臂均无从得知自己错了</text>
     <!-- 闸门臂条 -->
     <text x="60" y="220" font-size="15" fill="#065f46" font-weight="bold">用闸（闸门臂）</text>
     <rect x="60" y="235" width="700" height="34" rx="8" fill="#f1f5f9" stroke="#e5e4de"/>
-    <rect x="60" y="235" width="311" height="34" rx="8" fill="#059669" opacity="0.9"/>
-    <rect x="371" y="235" width="389" height="34" rx="0" fill="#94a3b8" opacity="0.5"/>
-    <text x="215" y="257" text-anchor="middle" font-size="13" fill="#fff" font-weight="bold">放行 20 · 破坏格 0</text>
-    <text x="565" y="257" text-anchor="middle" font-size="13" fill="#334155">拦下 25（每一次拒答都指出错在哪条）</text>
-    <text x="790" y="257" font-size="13" fill="#1a1a2e">8.8 秒量级</text>
-    <text x="60" y="292" font-size="12.5" fill="#55566b">放行群破坏格 0 是判据的数学性质（pass 要求逐格 TV≤1e-9）；闸门总耗时为 45 群单机实测求和的量级记录（最近落盘 8.8 秒量级，随机器负载浮动——精确值见各 comparison.*.json 的 gate_seconds 字段）</text>
+    <rect x="60" y="235" width="282" height="34" rx="8" fill="#059669" opacity="0.9"/>
+    <rect x="342" y="235" width="418" height="34" rx="0" fill="#94a3b8" opacity="0.5"/>
+    <text x="201" y="257" text-anchor="middle" font-size="13" fill="#fff" font-weight="bold">放行 23 · 破坏格 0</text>
+    <text x="551" y="257" text-anchor="middle" font-size="13" fill="#334155">拦下 34（每一次拒答都指出错在哪条）</text>
+    <text x="790" y="257" font-size="13" fill="#1a1a2e">10 秒量级</text>
+    <text x="60" y="292" font-size="12.5" fill="#55566b">放行群破坏格 0 是判据的数学性质（pass 要求逐格 TV≤1e-9）；闸门总耗时为 57 群单机实测求和的量级记录（最近落盘 10.5 秒量级，随机器负载浮动——精确值见各 comparison.*.json 的 gate_seconds 字段）</text>
   </svg>
   </div>
-  <div class="verdict v-amber"><b>2048 翻案已兑现（2026-11-04）</b>：2048 合并机制的 2×2 确定性变体（mini2048，棋盘对称群 D4）是 explicit 口径（状态置换+逐元素声明映射）的真实系统正控案卷——其"该放"由案卷生成器穷举断言（逐元素映射唯一 + 群同态律）；g1/g3/g4（旋转/翻转/全 D4）已按声明口径放行，轨道 <span class="num">70/136/55</span>，压缩读数 <span class="num">3.657×/1.882×/4.655×</span>（worst_tv 0.0），全 D4 群 <span class="num">4.655×</span>（55 轨道）兑现。翻案史一句：此前引擎 explicit 层的单映射设计（同一映射强加于闭包群全部元素、含恒等元）曾令其在工具层结构性拒答（g4 全 D4：7/8 元素拒于恒等元），上游补逐元素映射后翻案——其"键钉死旋转"变体（740 格）至今仍被正确拒答，即朴素臂五处有害合并之一。明细：对称法庭仓 <span class="num">docs/闸门价值对比.html</span> 与 <span class="num">docs/nontrivial-admit.md</span>。<br>四个非平凡正控各一行读数（均为 explicit 口径、按声明逐元素映射放行、零破坏）：<br>· <b>mini2048</b>（2048 确定性变体，棋盘群 D4）：g1/g3/g4 轨道 <span class="num">70/136/55</span>，压缩读数 <span class="num">3.657×/1.882×/4.655×</span><br>· <b>lightsout3</b>（3×3 关灯，按钮群 D4）：g4/g5（全 D4 / D4×C2）轨道 <span class="num">102/51</span>，压缩读数 <span class="num">5.020×/10.039×</span><br>· <b>sliding2x3</b>（2×3 滑块，矩形群 V4）：g1/g4（左右镜像 / 全 V4）轨道 <span class="num">664/484</span>，压缩读数 <span class="num">1.542×/2.116×</span><br>· <b>hanoi3</b>（三柱汉诺塔，柱置换群 S3）：g1/g3（A↔B 柱互换·有序对动作映射 / 全 S3）轨道 <span class="num">19/10</span>，压缩读数 <span class="num">1.684×/3.200×</span></div>
+  <div class="verdict v-amber"><b>2048 翻案已兑现（2026-11-04）</b>：2048 合并机制的 2×2 确定性变体（mini2048，棋盘对称群 D4）是 explicit 口径（状态置换+逐元素声明映射）的真实系统正控案卷——其"该放"由案卷生成器穷举断言（逐元素映射唯一 + 群同态律）；g1/g3/g4（旋转/翻转/全 D4）已按声明口径放行，轨道 <span class="num">70/136/55</span>，压缩读数 <span class="num">3.657×/1.882×/4.655×</span>（worst_tv 0.0），全 D4 群 <span class="num">4.655×</span>（55 轨道）兑现。翻案史一句：此前引擎 explicit 层的单映射设计（同一映射强加于闭包群全部元素、含恒等元）曾令其在工具层结构性拒答（g4 全 D4：7/8 元素拒于恒等元），上游补逐元素映射后翻案——其"键钉死旋转"变体（740 格）至今仍被正确拒答，即朴素臂五处有害合并之一。明细：对称法庭仓 <span class="num">docs/闸门价值对比.html</span> 与 <span class="num">docs/nontrivial-admit.md</span>。<br>四个非平凡正控 + 一个语义二元案各一行读数（正控均为 explicit 口径、按声明逐元素映射放行、零破坏；末行为端点镜像的二元判决）：<br>· <b>mini2048</b>（2048 确定性变体，棋盘群 D4）：g1/g3/g4 轨道 <span class="num">70/136/55</span>，压缩读数 <span class="num">3.657×/1.882×/4.655×</span><br>· <b>lightsout3</b>（3×3 关灯，按钮群 D4）：g4/g5（全 D4 / D4×C2）轨道 <span class="num">102/51</span>，压缩读数 <span class="num">5.020×/10.039×</span><br>· <b>sliding2x3</b>（2×3 滑块，矩形群 V4）：g1/g4（左右镜像 / 全 V4）轨道 <span class="num">664/484</span>，压缩读数 <span class="num">1.542×/2.116×</span><br>· <b>hanoi3</b>（三柱汉诺塔，柱置换群 S3）：g1/g3（A↔B 柱互换·有序对动作映射 / 全 S3）轨道 <span class="num">19/10</span>，压缩读数 <span class="num">1.684×/3.200×</span><br>· <b>http2-stream-states</b>（HTTP/2 流状态机，端点镜像 duality）：结构口径 pass（worst_tv 0.0；witness 收发全镜像 send PP↔recv PP、send H↔recv H、send ES↔recv ES、send R↔recv R）/ 事件钉死 reject（worst_tv 1.0，12 格，首个违例格 (idle, send PP)）——独立陪审同步分裂（结构 yes / 带标签 no），与 TCP 孪生对同形而极性相反</div>
 </section>
 
 <footer>
