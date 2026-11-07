@@ -1270,14 +1270,16 @@ def run_discover(model, canonize=False, multi_label=None, multi_label_seed=20261
 #      **全部** fixed 自同构群）。
 #
 # ━━ 触顶语义（禁假精确）━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-#   · cap（叶枚举硬上限，默认 5000）/ budget_seconds（墙钟预算）/ 闭包元素
-#     上限三者任一触顶 ⇒ payload truncated=true，order=null（阶不再声称精确），
-#     orbits/n_orbits/compression 只反映已发现生成元生成的子群——真轨道可能
-#     更大（合并更多状态），此处是**下界**口径；generators 仍全部是已验证的
-#     真自同构（零容忍判据，不可能引入伪自同构）。
-#   · 未触顶 ⇒ 生成元生成整个 fixed 自同构群：order/orbits 精确，elements 为
-#     全群枚举（闭包元素超上限时例外：elements 省略、order=null、truncated=true，
-#     如实降级）。
+#   · cap（叶枚举硬上限，默认 5000）/ budget_seconds（墙钟预算）任一触顶 ⇒
+#     payload truncated=true，order 报已发现生成元生成的子群的精确阶（只是
+#     |Aut| 的下界，不假精确），orbits/n_orbits/compression 只反映该子群——
+#     真轨道可能更大（合并更多状态），此处是**下界**口径；generators 仍全部
+#     是已验证的真自同构（零容忍判据，不可能引入伪自同构）。
+#   · 闭包元素超上限（子群枚举不可完成）⇒ order=null、elements 省略、
+#     truncated=true，如实降级（可与 cap/budget 触顶并存，也可未触顶时
+#     单独发生）。
+#   · 未触顶且闭包未超上限 ⇒ 生成元生成整个 fixed 自同构群：order/orbits
+#     精确，elements 为全群枚举。
 #   · 计时一律量级桶（_sec_magnitude），不写精确耗时。
 #
 # ━━ 语义边界（写进文档与 payload note）━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -1498,7 +1500,8 @@ def discover_generalized(model, cap=_GEN_LEAF_CAP_DEFAULT, budget_seconds=None):
 
     参数：
       cap             叶枚举硬上限（默认 5000）。触顶 ⇒ truncated=true、
-                      order=null、orbits 为下界口径（见头注「触顶语义」）。
+                      order=已发现子群的精确阶（|Aut| 下界）、orbits 为下界
+                      口径（仅闭包元素超上限时 order=null，见头注「触顶语义」）。
       budget_seconds  墙钟预算（秒；None = 不设墙钟上限，仅 cap 兜底）。触顶
                       同上；注意墙钟触顶使输出带运行时变异性（cap 触顶确定）。
 
