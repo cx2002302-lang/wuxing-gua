@@ -487,6 +487,57 @@ python -X utf8 -m wuxing_gua discover --trans <model.json> --pad-aware --preset 
 的 stage_main / stage_regress 为准，判据文件 sha256 before/after 相等（判据
 与搜索器一行未动）。完整记录见仓库 docs/evidence.md。
 
+### discover 的 --generalized 标志（事件类独立路径，fixed 口径）
+
+**为什么**：`discover` 的位串管线按「动作 a = 翻第 a 位」的编码约定构造，
+要求 n_actions ≤ n_bits（入口守卫，事件类模型不带标志时 exit 3 如实拒绝）。
+事件类模型（动作 = 外部事件，如协议报文：n_actions > n_bits，examples rung 1c
+的 4 事件 / 3 位即此类）此前只能人工推导候选群、用 check 判定——没有自动
+发现路径。
+
+**是什么**：`--generalized` 开独立发现路径（`discover_generalized`，纯新增
+段；位串管线与其入口守卫一字未动）：在 **fixed 口径（事件钉死，动作名原样
+对应）** 上找状态置换自同构。算法三段（stdlib 实现、无第三方依赖、无随机源）：
+①建边标签多重图（状态 = 顶点，转移支持边带事件标签，自环带旗标）；②1-WL
+细化（单调、公平：签名 = 逐事件出/入边邻居色多重集 + 自环旗标，全是自同构
+不变量）；③个体化-精化回溯（domain 侧定基点、image 侧逐元分支、双侧同步
+细化，尺寸序列不一致即剪枝 + 层级轨道剪枝），叶候选过**零容忍判据**
+（`core_check._equiv_error_strict`——与 check 的 fixed/strict 同一实现，import
+复用未改写）方收为生成元。搜索未触顶 ⇒ 生成元生成**完整的** fixed 口径自同构
+群（order/orbits 精确）；候选全部过零容忍裁决，不可能引入伪自同构。
+
+**用法**：
+
+```bash
+# 事件类模型（rung 1c 的 TCP 教学片段）：发现填充态 {3,5,6,7} 的对换群
+python -X utf8 -m wuxing_gua discover --trans examples/eventfsm_model.json --generalized
+# → 阶 24（= 4!）、5 轨道 [[0],[1],[2],[3,5,6,7],[4]]、未触顶、退出码 0
+# → 看似合法的 claim 对换群（交换状态 1/2）不在 elements：两态完成事件不同
+#   （rcv FIN vs rcv ACK of FIN），事件钉死口径下 TV=1.0，正确拒绝
+
+# 触顶预算：叶枚举硬上限 / 墙钟预算（大模型防跑飞）
+python -X utf8 -m wuxing_gua discover --trans <model.json> --generalized --cap 5000 --budget-seconds 60
+```
+
+**触顶语义（不假精确）**：cap（叶枚举，默认 5000）/ 墙钟 / 闭包元素上限任一
+触顶 ⇒ 输出 `truncated=true`（`diagnostics.truncated_by` 注明触顶项），
+`order` 报已发现子群的精确阶（只是 |Aut| 的下界；子群枚举超元素上限时
+`order=null`、省略 `elements`），`orbits`/`n_orbits`/`compression` 是下界口径
+（真轨道可能合并更多状态）；`generators` 仍全部是已验证的真自同构，可增大
+`--cap` 续搜。无随机源：同输入同读数（墙钟触顶例外，如实报 truncated）。
+`method` 字段固定 `"generalized-labeled"`，与位串 discover 的输出可直接区分；
+`completeness` 块在本路径如实 skipped（仿射探针按位串口径构造，不适用），
+完整性语义由 truncated/cap 承担。
+
+**语义边界（务必先读）**：本路径只发现 **fixed 口径**（事件钉死）的对称——
+动作改名类对称（relabel：动作随状态换名；explicit：逐动作声明映射）**不在
+自动发现范围**。「哪种一样」必须由模型作者声明：输出的群文件 `semantics`
+块自动盖 `action="fixed"`（assumed=true），若系统语义是动作可改名请改显式
+声明（对照与自判指引见 docs/judge-semantics.md）。与位串 discover 相同：
+只看转移、不看奖励，发现的群还须过 check 的奖励剖面层。本标志与其他
+discover 标志互斥（组合即报错退出码 3，不静默降级）；发现群落盘可直接喂
+check（eventfsm 实测 24/24 元素 TV=0、奖励层 0 bad、judge=strict）。
+
 ### check：完整转移表版判定（两层零容忍）
 
 ```bash

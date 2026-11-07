@@ -20,6 +20,9 @@ cli.py —— wuxing_gua 命令行接口
                                                                  --report-confidence
                                                                  附加校准判别分
                                                                  只读诊断块
+                 [--generalized [--cap N] [--budget-seconds SEC]]   事件类模型独立
+                                                                 路径（fixed 口径，
+                                                                 与上述标志互斥）
   check         --trans model.json --group group.json     完整转移表版两层判定
   check-sample  --samples samples.jsonl --group group.json [--trans model.json]
                                                           采样版三态判定
@@ -77,6 +80,51 @@ def cmd_discover(args):
     if args.multi_label is not None and args.multi_label < 1:
         raise InputError("--multi-label 需要 K ≥ 1（随机重编号臂数），实得 %r"
                          % args.multi_label)
+    # --generalized（事件类 generalized discover，独立路径）：在 fixed 口径
+    # （事件钉死，动作名原样对应）上做边标签 WL 细化 + 个体化-精化回溯搜索
+    # （core_discover.discover_generalized，纯新增段）——不进 run_discover 的
+    # 位串管线（其入口守卫与三路搜索一字未动）。与其他 discover 标志互斥：
+    # 组合语义未定义就大声拒绝，不静默降级。
+    if getattr(args, "generalized", False):
+        _clash = [name for name, val in (
+            ("--preset", args.preset), ("--canonize", args.canonize),
+            ("--multi-label", args.multi_label),
+            ("--extra-candidates", args.extra_candidates),
+            ("--pad-aware", getattr(args, "pad_aware", False)),
+            ("--report-confidence", args.report_confidence)) if val]
+        if _clash:
+            raise InputError(
+                "--generalized 是独立路径（fixed 口径边标签搜索），不与 %s 组合"
+                "（组合语义未定义，拒绝静默降级）" % "/".join(_clash))
+        if args.cap is not None and args.cap < 1:
+            raise InputError("--cap 需要 N ≥ 1（叶枚举硬上限），实得 %r"
+                             % args.cap)
+        if args.budget_seconds is not None and args.budget_seconds <= 0:
+            raise InputError("--budget-seconds 需要 SEC > 0（墙钟预算秒数），实得 %r"
+                             % args.budget_seconds)
+        payload = core_discover.discover_generalized(
+            model,
+            cap=(args.cap if args.cap is not None
+                 else core_discover._GEN_LEAF_CAP_DEFAULT),
+            budget_seconds=args.budget_seconds)
+        # generalized 的搜索与等变裁决在 fixed 口径（动作名原样对应）下进行：
+        # 落盘复用时该标注随之带走并保持 assumed=true，直到模型作者改成自己的
+        # 显式声明。动作改名类（relabel/explicit）对称不在自动发现范围——
+        # 「哪种一样」必须声明（docs/judge-semantics.md）。
+        payload["semantics"] = {
+            "action": "fixed", "assumed": True,
+            "note": ("generalized discover 的搜索与等变裁决在 fixed 口径（事件"
+                     "钉死，动作名不随状态改名）下进行；若系统语义是动作可改名"
+                     "（relabel）或逐动作映射（explicit），请把本块改成相应显式"
+                     "声明——动作改名类对称不在自动发现范围，对照与自判指引见 "
+                     "docs/judge-semantics.md")}
+        _emit(payload)
+        return EXIT_REJECT if payload["trivial"] else EXIT_PASS
+    if (args.cap is not None or args.budget_seconds is not None) \
+            and not args.generalized:
+        raise InputError("--cap/--budget-seconds 仅与 --generalized 搭配"
+                         "（fixed 口径叶枚举上限 / 墙钟预算），单独给出无意义——"
+                         "拒绝静默忽略")
     # --preset robust（组合放开）= 三标志全开：canonize + extra +
     # multi（k 默认 8，--multi-label 可覆盖；种子由 --seed 控制可复现）。
     # 语义 = 实验层 C6 同口径（experiments_fullflags.json → judgment：
@@ -264,10 +312,36 @@ def build_parser():
                         "（任一配置臂群阶 > 当前 ⇒ 当前漏找被证明）+ 统计层（wl_gap"
                         "轨道/色类比，阈值预注册事前定死）。矩阵校准 AUC=1.0、两端"
                         "错误率 0（experiments_w3_discriminator.json；预注册口径，"
-                        "阈值事前定死——「无漏找证据」不是找全的证明）。开启时"
+                         "阈值事前定死——「无漏找证据」不是找全的证明）。开启时"
                         "自动补跑缺失配置臂（成本最高约 3 次 discover 级搜索 + 一次"
                         "canonize）；默认关闭、关闭时输出逐字节不变；**不改变退出码"
                         "语义**")
+    p.add_argument("--generalized", action="store_true", default=False,
+                   help="事件类模型的独立发现路径（fixed 口径）：对动作数超过"
+                        "状态位数的事件类模型（动作 = 外部事件，超出位串 discover "
+                        "适用域——不带本标志时此类模型入口即拒），在事件钉死"
+                        "（动作名原样对应）口径上用边标签 WL 细化 + 个体化-精化"
+                        "回溯搜索找状态置换自同构（stdlib 实现、无随机源）；候选"
+                        "全过 max TV=0 零容忍判据（与 check 的 fixed/strict 同一"
+                        "实现）。输出沿用 discover 形状（order/n_orbits/compression/"
+                        "orbits/generators[/elements]）并附 method="
+                        "\"generalized-labeled\" / truncated / cap 字段：触顶"
+                        "（--cap 叶枚举上限 / --budget-seconds 墙钟 / 闭包元素上限）"
+                        "即如实报 truncated=true、order 以 null 回应、orbits 为"
+                        "下界口径——不假精确。语义边界：动作改名类（relabel/"
+                        "explicit）对称不在自动发现范围，「哪种一样」必须声明"
+                        "（docs/judge-semantics.md）。与其他 discover 标志互斥"
+                        "（组合即报错退出码 3）。默认关；不带本标志行为与旧版"
+                        "逐位一致")
+    p.add_argument("--cap", type=int, default=None, metavar="N",
+                   help="generalized 搜索的叶枚举硬上限（默认 5000；触顶如实报 "
+                        "truncated=true）。仅与 --generalized 搭配，单独给出"
+                        "报错退出码 3")
+    p.add_argument("--budget-seconds", type=float, default=None, metavar="SEC",
+                   help="generalized 搜索的墙钟预算秒数（默认不设墙钟上限，仅由 "
+                        "--cap 兜底；触顶如实报 truncated=true——注意墙钟触顶"
+                        "使输出带运行时变异性，--cap 触顶则确定）。仅与 "
+                        "--generalized 搭配，单独给出报错退出码 3")
     p.set_defaults(func=cmd_discover)
 
     p = sub.add_parser("check", help="完整转移表版判定（转移等变 + 奖励剖面，均零容忍）")

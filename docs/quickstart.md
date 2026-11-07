@@ -184,7 +184,7 @@ rewards belong to the action, not the landing state. To estimate your own
 sample budget, read `diagnostics.thresholds.n_req_total` off the abstaining
 output rather than guessing.
 
-## 6. The six discover flags
+## 6. The seven discover flags
 
 | Flag | What it does | When to reach for it |
 |---|---|---|
@@ -194,9 +194,12 @@ output rather than guessing.
 | `--pad-aware` | Adds a quotient-graph arm for unreachable "padding" states, with candidates back-filled and judged identically | Models padded up to a power-of-two state count (anchor E12) |
 | `--report-confidence` | Appends a read-only `confidence` block: can the search be *proven* incomplete, and if not, how much does the statistics say to trust it | Always available; see the caveat below |
 | `--preset robust` | One-flag form of `--canonize --extra-candidates --multi-label 8` | The recommended entry point; the all-three combination reached the true group on 9/9 calibration environments (anchor E29) |
+| `--generalized` | Independent discovery path for event-class models (actions = external events, `n_actions > n_bits`): finds state permutations that pin every event name (the *fixed* caliber, same judge as `check` on a `semantics.action="fixed"` group) | Event-driven systems, where the default path refuses at the door with exit 3; see §6.1 |
 
-Flags compose freely; the judging criteria are identical on every path and
-never loosened by a flag.
+Six flags compose freely; the judging criteria are identical on every path and
+never loosened by a flag. The one exception is `--generalized`: it is a
+standalone path and rejects any combination with the other discover flags
+(exit 3, loudly — no silent fallback).
 
 **Caveat on `--report-confidence`:** its statistical layer's thresholds were
 calibrated on 115 instances drawn from 9 research environments (AUC 1.0,
@@ -205,6 +208,53 @@ state machine outside that distribution (anchor E19). Treat
 `statistical_suspicion` as a hint to investigate — certificates (proof level)
 and zero-tolerance check verdicts are the load-bearing outputs; the tool prints
 this caveat alongside the verdict itself.
+
+### 6.1 Event-class models: `--generalized`
+
+The bit-string search pipeline assumes action *a* means "flip bit *a*", so it
+requires `n_actions ≤ n_bits` and refuses event-class models (where actions are
+named external events, not bit flips). `--generalized` opens a separate path
+for exactly those models: it searches for state permutations that preserve the
+transition table with **every event pinned** (action name stays the same —
+the same zero-tolerance criterion `check` applies to a group declaring
+`semantics.action="fixed"`). Implementation: an edge-labeled multigraph
+(edges carry their event), 1-WL refinement, then individualization-refinement
+backtracking; every candidate must pass the zero-tolerance judge, so no false
+symmetry can slip in. Pure standard library, no randomness — same input, same
+output.
+
+```bash
+python -X utf8 -m wuxing_gua discover --trans examples/eventfsm_model.json --generalized
+```
+
+On the rung-1c TCP teaching fragment this finds the padding-state swap group —
+`"order": 24` (= 4! over the four interchangeable padding states), 5 orbits
+`[[0],[1],[2],[3,5,6,7],[4]]`, `truncated: false`, exit 0 — and *not* the
+tempting swap of states 1 and 2: the two states wait for different completion
+events (`rcv FIN` vs `rcv ACK of FIN`), so pinning events makes their swap a
+TV-1.0 violation, and the tool refuses it. Feed the output back to `check`
+(its `semantics` block ships pre-stamped `action="fixed"`) and it passes:
+24/24 elements at TV 0.0, reward layer clean.
+
+**Know the boundary — this is a *fixed*-caliber finder.** Action-renaming
+symmetries (relabel: actions follow state renamings; explicit: per-action
+declared maps) are **not** auto-discovered by any flag. Which things are "the
+same" must be declared by the model author — see `docs/judge-semantics.md`.
+As with every discover run, only transitions are examined, never rewards: run
+`check` on the found group before using it.
+
+**Truncation, honestly:** large models are bounded by `--cap N` (leaf
+enumerations, default 5000) and `--budget-seconds SEC`. When a bound is hit the
+payload says `truncated: true` (with the triggering bound in
+`diagnostics.truncated_by`), `order` is the exact size of the subgroup found so
+far — a *lower bound* on the true automorphism-group size, or `null` if even
+that subgroup is too large to enumerate — and orbits/compression are
+lower-bound readings. The generators themselves are always verified
+automorphisms; raise `--cap` and continue if you need more.
+
+*Deferred note: syncing the root READMEs (en/zh) and the CHANGELOG with this
+new flag is left to the in-flight documentation pass — 根 README 与 CHANGELOG
+的同步待第二写手落地窗口.*
 
 ## 7. Exit codes
 

@@ -1240,3 +1240,387 @@ def run_discover(model, canonize=False, multi_label=None, multi_label_seed=20261
         },
         "note": note,
     }
+
+
+# ===================================================================== generalized discover（--generalized）
+#
+# 纯新增段（上方既有字节零改动：位串管线 run_discover / _discover / 各标志路径
+# 与全部判据 import 一字未动——git diff 只有本段追加行可证）。
+#
+# ━━ 是什么 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+# 事件类模型（n_actions > n_bits，动作 = 外部事件）超出位串 discover 的适用域
+# （入口守卫见 run_discover：n_actions ≤ n_bits 才进位串管线）。本段给出独立
+# 路径 discover_generalized：在 **fixed 口径（事件钉死，动作名原样对应）** 上
+# 找状态置换自同构，算法三段（全部 stdlib，无第三方依赖、无随机源）：
+#   ① 建边标签多重图：状态 = 顶点，每条转移支持边 (s → u) 带事件标签 a
+#      （自环带显式自环旗标）；只看转移支持集结构（与既有 discover 的骨干图
+#      口径一致），概率与奖励不进图——判据层复核。
+#   ② 1-WL 细化（单调版）：顶点签名 = 逐事件的（出边邻居色多重集 + 入边邻居
+#      色多重集 + 自环旗标），cell 内按签名稳定切分、子 cell 按签名排序——
+#      全部签名都是自同构不变量，细化公平（不依赖顶点编号）。
+#   ③ 个体化-精化回溯：domain 侧不分支（每层取首个非单元 cell 首元为基点），
+#      image 侧在同位 cell 逐元分支，双侧同步细化；cell 尺寸序列不一致即剪枝
+#      （等变延拓必保持尺寸序列）；双侧离散即叶——位置映射即候选置换，过
+#      **零容忍判据**（core_check._equiv_error_strict：动作 a 在 π(s) 上仍是
+#      动作 a，max TV ≤ 1e-9，与 check 的 fixed/strict 判据同一实现，import
+#      复用未改写）方收为生成元。层级轨道剪枝：已验证生成元中「钉住当前
+#      image 前缀」者生成的子群，其轨道已覆盖的兄弟分支整枝跳过——被跳过
+#      子树的叶 π = h·(h⁻¹π)，h⁻¹π 是已探索兄弟子树的叶（已在群内），
+#      故 π 已在已得群内，跳过不丢生成元（搜索未触顶 ⇒ 找到的生成元生成
+#      **全部** fixed 自同构群）。
+#
+# ━━ 触顶语义（禁假精确）━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+#   · cap（叶枚举硬上限，默认 5000）/ budget_seconds（墙钟预算）/ 闭包元素
+#     上限三者任一触顶 ⇒ payload truncated=true，order=null（阶不再声称精确），
+#     orbits/n_orbits/compression 只反映已发现生成元生成的子群——真轨道可能
+#     更大（合并更多状态），此处是**下界**口径；generators 仍全部是已验证的
+#     真自同构（零容忍判据，不可能引入伪自同构）。
+#   · 未触顶 ⇒ 生成元生成整个 fixed 自同构群：order/orbits 精确，elements 为
+#     全群枚举（闭包元素超上限时例外：elements 省略、order=null、truncated=true，
+#     如实降级）。
+#   · 计时一律量级桶（_sec_magnitude），不写精确耗时。
+#
+# ━━ 语义边界（写进文档与 payload note）━━━━━━━━━━━━━━━━━━━━━━━━━━━
+# 动作改名类对称（relabel：动作随状态换名；explicit：逐动作声明映射）**不在
+# 自动发现范围**——本路径的判据要求动作名原样对应（事件钉死）。「哪种一样」
+# 必须由模型作者声明（群文件 semantics 块，docs/judge-semantics.md）。
+#
+# discover 只看转移不看奖励：发现的群还须过 check 的奖励剖面层（payload note
+# 沿用既有提醒）。
+_GEN_METHOD = "generalized-labeled"
+_GEN_LEAF_CAP_DEFAULT = 5000     # 叶枚举硬上限缺省值（--cap 可覆盖）
+_GEN_TV_TOL = 1e-9               # 与 discover 的 tol 缺省 / core_check.TV_TOL 同口径
+_GEN_ELEMENT_MAX = 200000        # 闭包元素绝对上限（内存护栏）
+_GEN_CELL_BUDGET = 1500000       # 闭包 元素×状态数 预算（大状态数自适应收缩）
+
+
+class _GenStop(Exception):
+    """搜索触顶（cap/墙钟）的内部解缠信号；reason ∈ {"leaves", "budget"}。"""
+
+
+def _gen_support(trans, n_acts):
+    """转移表 → 支持集结构：succ[s][a] = 正概率后继 frozenset（边标签多重图的
+    邻接）；radj[s][a] = 指向 s 的同标签边源头 frozenset。只取支持集（概率结构
+    交判据复核；与既有 discover 骨干图同口径——骨干取最优后继、此处取全支持）。"""
+    NS = len(trans)
+    succ = []
+    radj = [[set() for _ in range(n_acts)] for _ in range(NS)]
+    for s in range(NS):
+        row = []
+        for a in range(n_acts):
+            ss = frozenset(u for (p, u, _r) in trans[s][a] if p > 0.0)
+            row.append(ss)
+            for u in ss:
+                radj[u][a].add(s)
+        succ.append(row)
+    return succ, radj
+
+
+def _gen_signature(v, color, succ, radj, n_acts):
+    """顶点 v 的 WL 签名（自同构不变量）：逐事件的出边/入边邻居色多重集 +
+    自环旗标。签名相等的顶点才可能被同一自同构互映。"""
+    out = []
+    for a in range(n_acts):
+        ss = succ[v][a]
+        out.append((a, v in ss, tuple(sorted(color[u] for u in ss))))
+    in_ = []
+    for a in range(n_acts):
+        rs = radj[v][a]
+        in_.append((a, tuple(sorted(color[w] for w in rs))))
+    return (tuple(out), tuple(in_))
+
+
+def _gen_refine(cells, color, succ, radj, n_acts, NS, deadline):
+    """1-WL 细化（单调、公平、确定）：cell 内按签名稳定切分，子 cell 按签名
+    排序；cell 只分裂不合并、不跨 cell 重排 ⇒ 有序分区逐位对应关系在细化下
+    保持（个体化-精化的位置对应不变式）。color 是与 cells 同步的顶点色数组
+    （本函数内更新到细化后的分区）。"""
+    while True:
+        if deadline is not None and time.perf_counter() > deadline:
+            raise _GenStop("budget")
+        new_cells = []
+        for c in cells:
+            if len(c) == 1:
+                new_cells.append(c)
+                continue
+            groups = {}
+            for v in c:
+                sig = _gen_signature(v, color, succ, radj, n_acts)
+                groups.setdefault(sig, []).append(v)
+            if len(groups) == 1:
+                new_cells.append(c)
+                continue
+            for sig in sorted(groups):
+                new_cells.append(groups[sig])
+        if len(new_cells) <= len(cells):
+            return cells                                   # 稳定（不再分裂）
+        cells = new_cells
+        for i, c in enumerate(cells):
+            ci = i
+            for v in c:
+                color[v] = ci
+
+
+def _gen_individualize(cells, k, v):
+    """把 cell k 中的 v 提为独立单 cell（置于该 cell 槽位首位，其余跟随）。
+    纯函数：返回新分区列表，旧分区不变（回溯 = 丢弃）。"""
+    rest = [x for x in cells[k] if x != v]
+    return cells[:k] + [[v], rest] + cells[k + 1:]
+
+
+def _gen_orbit(w, gens):
+    """w 在 ⟨gens⟩ 下的轨道（正向闭包即可：有限群中生成元的半群 = 群）。"""
+    seen = {w}
+    frontier = [w]
+    while frontier:
+        x = frontier.pop()
+        for g in gens:
+            y = g[x]
+            if y not in seen:
+                seen.add(y)
+                frontier.append(y)
+    return seen
+
+
+def _gen_search(trans, n_acts, succ, radj, cells0, cap, deadline):
+    """个体化-精化回溯主搜索。返回 (生成元列表[原编号], 统计 dict, 触顶原因列表)。
+
+    触顶以 _GenStop 解缠；cap 计叶（含恒等叶与被拒叶）；每叶都过零容忍判据，
+    判据不过不收（不可能引入伪自同构）。无随机源：同输入同读数（墙钟触顶
+    例外——如实报 truncated）。"""
+    NS = len(trans)
+    stats = {"n_nodes": 0, "n_leaves": 0, "n_verified": 0, "n_identity_leaves": 0,
+             "n_rejected": 0, "n_pruned_orbit": 0, "n_pruned_mismatch": 0}
+    gens = []
+    truncated_by = []
+    ident = list(range(NS))
+    color0 = [0] * NS
+    cells0 = _gen_refine(cells0, color0, succ, radj, n_acts, NS, deadline)
+    if all(len(c) == 1 for c in cells0):
+        # 根分区已离散：色类都是自同构不变量 ⇒ 每个顶点被钉死 ⇒ Aut 平凡。
+        stats["n_nodes"] = 1
+        return [], stats, truncated_by
+
+    def _leaf(cells_d, cells_i):
+        stats["n_leaves"] += 1
+        if stats["n_leaves"] > cap:
+            raise _GenStop("leaves")
+        phi = [0] * NS
+        for cd, ci in zip(cells_d, cells_i):
+            phi[cd[0]] = ci[0]
+        if phi == ident:
+            stats["n_identity_leaves"] += 1
+            return
+        # 零容忍判据（fixed 口径，与 check strict 同一实现，import 复用未改写）
+        from .core_check import _equiv_error_strict
+        e, _n = _equiv_error_strict(trans, phi, n_acts)
+        if e <= _GEN_TV_TOL:
+            gens.append(phi)
+            stats["n_verified"] += 1
+        else:
+            stats["n_rejected"] += 1
+
+    def _rec(cells_d, cells_i, prefix):
+        stats["n_nodes"] += 1
+        if deadline is not None and time.perf_counter() > deadline:
+            raise _GenStop("budget")
+        ti = next((i for i, c in enumerate(cells_d) if len(c) > 1), None)
+        if ti is None:
+            _leaf(cells_d, cells_i)
+            return
+        u = cells_d[ti][0]                     # domain 侧基点（不分支）
+        # 层级轨道剪枝：只取「钉住当前 image 前缀」的已验证生成元——其生成的
+        # 子群轨道覆盖的兄弟分支可整枝（被跳过子树的叶 π = h·(h⁻¹π)，其中
+        # h 钉住前缀、h⁻¹π 是已探索兄弟子树的叶 ⇒ 已在群内 ⇒ π 已在群内）。
+        stab = [g for g in gens if all(g[c] == c for c in prefix)]
+        covered = set()
+        for w in cells_i[ti]:
+            if w in covered:
+                stats["n_pruned_orbit"] += 1
+                continue
+            d2 = _gen_individualize(cells_d, ti, u)
+            i2 = _gen_individualize(cells_i, ti, w)
+            cd2 = list(color0)
+            for i, c in enumerate(d2):
+                for v in c:
+                    cd2[v] = i
+            ci2 = list(color0)
+            for i, c in enumerate(i2):
+                for v in c:
+                    ci2[v] = i
+            d3 = _gen_refine(d2, cd2, succ, radj, n_acts, NS, deadline)
+            i3 = _gen_refine(i2, ci2, succ, radj, n_acts, NS, deadline)
+            if [len(c) for c in d3] == [len(c) for c in i3]:
+                _rec(d3, i3, prefix + [w])
+            else:
+                stats["n_pruned_mismatch"] += 1
+            if stab:
+                covered |= _gen_orbit(w, stab)
+
+    try:
+        _rec(cells0, cells0, [])
+    except _GenStop as stop:
+        truncated_by.append(str(stop))
+    return gens, stats, truncated_by
+
+
+def _gen_closure_capped(gens, NS, max_elements):
+    """BFS 闭包（复合约定与 closure_perms 同：y = g∘x ⇒ y[i] = g[x[i]]）。
+    元素数超 max_elements 即返回 None（调用方如实降级，不硬枚举）。发现序
+    输出（从恒等元 BFS），同输入同序列（确定）。"""
+    ident = tuple(range(NS))
+    seen = {ident}
+    order = [ident]
+    frontier = [ident]
+    while frontier:
+        x = frontier.pop()
+        for g in gens:
+            y = tuple(g[x[i]] for i in range(NS))
+            if y not in seen:
+                if len(seen) >= max_elements:
+                    return None
+                seen.add(y)
+                order.append(y)
+                frontier.append(y)
+    return [list(t) for t in order]
+
+
+def discover_generalized(model, cap=_GEN_LEAF_CAP_DEFAULT, budget_seconds=None):
+    """事件类模型的 generalized discover（--generalized 路径，fixed 口径）。
+
+    对 n_actions > n_bits 的事件类模型（动作 = 外部事件，超出位串 discover
+    适用域——见 run_discover 入口守卫），在 **fixed 口径（事件钉死，动作名
+    原样对应）** 上自动找状态置换自同构：边标签多重图 → 1-WL 细化 → 个体化-
+    精化回溯（算法与触顶/剪枝口径见本段头注）。判据 import 复用
+    core_check._equiv_error_strict（check 的 fixed/strict 同一实现，零容忍
+    max TV ≤ 1e-9，未改写）；轨道复用 experiments_e1.orbits_of；闭包复合约定
+    与 closure_perms 同。位串管线（run_discover 及其全部标志路径）一字未动。
+
+    参数：
+      cap             叶枚举硬上限（默认 5000）。触顶 ⇒ truncated=true、
+                      order=null、orbits 为下界口径（见头注「触顶语义」）。
+      budget_seconds  墙钟预算（秒；None = 不设墙钟上限，仅 cap 兜底）。触顶
+                      同上；注意墙钟触顶使输出带运行时变异性（cap 触顶确定）。
+
+    返回 discover payload（沿用 discover 形状：order/n_orbits/compression/
+    orbits/generators [+elements]），新字段 method="generalized-labeled" /
+    truncated / cap。语义边界：动作改名类（relabel/explicit）对称不在自动
+    发现范围——「哪种一样」必须声明（docs/judge-semantics.md）。
+    """
+    from .core_check import _equiv_error_strict   # 判据复用（惰性，同既有风格）
+
+    if not (_is_int_like(cap) and cap >= 1):
+        raise InputError("cap 必须是 ≥1 的整数（叶枚举硬上限），实得 %r" % (cap,))
+    if budget_seconds is not None and not (isinstance(budget_seconds, (int, float))
+                                           and budget_seconds > 0):
+        raise InputError("budget_seconds 必须是 >0 的数（墙钟预算秒数），实得 %r"
+                         % (budget_seconds,))
+
+    trans, n_acts, NS = model["trans"], model["n_actions"], model["n_states"]
+    _ensure_recursion_depth(NS)     # 回溯递归护栏（NS≤872 零触碰，既有函数复用）
+    deadline = (time.perf_counter() + float(budget_seconds)
+                if budget_seconds is not None else None)
+
+    succ, radj = _gen_support(trans, n_acts)
+    cells0 = [list(range(NS))]
+    t0 = time.perf_counter()
+    gens, stats, truncated_by = _gen_search(trans, n_acts, succ, radj, cells0,
+                                            cap, deadline)
+    sec_search = _sec_magnitude(time.perf_counter() - t0)
+
+    max_elements = max(512, min(_GEN_ELEMENT_MAX, _GEN_CELL_BUDGET // max(1, NS)))
+    G = None
+    if gens:
+        t1 = time.perf_counter()
+        G = _gen_closure_capped(gens, NS, max_elements)
+        sec_closure = _sec_magnitude(time.perf_counter() - t1)
+        if G is None:
+            truncated_by.append("elements")
+    else:
+        sec_closure = "<0.1s"
+    truncated = bool(truncated_by)
+
+    # 轨道：orbits_of（既有 import）对生成元列表直接给 ⟨gens⟩ 的轨道
+    # （并查集按生成元映像合并），无需全群枚举——触顶/闭包超限时依然成立。
+    orbits = sorted((sorted(ob) for ob in orbits_of(gens, NS)), key=lambda o: o[0])
+    trivial = not gens
+    if trivial:
+        order = 1
+    elif G is not None:
+        order = len(G)
+    else:
+        order = None                                # 不假精确：阶不可枚举即 null
+    if gens and G is not None:
+        generators = _compact_generators(G, NS)     # 既有输出层 helper（闭包断言在内）
+    else:
+        generators = [list(g) for g in gens]
+
+    if trivial:
+        note = ("仅找到平凡群（阶 1）：fixed 口径（事件钉死）下未发现非平凡对称 "
+                "⇒ 按判据拒答（退出码 1）。注意：本口径下动作改名类（relabel/"
+                "explicit）对称不在自动发现范围——「哪种一样」必须声明；"
+                "discover 只看转移、不看奖励，发现的群还须过 check 的奖励剖面层")
+    elif truncated:
+        note = ("触顶如实降级（truncated=true，触顶项：%s）：以下读数只反映已发现"
+                "生成元生成的子群——order 是该子群的精确阶（只是 |Aut| 的下界；"
+                "子群枚举超元素上限时 order=null、elements 省略，不假精确），"
+                "orbits/n_orbits/compression 是下界口径（真轨道可能合并更多状态）；"
+                "generators 全部是已过 max TV=0 零容忍判据的真自同构（不可能引入"
+                "伪自同构），可增大 --cap / --budget-seconds 续搜。注意：动作改名"
+                "类（relabel/explicit）对称不在自动发现范围；discover 只看转移、"
+                "不看奖励，发现的群还须过 check 的奖励剖面层"
+                % "+".join(truncated_by))
+    else:
+        note = ("未触顶：生成元生成完整的 fixed 口径（事件钉死）自同构群，"
+                "order/orbits 为精确读数。注意：动作改名类（relabel/explicit）"
+                "对称不在自动发现范围——「哪种一样」必须声明（群文件 semantics 块，"
+                "docs/judge-semantics.md）；discover 只看转移、不看奖励，发现的群"
+                "还须过 check 的奖励剖面层")
+
+    payload = {
+        "command": "discover",
+        "method": _GEN_METHOD,
+        "n_bits": model["n_bits"], "n_states": NS, "n_actions": n_acts,
+        "order": order,
+        "trivial": trivial,
+        "n_orbits": len(orbits),
+        "compression": (NS / len(orbits)) if orbits else None,
+        "orbits": orbits,
+        "generators": generators,
+        "truncated": truncated,
+        "cap": cap,
+        "diagnostics": {
+            "search": stats,
+            "truncated_by": truncated_by,
+            "budget_seconds": budget_seconds,
+            "sec_magnitudes": {"search": sec_search, "closure": sec_closure},
+            "closure_elements_cap": max_elements,
+            "n_gens": len(gens),
+            "determinism": ("无随机源：同输入同读数（墙钟触顶例外，如实报 truncated）"),
+        },
+        # completeness 评估器的仿射探针按位串动作口径构造（假设
+        # n_states = 2^n_actions 且动作 = 翻位），对 fixed 口径（动作钉死）
+        # 不适用——如实跳过、不输出误导性评分；判据本身（零容忍等变裁决）
+        # 照常执行。触顶/完整性语义由 truncated/cap 字段承担。
+        "completeness": {
+            "skipped": True,
+            "reason": ("completeness 评估器的仿射探针按位串动作口径构造"
+                       "（动作 = 翻第 a 位），generalized 路径在 fixed 口径"
+                       "（动作钉死）上搜索，探针不适用——如实跳过；零容忍判据"
+                       "不受影响，完整性语义由 truncated/cap 字段承担"),
+        },
+        "note": note,
+    }
+    if G is not None:
+        payload["elements"] = [list(g) for g in G]
+    else:
+        payload["elements_note"] = ("elements 省略：闭包元素数超上限（closure "
+                                    "elements cap=%d），全群未枚举（不假精确）；"
+                                    "generators 仍是已验证的真生成元" % max_elements)
+    return payload
+
+
+def _is_int_like(v):
+    """int 严格判定（bool 排除；与 core_check._is_int 同口径的本地副本——
+    那是私有函数且判据文件禁碰，这里只判 cap 参数，不涉判据）。"""
+    return isinstance(v, int) and not isinstance(v, bool)
